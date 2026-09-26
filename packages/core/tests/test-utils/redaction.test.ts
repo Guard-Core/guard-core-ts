@@ -112,3 +112,16 @@ describe('redactHeaderValueForDisplay', () => {
     expect(redactHeaderValueForDisplay('', [], [], [])).toBe('');
   });
 });
+
+describe('redactPairsInText adversarial inputs', () => {
+  it('stays correct and linear-ish on long percent and quote runs', () => {
+    const percentRun = 'a'.repeat(2000) + '%'.repeat(2000);
+    const quoteRun = '"' + 'q'.repeat(5000);
+    const sensitive = new Set(['token']);
+    const start = process.hrtime.bigint();
+    expect(redactPairsInText(`token=${percentRun}`, sensitive)).toContain('[REDACTED]');
+    expect(redactPairsInText(quoteRun, sensitive)).toBe(quoteRun);
+    const elapsedMs = Number(process.hrtime.bigint() - start) / 1e6;
+    expect(elapsedMs).toBeLessThan(500);
+  });
+});

@@ -101,8 +101,11 @@ function redactJsonText(
 
 /* Pair scanning for non-JSON text: mask the value of `name=value` and
    `name: value` assignments whose name is sensitive (quotes tolerated, one
-   bounded percent-decode round on the name, the twin of _redact_pairs_in_text). */
-const PAIR_HEAD_RE = /(?:"([^"]+)"|'([^']+)'|([A-Za-z0-9_.\-+%]+))\s*[=:]\s*/g;
+   bounded percent-decode round on the name, the twin of _redact_pairs_in_text).
+   The pattern is written backtrack-free (single-char-class name, mirrored
+   quote reference, no nested quantifiers) so it stays linear on adversarial
+   inputs like long '%' or quote runs. */
+const PAIR_HEAD_RE = /(["']?)([A-Za-z0-9_.\-+%]+)\1[=:]\s*/g;
 
 export function redactPairsInText(
   text: string,
@@ -112,12 +115,11 @@ export function redactPairsInText(
   let last = 0;
   PAIR_HEAD_RE.lastIndex = 0;
   for (let m = PAIR_HEAD_RE.exec(text); m !== null; m = PAIR_HEAD_RE.exec(text)) {
-    const rawName = m[1] ?? m[2] ?? m[3] ?? '';
+    const rawName = m[2] ?? '';
     const decodedName = boundedPercentDecode(rawName, decodeURIComponent).trim().toLowerCase();
     if (!sensitive.has(decodedName)) continue;
     // Keep everything up to and including the separator, mask the value run.
-    const sepMatch = /[=:]\s*/.exec(text.slice(m.index));
-    const valueStart = m.index + (sepMatch ? sepMatch.index + sepMatch[0].length : m[0].length);
+    const valueStart = m.index + m[0].length;
     let end = valueStart;
     const quote = text[valueStart];
     if (quote === '"' || quote === "'") {
