@@ -245,3 +245,53 @@ describe('SecurityConfigSchema', () => {
     expect(config.excludePaths).toEqual(['/health', '/metrics']);
   });
 });
+
+describe('SecurityConfigSchema failure-policy and redaction knobs', () => {
+  it('defaults failSecure to true and the opt-out knobs to false', () => {
+    const config = SecurityConfigSchema.parse({});
+    expect(config.failSecure).toBe(true);
+    expect(config.redisFailOpen).toBe(false);
+    expect(config.routeResolutionStrict).toBe(false);
+  });
+
+  it('defaults the log redaction sets to empty and the hooks to undefined', () => {
+    const config = SecurityConfigSchema.parse({});
+    expect(config.logSensitiveHeaders).toEqual([]);
+    expect(config.logSensitiveParams).toEqual([]);
+    expect(config.logSensitiveBodyFields).toEqual([]);
+    expect(config.onBlock).toBeUndefined();
+    expect(config.onError).toBeUndefined();
+  });
+
+  it('accepts explicitly set failure-policy and redaction values', () => {
+    const onBlock = () => undefined;
+    const onError = () => undefined;
+    const config = SecurityConfigSchema.parse({
+      failSecure: false,
+      redisFailOpen: true,
+      routeResolutionStrict: true,
+      onBlock,
+      onError,
+      logSensitiveHeaders: ['X-Custom-Secret'],
+      logSensitiveParams: ['ssn'],
+      logSensitiveBodyFields: ['card_number'],
+    });
+    expect(config.failSecure).toBe(false);
+    expect(config.redisFailOpen).toBe(true);
+    expect(config.routeResolutionStrict).toBe(true);
+    expect(config.onBlock).toBe(onBlock);
+    expect(config.onError).toBe(onError);
+    expect(config.logSensitiveHeaders).toEqual(['X-Custom-Secret']);
+    expect(config.logSensitiveParams).toEqual(['ssn']);
+    expect(config.logSensitiveBodyFields).toEqual(['card_number']);
+  });
+
+  it('rejects invalid failure-policy values (fail-closed validation)', () => {
+    expect(() => SecurityConfigSchema.parse({ failSecure: 'yes' })).toThrow();
+    expect(() => SecurityConfigSchema.parse({ redisFailOpen: 1 })).toThrow();
+    expect(() => SecurityConfigSchema.parse({ routeResolutionStrict: null })).toThrow();
+    expect(() => SecurityConfigSchema.parse({ logSensitiveHeaders: 'authorization' })).toThrow();
+    expect(() => SecurityConfigSchema.parse({ logSensitiveParams: [42] })).toThrow();
+    expect(() => SecurityConfigSchema.parse({ logSensitiveBodyFields: [null] })).toThrow();
+  });
+});

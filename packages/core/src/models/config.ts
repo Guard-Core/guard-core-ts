@@ -167,6 +167,38 @@ export const SecurityConfigSchema = z.object({
   enableDynamicRules: z.boolean().default(false),
   dynamicRuleInterval: z.number().int().positive().default(300),
 
+  /* Failure-policy knobs, the TS port of the reference's fail_secure,
+     redis_fail_open and route_resolution_strict (guard_core/_security_config_fields.py).
+     fail_secure blocks with 500 when any check raises; redis_fail_open opts Redis
+     outages (GuardRedisError) out of that and skips the failing check instead;
+     route_resolution_strict blocks with 500 when the adapter could not resolve
+     the route. */
+  failSecure: z.boolean().default(true),
+  redisFailOpen: z.boolean().default(false),
+  routeResolutionStrict: z.boolean().default(false),
+
+  /* Best-effort callback invoked when a middleware/agent step fails, receiving
+     (stage, error, context). Stage is one of 'agent_init', 'geoip',
+     'transport_send', 'encryption'. A callback that raises is caught and logged,
+     never propagated. Reference: on_error. */
+  onError: z.custom<(stage: string, error: unknown, context: Record<string, unknown>) => void>().optional(),
+
+  /* Best-effort callback invoked exactly once per blocked request, receiving
+     (request, payload). Payload keys: check_name, reason, trigger_info,
+     passive_mode, client_ip, path, method, status_code. Not fired for
+     custom_request, route_config.custom_validators, or the HTTPS-enforcement
+     redirect. A callback that raises is caught and logged, never propagated.
+     Reference: on_block. */
+  onBlock: z.custom<(request: GuardRequest, payload: Record<string, unknown>) => unknown>().optional(),
+
+  /* Log-redaction config, the TS port of log_sensitive_headers,
+     log_sensitive_params and log_sensitive_body_fields: names are matched
+     case-insensitively and merged with the hardcoded default sets
+     (redaction.ts DEFAULT_SENSITIVE_LOG_HEADERS / DEFAULT_SENSITIVE_LOG_FIELDS). */
+  logSensitiveHeaders: z.array(z.string()).default([]),
+  logSensitiveParams: z.array(z.string()).default([]),
+  logSensitiveBodyFields: z.array(z.string()).default([]),
+
 }).superRefine((data, ctx) => {
   const unknownCategories = Object.keys(data.threatBanConfig)
     .filter((category) => !THREAT_BAN_CONFIG_CATEGORIES.has(category));

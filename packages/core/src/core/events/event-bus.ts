@@ -3,6 +3,7 @@ import type { Logger } from '../../models/logger.js';
 import type { AgentHandlerProtocol } from '../../protocols/agent.js';
 import type { GeoIPHandler } from '../../protocols/geo-ip.js';
 import type { GuardRequest } from '../../protocols/request.js';
+import { invokeErrorHook } from '../block-events.js';
 
 export class SecurityEventBus {
   constructor(
@@ -26,7 +27,11 @@ export class SecurityEventBus {
       let country: string | null = null;
 
       if (this.geoIpHandler) {
-        try { country = this.geoIpHandler.getCountry(clientIp); } catch { /* ignore */ }
+        try {
+          country = this.geoIpHandler.getCountry(clientIp);
+        } catch (e) {
+          invokeErrorHook(this.config.onError, 'geoip', e, { clientIp }, this.logger);
+        }
       }
 
       await this.agentHandler.sendEvent({
@@ -43,6 +48,9 @@ export class SecurityEventBus {
       });
     } catch (e) {
       this.logger.error(`Failed to send security event: ${e}`);
+      invokeErrorHook(
+        this.config.onError, 'transport_send', e, { eventType }, this.logger,
+      );
     }
   }
 

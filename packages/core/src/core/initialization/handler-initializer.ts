@@ -10,6 +10,7 @@ import { RateLimitManager } from '../../handlers/rate-limit.js';
 import { RedisManager } from '../../handlers/redis.js';
 import { SecurityHeadersManager } from '../../handlers/security-headers.js';
 import { SusPatternsManager } from '../../handlers/sus-patterns.js';
+import { invokeErrorHook } from '../block-events.js';
 
 export interface HandlerRegistry {
   redisHandler: RedisManager | null;
@@ -79,10 +80,15 @@ export class HandlerInitializer {
     }
 
     if (this.agentHandler) {
-      await this.initializeAgentIntegrations(
-        ipBanHandler, rateLimitHandler, cloudHandler,
-        susPatternsHandler, dynamicRuleHandler, redisHandler,
-      );
+      try {
+        await this.initializeAgentIntegrations(
+          ipBanHandler, rateLimitHandler, cloudHandler,
+          susPatternsHandler, dynamicRuleHandler, redisHandler,
+        );
+      } catch (e) {
+        this.logger.error(`Agent initialization failed: ${e}`);
+        invokeErrorHook(this.config.onError, 'agent_init', e, {}, this.logger);
+      }
     }
 
     this.configureSecurityHeaders(securityHeadersHandler);
