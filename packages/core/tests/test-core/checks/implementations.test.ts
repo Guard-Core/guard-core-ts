@@ -190,7 +190,7 @@ describe('RequiredHeadersCheck', () => {
     const mw = createMockMiddleware();
     const check = new RequiredHeadersCheck(mw);
     const rc = new RouteConfig();
-    rc.requiredHeaders = { 'x-api-key': '' };
+    rc.requiredHeaders = { 'x-api-key': 'required' };
     const req = createMockRequest({ headers: { 'x-api-key': 'abc123', 'user-agent': 'Test' } });
     attachRouteConfig(req, rc);
     expect(await check.check(req)).toBeNull();
@@ -231,9 +231,11 @@ describe('AuthenticationCheck', () => {
     const check = new AuthenticationCheck(mw);
     const rc = new RouteConfig();
     rc.authRequired = 'bearer';
+    rc.authVerifier = (request, credential) => ({ user: credential });
     const req = createMockRequest({ headers: { authorization: 'Bearer abc123', 'user-agent': 'Test' } });
     attachRouteConfig(req, rc);
     expect(await check.check(req)).toBeNull();
+    expect((req.state as Record<string, unknown>)['auth_principal']).toEqual({ user: 'abc123' });
   });
 
   it('blocks missing API key', async () => {
@@ -253,9 +255,12 @@ describe('AuthenticationCheck', () => {
     const check = new AuthenticationCheck(mw);
     const rc = new RouteConfig();
     rc.apiKeyRequired = true;
+    rc.apiKeyHeader = 'X-API-Key';
+    rc.apiKeyVerifier = (request, credential) => ({ key: credential });
     const req = createMockRequest({ headers: { 'x-api-key': 'key123', 'user-agent': 'Test' } });
     attachRouteConfig(req, rc);
     expect(await check.check(req)).toBeNull();
+    expect((req.state as Record<string, unknown>)['auth_principal']).toEqual({ key: 'key123' });
   });
 
   it('passive mode for bearer', async () => {

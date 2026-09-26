@@ -113,6 +113,11 @@ export const SecurityConfigSchema = z.object({
   customRequestCheck: z.custom<(req: GuardRequest) => Promise<GuardResponse | null>>().optional(),
   customResponseModifier: z.custom<(res: GuardResponse) => Promise<GuardResponse>>().optional(),
 
+  /* Default verifier callable for requireAuth and apiKeyAuth routes without
+     their own verifier: verifier(request, credential) -> Principal | null.
+     Sync or async. Reference: auth_verifier. */
+  authVerifier: z.custom<(request: GuardRequest, credential: string) => unknown>().optional(),
+
   enableCors: z.boolean().default(false),
   corsAllowOrigins: z.array(z.string()).default(['*']),
   corsAllowMethods: z.array(z.string()).default(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']),

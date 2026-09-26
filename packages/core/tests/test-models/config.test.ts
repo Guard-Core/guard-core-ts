@@ -295,3 +295,19 @@ describe('SecurityConfigSchema failure-policy and redaction knobs', () => {
     expect(() => SecurityConfigSchema.parse({ logSensitiveBodyFields: [null] })).toThrow();
   });
 });
+
+describe('SecurityConfigSchema authVerifier', () => {
+  it('defaults to undefined and accepts a verifier callable', () => {
+    const config = SecurityConfigSchema.parse({});
+    expect(config.authVerifier).toBeUndefined();
+
+    const verifier = () => 'principal';
+    const configured = SecurityConfigSchema.parse({ authVerifier: verifier });
+    expect(configured.authVerifier).toBe(verifier);
+  });
+
+  it('does not runtime-validate the callable shape (z.custom duck typing, like customRequestCheck)', () => {
+    expect(SecurityConfigSchema.parse({ authVerifier: 'not-a-function' }).authVerifier)
+      .toBe('not-a-function');
+  });
+});

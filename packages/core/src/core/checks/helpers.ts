@@ -121,6 +121,26 @@ export function validateAuthHeader(authHeader: string, authType: string): [boole
   return [true, ''];
 }
 
+/* The twin of extract_credential (guard_core/core/checks/helpers.py): returns
+   [credential, ''] on success or [null, reason] on failure. */
+export function extractCredential(authHeader: string, authType: string): [string | null, string] {
+  if (authType === 'bearer') {
+    if (!authHeader.startsWith('Bearer ')) return [null, 'Missing or invalid Bearer token'];
+    return [authHeader.slice('Bearer '.length), ''];
+  }
+  if (authType === 'basic') {
+    if (!authHeader.startsWith('Basic ')) return [null, 'Missing or invalid Basic authentication'];
+    return [authHeader.slice('Basic '.length), ''];
+  }
+  if (!authHeader) return [null, `Missing ${authType} authentication`];
+  return [authHeader, ''];
+}
+
+/* The twin of resolve_verifier_result (guard_core/core/checks/_verifier.py). */
+export async function resolveVerifierResult<T>(value: T | Promise<T>): Promise<T> {
+  return value instanceof Promise ? await value : value;
+}
+
 export function isReferrerDomainAllowed(referrer: string, allowedDomains: string[]): boolean {
   try {
     const url = new URL(referrer);

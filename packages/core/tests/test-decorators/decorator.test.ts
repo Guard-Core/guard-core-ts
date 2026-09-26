@@ -238,7 +238,62 @@ describe('SecurityDecorator', () => {
     guard.apiKeyAuth('X-Custom-Key')(handler);
     const rc = guard.getRouteConfig((handler as Record<string, unknown>)['_guardRouteId'] as string);
     expect(rc?.apiKeyRequired).toBe(true);
-    expect(rc?.requiredHeaders).toHaveProperty('X-Custom-Key');
+    expect(rc?.apiKeyHeader).toBe('X-Custom-Key');
+    expect(rc?.requiredHeaders['X-Custom-Key']).toBe('required');
+  });
+
+  it('requireAuth stores the scheme and route verifier', () => {
+    const config = SecurityConfigSchema.parse({});
+    const guard = new SecurityDecorator(config);
+    function handler() {}
+    const verifier = () => 'principal';
+    guard.requireAuth('basic', verifier)(handler);
+    const rc = guard.getRouteConfig((handler as Record<string, unknown>)['_guardRouteId'] as string);
+    expect(rc?.authRequired).toBe('basic');
+    expect(rc?.authVerifier).toBe(verifier);
+  });
+
+  it('apiKeyAuth stores the route verifier', () => {
+    const config = SecurityConfigSchema.parse({});
+    const guard = new SecurityDecorator(config);
+    function handler() {}
+    const verifier = () => 'principal';
+    guard.apiKeyAuth('X-Custom-Key', verifier)(handler);
+    const rc = guard.getRouteConfig((handler as Record<string, unknown>)['_guardRouteId'] as string);
+    expect(rc?.apiKeyVerifier).toBe(verifier);
+  });
+
+  it('requireAuthorizationHeader sets the presence-only scheme and is mutually exclusive', () => {
+    const config = SecurityConfigSchema.parse({});
+    const guard = new SecurityDecorator(config);
+    function handler() {}
+    guard.requireAuthorizationHeader('basic')(handler);
+    const rc = guard.getRouteConfig((handler as Record<string, unknown>)['_guardRouteId'] as string);
+    expect(rc?.authorizationHeaderRequired).toBe('basic');
+  });
+
+  it('requireAuthorizationHeader rejects combination with requireAuth', () => {
+    const config = SecurityConfigSchema.parse({});
+    const guard = new SecurityDecorator(config);
+    function handler() {}
+    guard.requireAuth('bearer')(handler);
+    expect(() => guard.requireAuthorizationHeader()(handler)).toThrow();
+  });
+
+  it('requireAuth rejects combination with requireAuthorizationHeader', () => {
+    const config = SecurityConfigSchema.parse({});
+    const guard = new SecurityDecorator(config);
+    function handler() {}
+    guard.requireAuthorizationHeader()(handler);
+    expect(() => guard.requireAuth('bearer')(handler)).toThrow();
+  });
+
+  it('apiKeyAuth rejects combination with requireAuthorizationHeader', () => {
+    const config = SecurityConfigSchema.parse({});
+    const guard = new SecurityDecorator(config);
+    function handler() {}
+    guard.requireAuthorizationHeader()(handler);
+    expect(() => guard.apiKeyAuth()(handler)).toThrow();
   });
 
   it('requireHeaders sets required headers', () => {
