@@ -12,6 +12,17 @@ export class RouteConfig {
   bypassedChecks: Set<string> = new Set();
   requireHttps = false;
   authRequired: string | null = null;
+  /* The reference RouteConfig auth surface
+     (guard_core/decorators/route_config.py): verifier callables receive
+     (request, credential) and resolve to a principal (or a promise of one);
+     apiKeyHeader names the header the api_key_auth credential is read from;
+     authorizationHeaderRequired is the presence-only scheme set by
+     require_authorization_header and is mutually exclusive with
+     authRequired / apiKeyRequired. */
+  authVerifier: ((request: GuardRequest, credential: string) => unknown) | null = null;
+  apiKeyVerifier: ((request: GuardRequest, credential: string) => unknown) | null = null;
+  apiKeyHeader: string | null = null;
+  authorizationHeaderRequired: string | null = null;
   customValidators: Array<(request: GuardRequest) => Promise<GuardResponse | null>> = [];
   blockedUserAgents: string[] = [];
   requiredHeaders: Record<string, string> = {};
