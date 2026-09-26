@@ -38,6 +38,12 @@ const REDACTED = '[REDACTED]';
 
 const MAX_DECODE_ROUNDS = 3;
 
+/* decodeURIComponent's scan is the CodeQL-flagged polynomial hotspot on
+   '%' repetitions; sensitive names are short by construction (they are
+   matched against config-supplied and hardcoded name sets), so names past
+   this bound skip decoding entirely. */
+const MAX_DECODED_NAME_LENGTH = 256;
+
 export function mergeSensitiveNames(
   defaults: ReadonlySet<string>,
   extra: Iterable<string> | null | undefined,
@@ -50,6 +56,7 @@ export function mergeSensitiveNames(
 }
 
 function boundedPercentDecode(text: string, decode: (s: string) => string): string {
+  if (text.length > MAX_DECODED_NAME_LENGTH) return text;
   if (!text.includes('%') && !text.includes('+')) return text;
   let decoded = text;
   for (let i = 0; i < MAX_DECODE_ROUNDS; i++) {
