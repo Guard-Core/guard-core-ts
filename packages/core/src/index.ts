@@ -52,3 +52,19 @@ export { BaseSecurityDecorator, SecurityDecorator, getRouteDecoratorConfig } fro
 export { extractClientIp, isIpAllowed, isUserAgentAllowed, checkIpCountry,
   detectPenetrationAttempt, sanitizeForLog, logActivity, sendAgentEvent,
 } from './utils.js';
+
+export { GuardRedisError } from './errors.js';
+
+export {
+  DEFAULT_SENSITIVE_LOG_HEADERS, DEFAULT_SENSITIVE_LOG_FIELDS,
+  mergeSensitiveNames, redactPairsInText, redactBlobForDisplay,
+  redactUrlForDisplay, redactHeaderValueForDisplay,
+} from './redaction.js';
+
+export {
+  ON_BLOCK_EXCLUDED_CHECK_NAMES, fireBlockHook, invokeBlockHook,
+  buildBlockPayload, invokeErrorHook,
+} from './core/block-events.js';
+export type { OnBlockHook, OnErrorHook } from './core/block-events.js';
+export { UNKNOWN_CLIENT_IDENTITY } from './core/client-identity.js';
+export { UNRESOLVED_ROUTE_REASON } from './core/checks/implementations/route-config.js';

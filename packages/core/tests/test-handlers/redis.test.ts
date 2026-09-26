@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { RedisManager } from '../../src/handlers/redis.js';
 import { SecurityConfigSchema } from '../../src/models/config.js';
 import { defaultLogger } from '../../src/models/logger.js';
+import { GuardRedisError } from '../../src/errors.js';
 
 vi.mock('ioredis', () => {
   const store = new Map<string, string>();
@@ -137,7 +138,7 @@ describe('RedisManager', () => {
 });
 
 describe('RedisManager error handling', () => {
-  it('getKey returns null on error', async () => {
+  it('getKey raises GuardRedisError on error', async () => {
     const config = SecurityConfigSchema.parse({ enableRedis: true });
     const manager = new RedisManager(config, defaultLogger);
 
@@ -145,11 +146,11 @@ describe('RedisManager error handling', () => {
       get: vi.fn().mockRejectedValue(new Error('connection lost')),
     };
 
-    const result = await manager.getKey('ns', 'key');
-    expect(result).toBeNull();
+
+    await expect(manager.getKey('ns', 'key')).rejects.toBeInstanceOf(GuardRedisError);
   });
 
-  it('setKey returns null on error', async () => {
+  it('setKey raises GuardRedisError on error', async () => {
     const config = SecurityConfigSchema.parse({ enableRedis: true });
     const manager = new RedisManager(config, defaultLogger);
 
@@ -158,11 +159,11 @@ describe('RedisManager error handling', () => {
       set: vi.fn().mockRejectedValue(new Error('write fail')),
     };
 
-    const result = await manager.setKey('ns', 'key', 'val', 60);
-    expect(result).toBeNull();
+
+    await expect(manager.setKey('ns', 'key', 'val', 60)).rejects.toBeInstanceOf(GuardRedisError);
   });
 
-  it('delete returns null on error', async () => {
+  it('delete raises GuardRedisError on error', async () => {
     const config = SecurityConfigSchema.parse({ enableRedis: true });
     const manager = new RedisManager(config, defaultLogger);
 
@@ -170,11 +171,11 @@ describe('RedisManager error handling', () => {
       del: vi.fn().mockRejectedValue(new Error('del fail')),
     };
 
-    const result = await manager.delete('ns', 'key');
-    expect(result).toBeNull();
+
+    await expect(manager.delete('ns', 'key')).rejects.toBeInstanceOf(GuardRedisError);
   });
 
-  it('keys returns null on error', async () => {
+  it('keys raises GuardRedisError on error', async () => {
     const config = SecurityConfigSchema.parse({ enableRedis: true });
     const manager = new RedisManager(config, defaultLogger);
 
@@ -182,11 +183,11 @@ describe('RedisManager error handling', () => {
       keys: vi.fn().mockRejectedValue(new Error('keys fail')),
     };
 
-    const result = await manager.keys('pattern');
-    expect(result).toBeNull();
+
+    await expect(manager.keys('pattern')).rejects.toBeInstanceOf(GuardRedisError);
   });
 
-  it('deletePattern returns null on error', async () => {
+  it('deletePattern raises GuardRedisError on error', async () => {
     const config = SecurityConfigSchema.parse({ enableRedis: true });
     const manager = new RedisManager(config, defaultLogger);
 
@@ -194,8 +195,8 @@ describe('RedisManager error handling', () => {
       keys: vi.fn().mockRejectedValue(new Error('keys fail')),
     };
 
-    const result = await manager.deletePattern('pattern:*');
-    expect(result).toBeNull();
+
+    await expect(manager.deletePattern('pattern:*')).rejects.toBeInstanceOf(GuardRedisError);
   });
 
   it('deletePattern returns 0 for empty key list', async () => {
@@ -210,7 +211,7 @@ describe('RedisManager error handling', () => {
     expect(result).toBe(0);
   });
 
-  it('incr returns null on error', async () => {
+  it('incr raises GuardRedisError on error', async () => {
     const config = SecurityConfigSchema.parse({ enableRedis: true });
     const manager = new RedisManager(config, defaultLogger);
 
@@ -218,11 +219,11 @@ describe('RedisManager error handling', () => {
       incr: vi.fn().mockRejectedValue(new Error('incr fail')),
     };
 
-    const result = await manager.incr('ns', 'key');
-    expect(result).toBeNull();
+
+    await expect(manager.incr('ns', 'key')).rejects.toBeInstanceOf(GuardRedisError);
   });
 
-  it('exists returns null on error', async () => {
+  it('exists raises GuardRedisError on error', async () => {
     const config = SecurityConfigSchema.parse({ enableRedis: true });
     const manager = new RedisManager(config, defaultLogger);
 
@@ -230,8 +231,8 @@ describe('RedisManager error handling', () => {
       exists: vi.fn().mockRejectedValue(new Error('exists fail')),
     };
 
-    const result = await manager.exists('ns', 'key');
-    expect(result).toBeNull();
+
+    await expect(manager.exists('ns', 'key')).rejects.toBeInstanceOf(GuardRedisError);
   });
 
   it('close handles already closed gracefully', async () => {

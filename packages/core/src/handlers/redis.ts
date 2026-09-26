@@ -1,6 +1,7 @@
 import type { ResolvedSecurityConfig } from '../models/config.js';
 import type { Logger } from '../models/logger.js';
 import type { AgentHandlerProtocol } from '../protocols/agent.js';
+import { GuardRedisError } from '../errors.js';
 import type { RedisHandlerProtocol } from '../protocols/redis.js';
 
 type RedisClient = {
@@ -84,7 +85,7 @@ export class RedisManager implements RedisHandlerProtocol {
       return await this.client.get(this.formatKey(namespace, key));
     } catch (e) {
       this.logger.error(`Redis get failed: ${e}`);
-      return null;
+      throw new GuardRedisError(503, 'Redis operation failed');
     }
   }
 
@@ -101,7 +102,7 @@ export class RedisManager implements RedisHandlerProtocol {
       return true;
     } catch (e) {
       this.logger.error(`Redis set failed: ${e}`);
-      return null;
+      throw new GuardRedisError(503, 'Redis operation failed');
     }
   }
 
@@ -116,7 +117,7 @@ export class RedisManager implements RedisHandlerProtocol {
       return count;
     } catch (e) {
       this.logger.error(`Redis incr failed: ${e}`);
-      return null;
+      throw new GuardRedisError(503, 'Redis operation failed');
     }
   }
 
@@ -127,7 +128,7 @@ export class RedisManager implements RedisHandlerProtocol {
       return result > 0;
     } catch (e) {
       this.logger.error(`Redis exists failed: ${e}`);
-      return null;
+      throw new GuardRedisError(503, 'Redis operation failed');
     }
   }
 
@@ -137,7 +138,7 @@ export class RedisManager implements RedisHandlerProtocol {
       return await this.client.del(this.formatKey(namespace, key));
     } catch (e) {
       this.logger.error(`Redis delete failed: ${e}`);
-      return null;
+      throw new GuardRedisError(503, 'Redis operation failed');
     }
   }
 
@@ -147,7 +148,7 @@ export class RedisManager implements RedisHandlerProtocol {
       return await this.client.keys(`${this.prefix}${pattern}`);
     } catch (e) {
       this.logger.error(`Redis keys failed: ${e}`);
-      return null;
+      throw new GuardRedisError(503, 'Redis operation failed');
     }
   }
 
@@ -159,7 +160,7 @@ export class RedisManager implements RedisHandlerProtocol {
       return await this.client.del(...matchedKeys);
     } catch (e) {
       this.logger.error(`Redis deletePattern failed: ${e}`);
-      return null;
+      throw new GuardRedisError(503, 'Redis operation failed');
     }
   }
 

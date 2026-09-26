@@ -7,6 +7,12 @@ import type { ResolvedSecurityConfig } from '../../models/config.js';
 export abstract class SecurityCheck {
   constructor(protected readonly middleware: GuardMiddlewareProtocol) {}
 
+  /* Public read access for the pipeline's failure policy, the twin of the
+     reference's check.config usage in SecurityCheckPipeline._handle_check_error. */
+  get middlewareRef(): GuardMiddlewareProtocol {
+    return this.middleware;
+  }
+
   abstract check(request: GuardRequest): Promise<GuardResponse | null>;
   abstract get checkName(): string;
 
