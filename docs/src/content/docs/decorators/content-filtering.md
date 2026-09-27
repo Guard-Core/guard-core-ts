@@ -99,6 +99,31 @@ app.get('/api/resource', handler);
 
 Multiple `customValidation` calls on the same route stack -- all validators run in order and the first non-null response blocks the request.
 
+## `detectionExclusion(options)`
+
+Configure per-route detection exclusions, the port of the reference `detection_exclusion` decorator (guard_core/decorators/content_filtering.py). Each given surface replaces the global `SecurityConfig` value for that route; an omitted surface keeps inheriting the global config. `headers` always merges with the hardcoded proxy-identity defaults and the global `excludedDetectionHeaders` (an excluded header keeps scanning every category except the ssrf skip, so an attack payload in it still detects). Entries are matched case-insensitively.
+
+```typescript
+const handler = guard.detectionExclusion({
+  params: new Set(['q']),            // skip this query param entirely
+  bodyFields: new Set(['comment']),  // skip this body field / JSON subtree
+  categories: new Set(['sqli']),     // only these categories scan
+  scanBody: false,                   // skip the body surface (query/headers still scan)
+})(async (req, res) => {
+  res.json({ data: 'ok' });
+});
+```
+
+| Option | Type | Effect |
+|--------|------|--------|
+| `headers` | `Set<string>` | Merge into the excluded-header routing set (ssrf-skip semantics) |
+| `params` | `Set<string>` | Replace the global `excludedDetectionParams` for this route |
+| `bodyFields` | `Set<string>` | Replace the global `excludedDetectionBodyFields` for this route |
+| `categories` | `Set<string>` | Replace the global `enabledDetectionCategories` for this route (empty set disables every category) |
+| `scanBody` | `boolean` | Override the global `detectionScanBody` for this route |
+
+Decorator-registered route configs resolve through `request.state.guardRouteId`. The adapter middlewares do not populate that field today, so prefer the adapter-level `routeConfigs` option (or fastify's `config.guardRouteConfig` route option) to attach per-route configs to live traffic.
+
 ## Combining Content Filters
 
 ```typescript

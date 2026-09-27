@@ -33,6 +33,7 @@ await app.register(guardPlugin, {
 | `agentHandler` | `AgentHandlerProtocol` | No | Telemetry agent |
 | `geoIpHandler` | `GeoIPHandler` | No | GeoIP handler for country filtering |
 | `guardDecorator` | `SecurityDecorator` | No | Decorator instance for per-route config |
+| `routeConfigs` | `PathRouteConfigEntry[]` | No | Per-route configs matched by method (optional) and request path: exact match, or prefix when the path ends with `/*`. Fastify's native route options work too: pass a `RouteConfig` as `config: { guardRouteConfig }` on a route |
 
 ### `configureCors(fastify, config)`
 
@@ -126,3 +127,22 @@ Fastify parses request bodies automatically. The `FastifyGuardRequest` adapter h
 - `string` bodies are encoded via `TextEncoder`
 - Object bodies (parsed JSON) are re-serialized via `JSON.stringify` then encoded
 - Missing bodies return an empty `Uint8Array`
+
+### Per-route detection exclusions
+
+```typescript
+import { guardPlugin, RouteConfig } from '@guardcore/express';
+
+const openConfig = new RouteConfig();
+openConfig.excludedDetectionParams = new Set(['q']);
+
+await app.register(guardPlugin, {
+  config,
+  routeConfigs: [{ path: '/api/search', config: openConfig }],
+});
+
+// Or fastify's native per-route options:
+app.post('/api/ingest', {
+  config: { guardRouteConfig: Object.assign(new RouteConfig(), { detectionScanBody: false }) },
+}, handler);
+```

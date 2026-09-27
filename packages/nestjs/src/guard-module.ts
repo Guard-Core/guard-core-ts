@@ -9,6 +9,7 @@ import type {
   GeoIPHandler,
   SecurityMiddlewareComponents,
   RouteConfig,
+  PathRouteConfigEntry,
 } from '@guardcore/core';
 import { SecurityConfigSchema, defaultLogger, initializeSecurityMiddleware } from '@guardcore/core';
 import { NestGuardRequest, NestResponseFactory } from './adapters.js';
@@ -20,6 +21,12 @@ export interface GuardModuleOptions {
   agentHandler?: AgentHandlerProtocol;
   geoIpHandler?: GeoIPHandler;
   guardDecorator?: unknown;
+  /* Per-route configs matched by method (optional) and request path: exact
+     path match, or a prefix match when the path ends with `/*`. Longest path
+     wins. The module runs as middleware (before the route handler), so route
+     configs are keyed by the Nest route path here rather than by handler
+     decoration. */
+  routeConfigs?: PathRouteConfigEntry[];
 }
 
 /** Upper bound on response bytes captured for behavioral return-pattern scans (spec 1.4 bounded read). */
@@ -90,6 +97,9 @@ export class GuardModule {
               resolved, logger, responseFactory,
               options.agentHandler, options.geoIpHandler, options.guardDecorator,
             );
+            if (options.routeConfigs) {
+              components.routeResolver.registerPathRouteConfigs(options.routeConfigs);
+            }
             logger.info('Guard security module initialized');
             return components;
           },

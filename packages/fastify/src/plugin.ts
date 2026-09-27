@@ -8,8 +8,11 @@ import type {
   GeoIPHandler,
   SecurityMiddlewareComponents,
   RouteConfig,
+  PathRouteConfigEntry,
 } from '@guardcore/core';
+import { RouteConfig as RouteConfigClass } from '@guardcore/core';
 import { SecurityConfigSchema, defaultLogger, initializeSecurityMiddleware } from '@guardcore/core';
+import fp from 'fastify-plugin';
 import { FastifyGuardRequest, FastifyResponseFactory } from './adapters.js';
 
 export interface GuardPluginOptions {
@@ -17,9 +20,17 @@ export interface GuardPluginOptions {
   agentHandler?: AgentHandlerProtocol;
   geoIpHandler?: GeoIPHandler;
   guardDecorator?: unknown;
+  /* Per-route configs matched by method (optional) and request path: exact
+     path match, or a prefix match when the path ends with `/*`. Longest path
+     wins. Fastify's native per-route options work too: pass a RouteConfig as
+     `config: { guardRouteConfig }` on fastify.get(...). */
+  routeConfigs?: PathRouteConfigEntry[];
 }
 
-export async function guardPlugin(fastify: FastifyInstance, options: GuardPluginOptions): Promise<void> {
+/* Wrapped with fastify-plugin so the hooks land on the registering
+   instance instead of an encapsulated child scope: without the wrapper the
+   guard silently applied to no routes. */
+export const guardPlugin = fp(async function guardPlugin(fastify: FastifyInstance, options: GuardPluginOptions): Promise<void> {
   const resolved = SecurityConfigSchema.parse(options.config);
   const logger: Logger = resolved.logger ?? defaultLogger;
   const responseFactory = new FastifyResponseFactory();
@@ -29,10 +40,23 @@ export async function guardPlugin(fastify: FastifyInstance, options: GuardPlugin
     options.agentHandler, options.geoIpHandler, options.guardDecorator,
   );
 
+  if (options.routeConfigs) {
+    components.routeResolver.registerPathRouteConfigs(options.routeConfigs);
+  }
+
   logger.info('Guard security plugin initialized');
 
   fastify.addHook('onRequest', async (request, reply) => {
     const guardReq = new FastifyGuardRequest(request);
+
+    /* Fastify's native route-level options: a RouteConfig passed as
+       `config: { guardRouteConfig }` on the route wins over every other
+       route surface (reference decorator semantics). */
+    const routeOptionsConfig = (request.routeOptions as unknown as { config?: Record<string, unknown> } | undefined)?.config;
+    const directConfig = routeOptionsConfig?.['guardRouteConfig'];
+    if (directConfig instanceof RouteConfigClass) {
+      guardReq.state.guardRouteConfig = directConfig;
+    }
 
     const passthrough = await components.bypassHandler.handlePassthrough(
       guardReq, async () => createPassthroughResponse(),
@@ -111,7 +135,7 @@ export async function guardPlugin(fastify: FastifyInstance, options: GuardPlugin
 
     return payload;
   });
-}
+});
 
 function sendFastifyResponse(reply: FastifyReply, response: GuardResponse): void {
   for (const [name, value] of Object.entries(response.headers)) {

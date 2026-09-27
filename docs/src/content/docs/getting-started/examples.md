@@ -56,9 +56,12 @@ npx tsx app.ts
 A note on per-route `SecurityDecorator` configs: the adapter middleware does
 not populate `request.state.guardRouteId` yet, so route configs registered
 through decorators (for example `guard.requireHeaders(...)`) are not resolved
-through the middleware at runtime. The advanced example therefore uses the
-engine-level `endpointRateLimits` and an application-level header gate, which
-apply to every request today.
+through the middleware at runtime. To attach per-route config to live traffic,
+use the adapter-level `routeConfigs` option (or fastify's
+`config.guardRouteConfig` route option), which the middleware resolves per
+request; per-route detection exclusions are documented on each adapter page.
+The advanced example therefore uses the engine-level `endpointRateLimits` and
+an application-level header gate, which apply to every request today.
 
 ## Live smoke
 

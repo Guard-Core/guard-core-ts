@@ -8,6 +8,7 @@ import type {
   GeoIPHandler,
   SecurityMiddlewareComponents,
   RouteConfig,
+  PathRouteConfigEntry,
 } from '@guardcore/core';
 import { SecurityConfigSchema, defaultLogger, initializeSecurityMiddleware } from '@guardcore/core';
 import { ExpressGuardRequest, ExpressResponseFactory, sendGuardResponse } from './adapters.js';
@@ -17,6 +18,10 @@ export interface SecurityMiddlewareOptions {
   agentHandler?: AgentHandlerProtocol;
   geoIpHandler?: GeoIPHandler;
   guardDecorator?: unknown;
+  /* Per-route configs matched by method (optional) and request path, the
+     Express idiom for route-level options: exact path match, or a prefix
+     match when the path ends with `/*`. Longest path wins. */
+  routeConfigs?: PathRouteConfigEntry[];
 }
 
 /** Upper bound on response bytes captured for behavioral return-pattern scans (spec 1.4 bounded read). */
@@ -40,6 +45,9 @@ export function createSecurityMiddleware(options: SecurityMiddlewareOptions) {
     )
       .then((initializedComponents) => {
         components = initializedComponents;
+        if (options.routeConfigs) {
+          components.routeResolver.registerPathRouteConfigs(options.routeConfigs);
+        }
         initialized = true;
         logger.info('Guard security middleware initialized');
       })

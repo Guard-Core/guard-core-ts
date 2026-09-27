@@ -371,7 +371,7 @@ describe('excluded detection fields config (guard-core parity)', () => {
     expect(siblingHit).toBe(true);
   });
 
-  it('lowercases the query name but matches entries verbatim', async () => {
+  it('matches entries case-insensitively (names and entries lowercase, like the reference _resolve_excluded_params)', async () => {
     const manager = await makeManager();
     const [suppressed] = await scanRequestWithManager(
       manager,
@@ -380,12 +380,15 @@ describe('excluded detection fields config (guard-core parity)', () => {
     );
     expect(suppressed).toBe(false);
 
-    const [stillHits] = await scanRequestWithManager(
+    // The entry itself is lowercased by the exclusion resolver
+    // (resolveDetectionExclusions), so an uppercase entry suppresses the
+    // lowercase query param too.
+    const [alsoSuppressed] = await scanRequestWithManager(
       manager,
       createMockRequest({ queryParams: { search: SCRIPT } }),
       createTestConfig({ excludedDetectionParams: ['SEARCH'] }),
     );
-    expect(stillHits).toBe(true);
+    expect(alsoSuppressed).toBe(false);
   });
 
   it('keeps param and body-field exclusions on their own surfaces', async () => {
