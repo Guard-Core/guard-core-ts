@@ -27,16 +27,16 @@ jobs:
       - run: pnpm build
 
       - name: Publish @guardcore/core
-        run: cd packages/core && npm publish --access public --provenance
+        run: cd packages/core && pnpm publish --no-git-checks --access public --provenance
 
       - name: Publish @guardcore/express
-        run: cd packages/express && npm publish --access public --provenance
+        run: cd packages/express && pnpm publish --no-git-checks --access public --provenance
 
       - name: Publish @guardcore/fastify
-        run: cd packages/fastify && npm publish --access public --provenance
+        run: cd packages/fastify && pnpm publish --no-git-checks --access public --provenance
 
       - name: Publish @guardcore/nestjs
-        run: cd packages/nestjs && npm publish --access public --provenance
+        run: cd packages/nestjs && pnpm publish --no-git-checks --access public --provenance
 
       - name: Publish @guardcore/hono
-        run: cd packages/hono && npm publish --access public --provenance
+        run: cd packages/hono && pnpm publish --no-git-checks --access public --provenance

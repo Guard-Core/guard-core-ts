@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Adapters: the published dependency on `@guardcore/core` is now a real semver floor (`^4.2.0`) instead of the `workspace:*` protocol leaking into the published manifests (the published 4.0.4 artifacts carry the unresolvable literal); a root pnpm override keeps the workspace linked for development and CI
+- Adapters: the published dependency on `@guardcore/core` is now a real semver floor (`^4.2.0`) instead of the `workspace:*` protocol leaking into the published manifests (the published 4.0.4 artifacts carry the unresolvable literal, so `npm install @guardcore/express` could not resolve). The adapters declare `workspace:^` and the release workflow now publishes through `pnpm publish`, which replaces the protocol with `^4.2.0` in the packed manifest; the repo keeps the workspace link for development and CI
 
 ### Note
 

@@ -13,10 +13,5 @@
     "turbo": "^2",
     "typescript": "~5.9"
   },
-  "pnpm": {
-    "overrides": {
-      "@guardcore/core": "workspace:*"
-    }
-  },
   "packageManager": "pnpm@10.25.0"
 }
