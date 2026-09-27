@@ -69,15 +69,16 @@ jobs:
           check "GET /health (excluded path)"  200 "$base/health"
 
           # Penetration detection: XSS payload in a query parameter is blocked
-          # as suspicious activity (403 default body). Runs first: the request
-          # counts toward the global rate limit window.
+          # as suspicious activity (400 default body, the family detection
+          # contract). Runs first: the request counts toward the global rate
+          # limit window.
           code=$(curl -sS --max-time 30 -o /tmp/smoke_body -w '%{http_code}' \
             -G "$base/basic" --data-urlencode 'q=<script>alert(1)</script>')
-          if [ "$code" != "403" ]; then
-            echo "FAIL: XSS query param (expected 403, got $code)"; exit 1
+          if [ "$code" != "400" ]; then
+            echo "FAIL: XSS query param (expected 400, got $code)"; exit 1
           fi
           grep -q "Suspicious activity detected" /tmp/smoke_body || { echo "FAIL: suspicious body"; exit 1; }
-          echo "ok: XSS query param -> 403 suspicious block"
+          echo "ok: XSS query param -> 400 suspicious block"
 
           # Global rate limit: 30 requests per 60 seconds; the 31st request
           # is rejected by the engine with the default 429 body. Two requests
@@ -92,7 +93,7 @@ jobs:
           if [ "$code" != "429" ]; then
             echo "FAIL: /basic 31st request (expected 429, got $code)"; exit 1
           fi
-          grep -q "Rate limit exceeded" /tmp/smoke_body || { echo "FAIL: rate limit body"; exit 1; }
+          grep -q "Too many requests" /tmp/smoke_body || { echo "FAIL: rate limit body"; exit 1; }
           echo "ok: /basic 31st request -> 429 with default body"
 
       - name: Dump container logs on failure
@@ -188,15 +189,15 @@ jobs:
           echo "ok: /rate/burst 6th request -> 429 with custom body"
 
           # Penetration detection: XSS payload in a query parameter is blocked
-          # as suspicious activity (403 default body; customErrorResponses
+          # as suspicious activity (400 default body; customErrorResponses
           # only tunes 429 here).
           code=$(curl -sS --max-time 30 -o /tmp/smoke_body_adv -w '%{http_code}' \
             -G "$base/search" --data-urlencode 'q=<script>alert(1)</script>')
-          if [ "$code" != "403" ]; then
-            echo "FAIL: XSS query param (expected 403, got $code)"; exit 1
+          if [ "$code" != "400" ]; then
+            echo "FAIL: XSS query param (expected 400, got $code)"; exit 1
           fi
           grep -q "Suspicious activity detected" /tmp/smoke_body_adv || { echo "FAIL: suspicious body"; exit 1; }
-          echo "ok: XSS query param -> 403 suspicious block"
+          echo "ok: XSS query param -> 400 suspicious block"
 
       - name: Dump container logs on failure
         if: failure()

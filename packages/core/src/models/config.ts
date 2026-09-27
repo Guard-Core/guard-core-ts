@@ -39,6 +39,31 @@ const ThreatBanEntrySchema = z.object({
 
 export type ThreatBanEntry = z.output<typeof ThreatBanEntrySchema>;
 
+/* Behavior-rule config, the TS port of BehaviorRuleConfig
+   (guard_core/_security_config_field_validators.py): rule_type and action
+   literals, threshold >= 1, window >= 1 (default 3600), an optional pattern
+   for return_pattern rules, an optional ban_duration for ban rules, and the
+   correlate_with_detection flag that halves the effective threshold for
+   global return_pattern rules while the IP has prior detection hits. */
+export const BehaviorRuleSchema = z.object({
+  ruleType: z.enum(['usage', 'return_pattern', 'frequency']),
+  threshold: z.number().int().min(1),
+  window: z.number().int().min(1).default(3600),
+  pattern: z.string().nullable().default(null),
+  action: z.enum(['ban', 'log', 'throttle', 'alert']).default('log'),
+  banDuration: z.number().int().min(1).nullable().default(null),
+  correlateWithDetection: z.boolean().default(false),
+});
+
+export type BehaviorRuleConfig = z.output<typeof BehaviorRuleSchema>;
+
+/* Every return_pattern pattern that is not a status: pattern needs the
+   response body to evaluate (reference
+   return_pattern_requires_response_body). */
+export function returnPatternRequiresResponseBody(pattern: string): boolean {
+  return !pattern.startsWith('status:');
+}
+
 const IpOrCidrSchema = z.string().refine(isValidIpOrCidr, 'Invalid IP or CIDR');
 
 const LogLevel = z.enum(['INFO', 'DEBUG', 'WARNING', 'ERROR', 'CRITICAL']);
@@ -143,6 +168,15 @@ export const SecurityConfigSchema = z.object({
   emergencyWhitelist: z.array(z.string()).default([]),
 
   endpointRateLimits: z.record(z.string(), z.tuple([z.number(), z.number()])).default({}),
+
+  /* Global behavior-rules surface, the TS port of global_behavior_rules /
+     behavior_scan_response_body / behavior_max_response_body_inspect_bytes
+     (guard_core/_security_config_fields.py). Defaults keep the engine
+     zero-change-unless-enabled: no rules, no response-body scanning, the
+     reference's 262144-byte inspection cap. */
+  globalBehaviorRules: z.array(BehaviorRuleSchema).default([]),
+  behaviorScanResponseBody: z.boolean().default(false),
+  behaviorMaxResponseBodyInspectBytes: z.number().int().min(1).default(262144),
 
   detectionCompilerTimeout: z.number().min(0.1).max(10).default(2.0),
   detectionMaxContentLength: z.number().int().min(1000).max(100000).default(10000),
@@ -264,6 +298,26 @@ export const SecurityConfigSchema = z.object({
       code: 'custom',
       message: 'geoIpHandler or geoResolver is required when using country filtering',
       path: ['geoIpHandler'],
+    });
+  }
+  /* Fail-closed behavior-rule validation, the TS port of
+     _validate_global_behavior_rule_assignment via
+     _validate_return_pattern_requires_scan
+     (guard_core/_security_config_field_validators.py): a return_pattern rule
+     whose pattern needs the response body is rejected when
+     behaviorScanResponseBody is false, because it would silently never
+     match. status: patterns are unaffected by the flag. */
+  for (const [index, rule] of data.globalBehaviorRules.entries()) {
+    if (rule.ruleType !== 'return_pattern' || !rule.pattern) continue;
+    if (!returnPatternRequiresResponseBody(rule.pattern)) continue;
+    if (data.behaviorScanResponseBody) continue;
+    ctx.addIssue({
+      code: 'custom',
+      message: `globalBehaviorRules[${index}]: return_pattern rule with pattern "${rule.pattern}" `
+        + 'requires reading the response body, but behaviorScanResponseBody is false. '
+        + 'This rule would never match: set behaviorScanResponseBody=true to enable '
+        + 'response-body inspection, or use a status: pattern instead',
+      path: ['globalBehaviorRules', index],
     });
   }
 });

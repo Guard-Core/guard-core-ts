@@ -53,7 +53,7 @@ describe('SuspiciousActivityCheck runs the full pattern table (middleware level)
   const blocked = async (request: GuardRequest) => {
     const response = await components.pipeline.execute(request);
     expect(response, `expected block for ${request.urlPath} ${JSON.stringify(request.queryParams)}`).not.toBeNull();
-    expect(response!.statusCode).toBe(403);
+    expect(response!.statusCode).toBe(400);
   };
 
   const allowed = async (request: GuardRequest) => {

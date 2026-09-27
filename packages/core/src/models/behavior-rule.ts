@@ -8,6 +8,13 @@ export class BehaviorRule {
   readonly pattern: string | null;
   readonly action: BehaviorAction;
   readonly customAction: ((...args: unknown[]) => unknown) | null;
+  /* Ban length in seconds for ban rules; null falls back to 3600 at
+     dispatch time (reference _execute_ban_action). */
+  readonly banDuration: number | null;
+  /* Halves the effective threshold for global return_pattern rules while
+     the IP has prior detection-category hits (reference
+     correlate_with_detection). */
+  readonly correlateWithDetection: boolean;
 
   constructor(
     ruleType: BehaviorRuleType,
@@ -16,6 +23,8 @@ export class BehaviorRule {
     pattern: string | null = null,
     action: BehaviorAction = 'log',
     customAction: ((...args: unknown[]) => unknown) | null = null,
+    banDuration: number | null = null,
+    correlateWithDetection = false,
   ) {
     this.ruleType = ruleType;
     this.threshold = threshold;
@@ -23,5 +32,7 @@ export class BehaviorRule {
     this.pattern = pattern;
     this.action = action;
     this.customAction = customAction;
+    this.banDuration = banDuration;
+    this.correlateWithDetection = correlateWithDetection;
   }
 }

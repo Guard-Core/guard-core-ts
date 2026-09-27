@@ -6,6 +6,9 @@ import type { GuardRequest } from '../../protocols/request.js';
 import type { GuardResponse, GuardResponseFactory } from '../../protocols/response.js';
 import type { SecurityHeadersManager } from '../../handlers/security-headers.js';
 import type { MetricsCollector } from '../events/metrics.js';
+import type { BehavioralProcessor } from '../behavioral/processor.js';
+import { configToRule } from '../behavioral/processor.js';
+import type { BehaviorRule } from '../../models/behavior-rule.js';
 
 export class ErrorResponseFactory {
   constructor(
@@ -16,6 +19,17 @@ export class ErrorResponseFactory {
     private readonly securityHeadersManager: SecurityHeadersManager,
     private readonly agentHandler: AgentHandlerProtocol | null = null,
   ) {}
+
+  /* The behavioral processor, wired by initializeSecurityMiddleware so the
+     ProcessResponse pass can drive the behavior rules without the adapter
+     passing callbacks (the reference adapters pass process_behavioral_rules
+     bound to their processor; the engine-owned wiring keeps the same
+     semantics for engine-driven callers). */
+  private behavioralProcessor: BehavioralProcessor | null = null;
+
+  setBehavioralProcessor(processor: BehavioralProcessor): void {
+    this.behavioralProcessor = processor;
+  }
 
   async createErrorResponse(statusCode: number, defaultMessage: string): Promise<GuardResponse> {
     const message = this.config.customErrorResponses[statusCode] ?? defaultMessage;
@@ -69,10 +83,25 @@ export class ErrorResponseFactory {
       routeConfig: RouteConfig,
     ) => Promise<void>,
   ): Promise<GuardResponse> {
-    /* v8 ignore next -- requires all 3 conditions (routeConfig, behaviorRules.length, callback) true simultaneously */
-    if (routeConfig && routeConfig.behaviorRules.length > 0 && processBehavioralRules) {
-      const clientIp = request.clientHost ?? 'unknown';
-      await processBehavioralRules(request, response, clientIp, routeConfig);
+    /* The behavioral phase of the reference process_response
+       (guard_core/core/responses/factory.py): the route's return_pattern
+       rules run first, then the global ones. Return rules never modify the
+       response. With no explicit callback the engine-owned processor runs
+       the route rules; the global rules always run through it when
+       configured. */
+    const clientIp = request.clientHost ?? 'unknown';
+    if (routeConfig && routeConfig.behaviorRules.length > 0) {
+      if (processBehavioralRules) {
+        await processBehavioralRules(request, response, clientIp, routeConfig);
+      } else if (this.behavioralProcessor) {
+        await this.behavioralProcessor.processReturnRules(request, response, clientIp, routeConfig);
+      }
+    }
+
+    if (this.config.globalBehaviorRules.length > 0 && this.behavioralProcessor) {
+      const globalRules: BehaviorRule[] =
+        this.config.globalBehaviorRules.map((cfg) => configToRule(cfg));
+      await this.behavioralProcessor.processGlobalReturnRules(request, response, clientIp, globalRules);
     }
 
     await this.metricsCollector.collectRequestMetrics(request, responseTime, response.statusCode);

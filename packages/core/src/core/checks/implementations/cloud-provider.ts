@@ -49,7 +49,7 @@ export class CloudProviderCheck extends SecurityCheck {
     return this.createErrorResponse(403, 'Cloud provider IP not allowed');
   }
 
-  /* Reference _emit_cloud_block_events: the middleware-level cloud_detection
+  /* Reference _emit_cloud_block_events: the middleware-level cloud_blocked
      event always fires; the decorator_violation event fires only when the
      per-route blockCloudProviders selector (not the global list) triggered
      the block. */

@@ -16,6 +16,7 @@ import {
   resolveDetectionExclusions,
 } from './core/routing/detection-exclusions.js';
 import type { ResolvedDetectionExclusions } from './core/routing/detection-exclusions.js';
+import { fireBlockHook } from './core/block-events.js';
 
 /**
  * Excluded headers whose typical values are client addresses (the reference's
@@ -782,7 +783,45 @@ export function logActivity(
   passiveMode = false,
   triggerInfo = '',
   level: 'INFO' | 'DEBUG' | 'WARNING' | 'ERROR' | 'CRITICAL' | null = 'WARNING',
+  hooks?: {
+    checkName?: string;
+    onBlock?: ((request: GuardRequest, payload: Record<string, unknown>) => unknown) | null;
+    mutedCheckLogs?: ReadonlySet<string> | null;
+    sensitiveParams?: Iterable<string> | null | undefined;
+    sensitiveBodyFields?: Iterable<string> | null | undefined;
+    sensitiveHeaders?: Iterable<string> | null | undefined;
+  },
 ): void {
+  /* The twin of _dispatch_block_hook
+     (guard_core/_utils/request_logging.py): only 'suspicious' logs carry the
+     on_block semantics. In active mode the reason is stashed on the request
+     state for the pipeline to fire with the blocking check's name and the
+     response status; in passive mode (no response is ever sent) the hook
+     fires here with passive_mode=true and a null status_code. */
+  if (logType === 'suspicious' && hooks) {
+    const state = request.state as Record<string, unknown>;
+    if (!passiveMode) {
+      state['_guardBlockStash'] = { reason, triggerInfo };
+    } else if (hooks.onBlock) {
+      const checkName = hooks.checkName ?? '';
+      const muted = hooks.mutedCheckLogs;
+      if (!(checkName !== '' && muted !== undefined && muted !== null && muted.has(checkName))) {
+        void fireBlockHook(
+          hooks.onBlock,
+          request,
+          logger,
+          checkName,
+          reason,
+          triggerInfo,
+          true,
+          null,
+          hooks.sensitiveParams,
+          hooks.sensitiveBodyFields,
+          hooks.sensitiveHeaders,
+        );
+      }
+    }
+  }
   if (!level) return;
 
   const clientIp = request.clientHost ?? 'unknown';

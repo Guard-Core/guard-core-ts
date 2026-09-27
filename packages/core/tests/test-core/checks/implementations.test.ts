@@ -541,11 +541,11 @@ describe('IpSecurityCheck', () => {
 
   it('logs but does not block in passive mode', async () => {
     middleware = createMockMiddleware({ blacklist: ['10.0.0.1'], passiveMode: true });
-    const logSpy = vi.spyOn(middleware.logger, 'info');
+    const logSpy = vi.spyOn(middleware.logger, 'warn');
     const check = new IpSecurityCheck(middleware);
     const result = await check.check(createMockRequest({ clientHost: '10.0.0.1' }));
     expect(result).toBeNull();
-    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('[PASSIVE]'));
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('[PASSIVE MODE]'));
   });
 
   it('blocks IP denied by route config', async () => {
@@ -748,7 +748,7 @@ describe('SuspiciousActivityCheck', () => {
       queryParams: { q: '<script>alert(1)</script>' },
     }));
     expect(result).not.toBeNull();
-    expect(result!.statusCode).toBe(403);
+    expect(result!.statusCode).toBe(400);
   });
 
   it('returns null for suspicious request in passive mode', async () => {

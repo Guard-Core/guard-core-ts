@@ -54,6 +54,16 @@ export class SuspiciousActivityCheck extends SecurityCheck {
       this.susPatterns,
     );
 
+    /* The reference surfaces the disabled-by-decorator sentinel as a
+       decorator_violation / detection_disabled event and lets the request
+       pass (guard_core/core/checks/implementations/suspicious_activity.py). */
+    if (!isThreat && triggerInfo === 'disabled_by_decorator') {
+      await this.sendEvent('decorator_violation', request, 'detection_disabled',
+        'Suspicious pattern detection disabled by route decorator',
+        { decoratorType: 'advanced', violationType: 'suspicious_detection_disabled' });
+      return null;
+    }
+
     if (!isThreat) return null;
 
     /* The reference counts violations in both modes before branching
@@ -63,8 +73,11 @@ export class SuspiciousActivityCheck extends SecurityCheck {
     const requestCount = totalSuspiciousCount(this.middleware, clientIp);
 
     if (this.isPassiveMode()) {
-      logActivity(request, this.logger, 'suspicious', 'Suspicious activity detected',
-        true, triggerInfo, this.config.logSuspiciousLevel);
+      /* Passive mode fires on_block here (status_code null) through the
+         log_activity dispatch, with the reference log-format reason. */
+      logActivity(request, this.logger, 'suspicious',
+        `Suspicious activity detected: ${clientIp}`,
+        true, triggerInfo, this.config.logSuspiciousLevel, this.blockHooks());
       await this.sendEvent('penetration_attempt', request, 'logged_only',
         `Suspicious pattern detected (passive mode): ${triggerInfo}`,
         { triggerInfo, requestCount });
@@ -79,12 +92,28 @@ export class SuspiciousActivityCheck extends SecurityCheck {
       return this.createErrorResponse(403, 'IP has been banned');
     }
 
-    logActivity(request, this.logger, 'suspicious', 'Suspicious activity detected',
-      this.config.passiveMode, triggerInfo, this.config.logSuspiciousLevel);
+    /* Active mode stashes the log-format reason on the request state; the
+       pipeline fires on_block with it once the 400 response is returned. */
+    logActivity(request, this.logger, 'suspicious',
+      `Suspicious activity detected for IP: ${clientIp} - ${triggerInfo}`,
+      false, '', this.config.logSuspiciousLevel, this.blockHooks());
 
     await this.sendEvent('penetration_attempt', request, 'request_blocked',
       `Penetration attempt detected: ${triggerInfo}`, { triggerInfo, requestCount });
 
-    return this.createErrorResponse(403, 'Suspicious activity detected');
+    return this.createErrorResponse(400, 'Suspicious activity detected');
+  }
+
+  /* The log_activity on_block hooks shared by both modes of this check
+     (reference log_activity kwargs in SuspiciousActivityCheck). */
+  private blockHooks(): Parameters<typeof logActivity>[7] {
+    return {
+      checkName: this.checkName,
+      onBlock: this.config.onBlock ?? null,
+      mutedCheckLogs: null,
+      sensitiveParams: this.config.logSensitiveParams,
+      sensitiveBodyFields: this.config.logSensitiveBodyFields,
+      sensitiveHeaders: this.config.logSensitiveHeaders,
+    };
   }
 }
