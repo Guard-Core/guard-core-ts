@@ -40,7 +40,7 @@ function run(suite: string, id: string, diffs: string[] = []): CaseRun {
 function baselineOf(overrides: Partial<Baseline> = {}): Baseline {
   const failing_cases = overrides.failing_cases ?? {};
   return {
-    spec_version: '4.0.3',
+    spec_version: '4.1.0',
     corpus_sha256: 'digest-current',
     failing_cases,
     total_expected_fail: Object.values(failing_cases).reduce((total, ids) => total + ids.length, 0),
@@ -137,7 +137,7 @@ describe('config knob mapping', () => {
 
 describe('corpus index verification', () => {
   test('accepts the targeted spec version', () => {
-    expect(() => verifyCorpusIndex(corpusIndexOf('4.0.3'))).not.toThrow();
+    expect(() => verifyCorpusIndex(corpusIndexOf('4.1.0'))).not.toThrow();
   });
 
   test('aborts on a corpus pinned to another spec version', () => {

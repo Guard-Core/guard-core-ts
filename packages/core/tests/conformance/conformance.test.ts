@@ -17,7 +17,7 @@ import {
 import type { CaseRun } from './harness.js';
 
 test(
-  'detect() matches the vendored guard-core spec 4.0.3 corpus under the committed baseline',
+  'detect() matches the vendored guard-core spec 4.1.0 corpus under the committed baseline',
   { timeout: 600_000 },
   async () => {
     const corpus = await loadCorpus();

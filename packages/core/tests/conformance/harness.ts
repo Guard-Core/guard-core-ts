@@ -4,11 +4,11 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import type { SusPatternsManager } from '../../src/handlers/sus-patterns.js';
 
-export const SPEC_VERSION = '4.0.3';
+export const SPEC_VERSION = '4.1.0';
 export const FIXED_IP = '203.0.113.7';
 export const BASELINE_UPDATE_ENV = 'GUARD_CONFORMANCE_UPDATE_BASELINE';
 export const BASELINE_PATH = fileURLToPath(new URL('../../../../conformance/baseline.json', import.meta.url));
-const CORPUS_DIR = fileURLToPath(new URL('../../../../conformance/guard-core-spec-4.0.3/cases/', import.meta.url));
+const CORPUS_DIR = fileURLToPath(new URL('../../../../conformance/guard-core-spec-4.1.0/cases/', import.meta.url));
 const SEMANTIC_PREFIX = 'semantic:';
 
 export class ConformanceError extends Error {
@@ -21,7 +21,7 @@ export class ConformanceError extends Error {
 export interface CorpusIndex {
   spec_version: string;
   config_knobs: Record<string, number | boolean>;
-  suites: Record<string, { case_count: number }>;
+  suites: Record<string, { case_count: number; kind?: string }>;
 }
 
 export interface ExpectedThreat {
@@ -224,15 +224,16 @@ function parseKnobs(obj: Record<string, unknown>, label: string): Record<string,
   return knobs;
 }
 
-function parseSuiteRegistry(obj: Record<string, unknown>, label: string): Record<string, { case_count: number }> {
+function parseSuiteRegistry(obj: Record<string, unknown>, label: string): Record<string, { case_count: number; kind?: string }> {
   const raw = obj['suites'];
   if (!isRecord(raw)) throw new ConformanceError(`${label}: "suites" must be an object`);
-  const suites: Record<string, { case_count: number }> = {};
+  const suites: Record<string, { case_count: number; kind?: string }> = {};
   for (const [suite, entry] of Object.entries(raw)) {
     if (!isRecord(entry) || typeof entry['case_count'] !== 'number') {
       throw new ConformanceError(`${label}: suites.${suite} must be an object with a numeric case_count`);
     }
-    suites[suite] = { case_count: entry['case_count'] };
+    const kind = typeof entry['kind'] === 'string' ? entry['kind'] : undefined;
+    suites[suite] = { case_count: entry['case_count'], kind };
   }
   return suites;
 }
@@ -340,6 +341,11 @@ export async function loadCorpus(corpusDir: string = CORPUS_DIR): Promise<Corpus
     const registered = index.suites[suiteName];
     if (!registered) {
       throw new ConformanceError(`${file} is not registered in index.json`);
+    }
+    if (registered.kind !== undefined && registered.kind !== 'detect') {
+      // Pipeline-kind suites are consumed by the pipeline conformance test
+      // through the full middleware; the detect runner skips them.
+      continue;
     }
     const suite = parseSuite(text, suiteName);
     if (suite.cases.length !== registered.case_count) {
