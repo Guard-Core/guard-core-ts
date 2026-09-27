@@ -17,4 +17,5 @@ export type {
   GuardRequest,
   GuardResponse,
   Logger,
+  PathRouteConfigEntry,
 } from '@guardcore/core';

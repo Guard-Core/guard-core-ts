@@ -9,6 +9,7 @@ import type {
   GeoIPHandler,
   SecurityMiddlewareComponents,
   RouteConfig,
+  PathRouteConfigEntry,
 } from '@guardcore/core';
 import { SecurityConfigSchema, defaultLogger, initializeSecurityMiddleware } from '@guardcore/core';
 import { HonoGuardRequest, HonoResponseFactory } from './adapters.js';
@@ -18,6 +19,10 @@ export interface GuardMiddlewareOptions {
   agentHandler?: AgentHandlerProtocol;
   geoIpHandler?: GeoIPHandler;
   guardDecorator?: unknown;
+  /* Per-route configs matched by method (optional) and request path: exact
+     path match, or a prefix match when the path ends with `/*`. Longest path
+     wins. */
+  routeConfigs?: PathRouteConfigEntry[];
   /**
    * Optional hook that returns the connecting peer IP for the request.
    * Defaults to `c.env['remoteAddr']`; wire this to the runtime's connection
@@ -45,6 +50,9 @@ export function createGuardMiddleware(options: GuardMiddlewareOptions): Middlewa
     )
       .then((initializedComponents) => {
         components = initializedComponents;
+        if (options.routeConfigs) {
+          components.routeResolver.registerPathRouteConfigs(options.routeConfigs);
+        }
         initialized = true;
         logger.info('Guard security middleware initialized');
       })

@@ -38,6 +38,7 @@ class AppModule {}
 | `agentHandler` | `AgentHandlerProtocol` | No | Telemetry agent |
 | `geoIpHandler` | `GeoIPHandler` | No | GeoIP handler for country filtering |
 | `guardDecorator` | `SecurityDecorator` | No | Decorator instance for per-route config |
+| `routeConfigs` | `PathRouteConfigEntry[]` | No | Per-route configs matched by method (optional) and Nest route path: exact match, or prefix when the path ends with `/*`. Longest path wins |
 
 ### `SecurityMiddlewareNest`
 
@@ -138,3 +139,12 @@ The middleware stores guard state on the Express request object for potential us
 - `req._guardRequest` -- The `NestGuardRequest` instance
 - `req._guardRouteConfig` -- The resolved `RouteConfig` (if any)
 - `req._guardStartTime` -- Request start timestamp for response time calculation
+
+### Per-route detection exclusions
+
+```typescript
+GuardModule.forRoot({
+  config,
+  routeConfigs: [{ path: '/api/search', config: openConfig }],
+});
+```

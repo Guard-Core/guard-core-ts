@@ -175,7 +175,15 @@ export async function detectPenetrationPatterns(
   if (penetrationEnabled && !shouldBypassCheckFn('penetration', routeConfig)) {
     const { scanRequestWithManager } = await import('../../utils.js');
     if (susPatternsManager) {
-      return scanRequestWithManager(susPatternsManager, request, config);
+      /* The per-request exclusion set resolves from the global config plus
+         this request's route config (the reference _resolve_* helpers of
+         _utils/detection_config.py, threaded through the scan the way
+         detectThreat receives routeDetectionExclusions in the Go port). */
+      const { resolveDetectionExclusions } = await import('../routing/detection-exclusions.js');
+      return scanRequestWithManager(
+        susPatternsManager, request, config,
+        resolveDetectionExclusions(config, routeConfig),
+      );
     }
     const { detectPenetrationAttempt } = await import('../../utils.js');
     return detectPenetrationAttempt(request);

@@ -38,6 +38,7 @@ app.use(middleware);
 | `agentHandler` | `AgentHandlerProtocol` | No | Telemetry agent |
 | `geoIpHandler` | `GeoIPHandler` | No | GeoIP handler for country filtering |
 | `guardDecorator` | `SecurityDecorator` | No | Decorator instance for per-route config |
+| `routeConfigs` | `PathRouteConfigEntry[]` | No | Per-route configs matched by method (optional) and request path: exact match, or prefix when the path ends with `/*`. Longest path wins |
 
 ### `guardBodyParser()`
 
@@ -127,4 +128,24 @@ app.post('/api/login', (req, res, next) => {
 app.listen(3000, () => {
   console.log('Server running on :3000');
 });
+```
+
+### Per-route detection exclusions
+
+```typescript
+import { createSecurityMiddleware, RouteConfig } from '@guardcore/express';
+
+const openConfig = new RouteConfig();
+openConfig.excludedDetectionParams = new Set(['q']);
+
+const mutedBodyConfig = new RouteConfig();
+mutedBodyConfig.detectionScanBody = false;
+
+app.use(createSecurityMiddleware({
+  config,
+  routeConfigs: [
+    { path: '/api/search', config: openConfig },
+    { method: 'POST', path: '/api/ingest', config: mutedBodyConfig },
+  ],
+}));
 ```

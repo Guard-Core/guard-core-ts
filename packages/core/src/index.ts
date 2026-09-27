@@ -68,3 +68,8 @@ export {
 export type { OnBlockHook, OnErrorHook } from './core/block-events.js';
 export { UNKNOWN_CLIENT_IDENTITY } from './core/client-identity.js';
 export { UNRESOLVED_ROUTE_REASON } from './core/checks/implementations/route-config.js';
+export {
+  resolveDetectionExclusions, disabledCategoriesOf, EXCLUDED_HEADERS,
+} from './core/routing/detection-exclusions.js';
+export type { ResolvedDetectionExclusions } from './core/routing/detection-exclusions.js';
+export type { PathRouteConfigEntry } from './core/routing/resolver.js';

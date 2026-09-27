@@ -2,6 +2,7 @@ import ipaddr from 'ipaddr.js';
 import { z } from 'zod';
 
 import { PATTERN_DEFINITIONS } from '../detection-engine/patterns/pattern-table.js';
+import { ALL_DETECTION_CATEGORIES } from '../detection-engine/patterns/sources.js';
 import type { GeoIPHandler } from '../protocols/geo-ip.js';
 import type { GuardRequest } from '../protocols/request.js';
 import type { GuardResponse } from '../protocols/response.js';
@@ -158,6 +159,21 @@ export const SecurityConfigSchema = z.object({
   excludedDetectionBodyFields: z.array(z.string()).default([]),
   excludedDetectionHeaders: z.array(z.string()).default([]),
 
+  /* Detection categories that scan (the TS port of the reference
+     enabled_detection_categories frozenset,
+     guard_core/_security_config_fields.py): the default is every category in
+     the canonical pattern table, and an unknown entry fails config parsing
+     like _validate_enabled_detection_categories_value. A route's
+     enabledDetectionCategories replaces this set per route
+     (detection-exclusions.ts). */
+  enabledDetectionCategories: z.array(z.string()).default([...ALL_DETECTION_CATEGORIES]),
+
+  /* Global body-scan toggle (the TS port of detection_scan_body, reference
+     default true): when false the body surface is not scanned at all while
+     headers, params and the URL path still scan. A route's
+     detectionScanBody overrides it per route. */
+  detectionScanBody: z.boolean().default(true),
+
   enableAgent: z.boolean().default(false),
   agentApiKey: z.string().nullable().default(null),
   agentEndpoint: z.string().url().default('https://api.fastapi-guard.com'),
@@ -213,6 +229,16 @@ export const SecurityConfigSchema = z.object({
       message: `Unknown threat categories in threatBanConfig: ${unknownCategories.sort()}. `
         + `Valid: ${[...THREAT_BAN_CONFIG_CATEGORIES].sort()}`,
       path: ['threatBanConfig'],
+    });
+  }
+  const unknownEnabledCategories = data.enabledDetectionCategories
+    .filter((category) => !ALL_DETECTION_CATEGORIES.has(category));
+  if (unknownEnabledCategories.length > 0) {
+    ctx.addIssue({
+      code: 'custom',
+      message: `Unknown detection categories: ${unknownEnabledCategories.sort()}. `
+        + `Valid: ${[...ALL_DETECTION_CATEGORIES].sort()}`,
+      path: ['enabledDetectionCategories'],
     });
   }
   if (data.enableAgent && !data.agentApiKey) {

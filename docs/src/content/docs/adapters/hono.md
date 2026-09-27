@@ -35,6 +35,7 @@ app.use('*', middleware);
 | `agentHandler` | `AgentHandlerProtocol` | No | Telemetry agent |
 | `geoIpHandler` | `GeoIPHandler` | No | GeoIP handler for country filtering |
 | `guardDecorator` | `SecurityDecorator` | No | Decorator instance for per-route config |
+| `routeConfigs` | `PathRouteConfigEntry[]` | No | Per-route configs matched by method (optional) and request path: exact match, or prefix when the path ends with `/*`. Longest path wins |
 
 ### `configureCors(app, config)`
 
@@ -162,4 +163,18 @@ Deploy with:
 
 ```bash
 wrangler deploy
+```
+
+### Per-route detection exclusions
+
+```typescript
+import { createGuardMiddleware, RouteConfig } from '@guardcore/hono';
+
+const openConfig = new RouteConfig();
+openConfig.excludedDetectionParams = new Set(['q']);
+
+app.use('*', createGuardMiddleware({
+  config,
+  routeConfigs: [{ path: '/api/search', config: openConfig }],
+}));
 ```

@@ -36,4 +36,25 @@ export class RouteConfig {
   apiKeyRequired = false;
   sessionLimits: Record<string, number> | null = null;
   geoRateLimits: Record<string, [number, number]> | null = null;
+
+  /* Per-route detection exclusion surface, mirrored from the reference
+     route_config.detection_exclusion decorator
+     (guard_core/decorators/content_filtering.py) and resolved with the
+     _resolve_* helpers of guard_core/_utils/detection_config.py. A null
+     field means "inherit the global config" for that surface; a non-null
+     value replaces the global one (the header exclusion set is the
+     exception: it always merges the hardcoded defaults with the config set
+     and the route set, see resolveDetectionExclusions). Entries are matched
+     lowercased like the reference. */
+  excludedDetectionHeaders: Set<string> | null = null;
+  excludedDetectionParams: Set<string> | null = null;
+  excludedDetectionBodyFields: Set<string> | null = null;
+  /* When non-null, replaces the global enabled category set for this route
+     (an empty set disables every category, like the reference's empty
+     frozenset). */
+  enabledDetectionCategories: Set<string> | null = null;
+  /* When non-null, overrides the reference detection_scan_body default
+     (true): false skips the body surface while headers, params, and the URL
+     path still scan. */
+  detectionScanBody: boolean | null = null;
 }

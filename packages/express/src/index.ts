@@ -21,4 +21,5 @@ export type {
   Logger,
   SecurityMiddlewareComponents,
   HandlerRegistry,
+  PathRouteConfigEntry,
 } from '@guardcore/core';
