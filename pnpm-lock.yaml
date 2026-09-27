@@ -165,7 +165,7 @@ importers:
   packages/express:
     dependencies:
       '@guardcore/core':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../core
       express:
         specifier: ^4 || ^5
@@ -190,7 +190,7 @@ importers:
   packages/fastify:
     dependencies:
       '@guardcore/core':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../core
       fastify-plugin:
         specifier: ^5.1.0
@@ -215,7 +215,7 @@ importers:
   packages/hono:
     dependencies:
       '@guardcore/core':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../core
     devDependencies:
       hono:
@@ -234,7 +234,7 @@ importers:
   packages/nestjs:
     dependencies:
       '@guardcore/core':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../core
     devDependencies:
       '@nestjs/common':
