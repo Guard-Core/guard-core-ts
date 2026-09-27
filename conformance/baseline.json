@@ -1,6 +1,6 @@
 {
-  "spec_version": "4.0.3",
-  "corpus_sha256": "883233646d85426d39b6991667f3d5277e97393bdef3d3f35502b839181c1333",
+  "spec_version": "4.1.0",
+  "corpus_sha256": "e6d36f0b5252c860c69855e30fbe7b991872de6d6cefe8094745daab84dad816",
   "failing_cases": {},
   "total_expected_fail": 0
 }
