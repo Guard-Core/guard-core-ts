@@ -224,7 +224,7 @@ describe('exemptIps acceptance checklist (middleware level)', () => {
     });
     const response = await run(components, request);
     expect(response).not.toBeNull();
-    expect(response!.statusCode).toBe(403);
+    expect(response!.statusCode).toBe(400);
     expect(components.middlewareProtocol.suspiciousRequestCounts.get(EXEMPT_IP)?.get('xss')).toBe(1);
   });
 
@@ -302,6 +302,6 @@ describe('exemptIps and whitelist skip consumers (middleware level)', () => {
 
     const exemptComponents = await build({ exemptIps: [EXEMPT_IP] });
     const exempt = makeRequest({ clientHost: EXEMPT_IP, ...attack });
-    expect((await run(exemptComponents, exempt))!.statusCode).toBe(403);
+    expect((await run(exemptComponents, exempt))!.statusCode).toBe(400);
   });
 });

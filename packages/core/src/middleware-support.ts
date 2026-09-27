@@ -16,6 +16,7 @@ import { RouteConfigResolver } from './core/routing/resolver.js';
 import { BypassHandler } from './core/bypass/handler.js';
 import { ErrorResponseFactory } from './core/responses/factory.js';
 import { BehavioralProcessor } from './core/behavioral/processor.js';
+import { BehaviorTracker } from './handlers/behavior.js';
 import { SecurityCheckPipeline } from './core/checks/pipeline.js';
 
 import { RouteConfigCheck } from './core/checks/implementations/route-config.js';
@@ -80,9 +81,19 @@ export async function initializeSecurityMiddleware(
     config, eventBus, routeResolver, errorResponseFactory, validator,
   );
   const behavioralProcessor = new BehavioralProcessor(logger, eventBus);
+  /* The engine-owned tracker backs the global behavior rules (and route
+     rules on pipelines without a decorator); the decorator's tracker wins
+     when one is present, matching the reference resolution order. */
+  const behaviorTracker = new BehaviorTracker(config, logger);
+  if (registry.ipBanHandler) behaviorTracker.initializeIpBan(registry.ipBanHandler);
+  if (registry.redisHandler) await behaviorTracker.initializeRedis(registry.redisHandler);
+  if (agentHandler) await behaviorTracker.initializeAgent(agentHandler);
+  behavioralProcessor.setDefaultTracker(behaviorTracker);
+  errorResponseFactory.setBehavioralProcessor(behavioralProcessor);
+  behavioralProcessor.setSuspiciousCountsReader(() => middlewareProtocol.suspiciousRequestCounts);
   if (guardDecorator) {
     behavioralProcessor.setGuardDecorator(
-      guardDecorator as { behaviorTracker: import('./handlers/behavior.js').BehaviorTracker },
+      guardDecorator as { behaviorTracker: BehaviorTracker },
     );
   }
 

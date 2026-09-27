@@ -78,7 +78,7 @@ describe('per-route detection exclusions through the nestjs middleware', () => {
       resBlocked, nextBlocked,
     );
     expect(nextBlocked).not.toHaveBeenCalled();
-    expect(resBlocked.status).toHaveBeenCalledWith(403);
+    expect(resBlocked.status).toHaveBeenCalledWith(400);
     const sent = (resBlocked.send as ReturnType<typeof vi.fn>).mock.calls[0]?.[0];
     expect(Buffer.from(sent as Uint8Array).toString('utf-8')).toBe('Suspicious activity detected');
   });
@@ -113,7 +113,7 @@ describe('per-route detection exclusions through the nestjs middleware', () => {
       resScan, nextScan,
     );
     expect(nextScan).not.toHaveBeenCalled();
-    expect(resScan.status).toHaveBeenCalledWith(403);
+    expect(resScan.status).toHaveBeenCalledWith(400);
 
     // The body toggle does not mute the query surface on the same route.
     const nextQuery = vi.fn();
@@ -128,6 +128,6 @@ describe('per-route detection exclusions through the nestjs middleware', () => {
       resQuery, nextQuery,
     );
     expect(nextQuery).not.toHaveBeenCalled();
-    expect(resQuery.status).toHaveBeenCalledWith(403);
+    expect(resQuery.status).toHaveBeenCalledWith(400);
   });
 });

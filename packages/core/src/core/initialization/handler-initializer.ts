@@ -35,7 +35,7 @@ export class HandlerInitializer {
 
   async initialize(): Promise<HandlerRegistry> {
     const ipBanHandler = new IPBanManager(this.logger);
-    const rateLimitHandler = new RateLimitManager(this.logger);
+    const rateLimitHandler = new RateLimitManager(this.logger, this.config);
     const cloudHandler = new CloudHandler(this.logger);
     const susPatternsHandler = new SusPatternsManager(this.config, this.logger);
     const securityHeadersHandler = new SecurityHeadersManager(this.logger);

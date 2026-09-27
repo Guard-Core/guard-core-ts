@@ -41,7 +41,7 @@ describe('per-route detection exclusions through the fastify plugin', () => {
     const blocked = await app.inject({
       method: 'GET', url: '/api/other', remoteAddress: '10.0.0.1', query: { q: XSS },
     });
-    expect(blocked.statusCode).toBe(403);
+    expect(blocked.statusCode).toBe(400);
     expect(blocked.body).toBe('Suspicious activity detected');
 
     await app.close();
@@ -61,14 +61,14 @@ describe('per-route detection exclusions through the fastify plugin', () => {
       method: 'POST', url: '/api/scan', remoteAddress: '10.0.0.2',
       headers: { 'content-type': 'application/json' }, payload: body,
     });
-    expect(scanned.statusCode).toBe(403);
+    expect(scanned.statusCode).toBe(400);
 
     // The body toggle does not mute the query surface on the same route.
     const queryStillScans = await app.inject({
       method: 'POST', url: `/api/mute?q=${encodeURIComponent(XSS)}`, remoteAddress: '10.0.0.2',
       headers: { 'content-type': 'application/json' }, payload: '{"comment":"benign"}',
     });
-    expect(queryStillScans.statusCode).toBe(403);
+    expect(queryStillScans.statusCode).toBe(400);
 
     await app.close();
   });

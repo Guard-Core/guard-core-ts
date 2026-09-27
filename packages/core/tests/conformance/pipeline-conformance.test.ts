@@ -28,7 +28,15 @@ const EVENTS: Array<{ eventType: string; actionTaken: string }> = [];
 
 function recordingAgentHandler(): AgentHandlerProtocol {
   return {
-    async sendEvent(event: { eventType: string; actionTaken: string }) {
+    async sendEvent(event: { eventType: string; actionTaken: string; timestamp?: unknown }) {
+      /* The reference fixture harness records ONLY
+         event_bus.send_middleware_event calls (_RecordingEventBus in
+         specs/fixtures/tools/pipeline_harness.py); the engine's
+         handler-direct agent events (rate_limited, ip_banned,
+         behavioral_violation) are outside the corpus's observable surface.
+         The event bus stamps every middleware event with a timestamp, so
+         that field separates the two channels here. */
+      if (event.timestamp === undefined) return;
       EVENTS.push({ eventType: event.eventType, actionTaken: event.actionTaken });
     },
   } as unknown as AgentHandlerProtocol;
@@ -69,9 +77,27 @@ function toCamelConfig(raw: Record<string, unknown>, geo: Record<string, string>
     ['cors_allow_methods', 'corsAllowMethods'],
     ['cors_allow_headers', 'corsAllowHeaders'],
     ['cors_allow_credentials', 'corsAllowCredentials'],
+    ['behavior_scan_response_body', 'behaviorScanResponseBody'],
+    ['behavior_max_response_body_inspect_bytes', 'behaviorMaxResponseBodyInspectBytes'],
   ];
   for (const [from, to] of direct) {
     if (from in raw) out[to] = raw[from];
+  }
+  if ('global_behavior_rules' in raw) {
+    const rules: Record<string, unknown>[] = [];
+    for (const rule of raw['global_behavior_rules'] as Record<string, unknown>[]) {
+      const mappedRule: Record<string, unknown> = {
+        ruleType: rule['rule_type'],
+        threshold: rule['threshold'],
+      };
+      if ('window' in rule) mappedRule['window'] = rule['window'];
+      if ('pattern' in rule) mappedRule['pattern'] = rule['pattern'];
+      if ('action' in rule) mappedRule['action'] = rule['action'];
+      if ('ban_duration' in rule) mappedRule['banDuration'] = rule['ban_duration'];
+      if ('correlate_with_detection' in rule) mappedRule['correlateWithDetection'] = rule['correlate_with_detection'];
+      rules.push(mappedRule);
+    }
+    out['globalBehaviorRules'] = rules;
   }
   if ('endpoint_rate_limits' in raw) {
     const tiers: Record<string, [number, number]> = {};
@@ -85,7 +111,16 @@ function toCamelConfig(raw: Record<string, unknown>, geo: Record<string, string>
   }
   if ('security_headers' in raw) {
     const sh = raw['security_headers'] as Record<string, unknown>;
-    const mapped: Record<string, unknown> = { ...sh };
+    const mapped: Record<string, unknown> = {
+      enabled: sh['enabled'],
+      frameOptions: sh['frame_options'],
+      contentTypeOptions: sh['content_type_options'],
+      xssProtection: sh['xss_protection'],
+      referrerPolicy: sh['referrer_policy'],
+      permissionsPolicy: sh['permissions_policy'],
+      custom: sh['custom'] ?? null,
+      csp: sh['csp'] ?? null,
+    };
     if ('hsts' in sh) {
       const hsts = sh['hsts'] as Record<string, unknown>;
       mapped['hsts'] = {

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { BehaviorTracker } from '../../src/handlers/behavior.js';
+import { IPBanManager } from '../../src/handlers/ip-ban.js';
 import { BehaviorRule } from '../../src/models/behavior-rule.js';
 import { SecurityConfigSchema } from '../../src/models/config.js';
 import { defaultLogger } from '../../src/models/logger.js';
@@ -86,6 +87,8 @@ describe('BehaviorTracker', () => {
     });
 
     it('matches regex pattern', async () => {
+      const config = SecurityConfigSchema.parse({ behaviorScanResponseBody: true });
+      tracker = new BehaviorTracker(config, defaultLogger);
       const rule = new BehaviorRule('return_pattern', 2, 3600, 'regex:rare_sword');
       const response = createBehaviorResponse(200, '{"item": "rare_sword"}');
 
@@ -104,6 +107,8 @@ describe('BehaviorTracker', () => {
     });
 
     it('matches substring pattern', async () => {
+      const config = SecurityConfigSchema.parse({ behaviorScanResponseBody: true });
+      tracker = new BehaviorTracker(config, defaultLogger);
       const rule = new BehaviorRule('return_pattern', 1, 3600, 'win');
       const response = createBehaviorResponse(200, 'you win!');
 
@@ -131,31 +136,32 @@ describe('BehaviorTracker applyAction all branches', () => {
   });
 
   it('handles ban action', async () => {
+    tracker.initializeIpBan(new IPBanManager(defaultLogger));
     const logSpy = vi.spyOn(defaultLogger, 'warn');
     const rule = new BehaviorRule('usage', 5, 3600, null, 'ban');
     await tracker.applyAction(rule, '10.0.0.1', '/api/test', 'exceeded threshold');
-    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('Behavioral ban'));
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('banned for behavioral violation'));
   });
 
   it('handles log action', async () => {
-    const logSpy = vi.spyOn(defaultLogger, 'info');
+    const logSpy = vi.spyOn(defaultLogger, 'warn');
     const rule = new BehaviorRule('usage', 5, 3600, null, 'log');
     await tracker.applyAction(rule, '10.0.0.1', '/api/test', 'exceeded threshold');
-    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('Behavioral log'));
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('Behavioral anomaly detected'));
   });
 
   it('handles throttle action', async () => {
-    const logSpy = vi.spyOn(defaultLogger, 'info');
+    const logSpy = vi.spyOn(defaultLogger, 'warn');
     const rule = new BehaviorRule('usage', 5, 3600, null, 'throttle');
     await tracker.applyAction(rule, '10.0.0.1', '/api/test', 'exceeded threshold');
-    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('Behavioral throttle'));
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('Throttling IP'));
   });
 
   it('handles alert action', async () => {
-    const logSpy = vi.spyOn(defaultLogger, 'warn');
+    const logSpy = vi.spyOn(defaultLogger, 'error');
     const rule = new BehaviorRule('usage', 5, 3600, null, 'alert');
     await tracker.applyAction(rule, '10.0.0.1', '/api/test', 'exceeded threshold');
-    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('Behavioral alert'));
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('ALERT - Behavioral anomaly'));
   });
 
   it('calls customAction callback when provided', async () => {
@@ -173,34 +179,41 @@ describe('BehaviorTracker applyAction all branches', () => {
 
   it('logs passive mode message and returns early', async () => {
     const passiveTracker = new BehaviorTracker(createTestConfig({ passiveMode: true }), defaultLogger);
-    const logSpy = vi.spyOn(defaultLogger, 'info');
+    const logSpy = vi.spyOn(defaultLogger, 'warn');
     const rule = new BehaviorRule('usage', 5, 3600, null, 'ban');
     await passiveTracker.applyAction(rule, '10.0.0.1', '/api/test', 'exceeded threshold');
-    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('[PASSIVE]'));
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('[PASSIVE MODE] Would ban IP'));
   });
 
   it('sends agent event when agent is set', async () => {
     const agent = createMockAgent();
     await tracker.initializeAgent(agent);
+    tracker.initializeIpBan(new IPBanManager(defaultLogger));
     const rule = new BehaviorRule('usage', 5, 3600, null, 'ban');
     await tracker.applyAction(rule, '10.0.0.1', '/api/test', 'exceeded threshold');
     expect(agent.sendEvent).toHaveBeenCalledWith(
-      expect.objectContaining({ eventType: 'behavioral_action', actionTaken: 'ban' }),
+      expect.objectContaining({ eventType: 'behavioral_violation', actionTaken: 'ban' }),
     );
   });
 
-  it('checkResponsePattern with json:path format', async () => {
+  it('checkResponsePattern with json:path==expected format', async () => {
+    const scanTracker = new BehaviorTracker(
+      createTestConfig({ behaviorScanResponseBody: true }), defaultLogger,
+    );
     const response = createMockResponse(200, JSON.stringify({ data: { status: 'error' } }));
-    const rule = new BehaviorRule('return_pattern', 1, 3600, 'json:data.status');
-    const exceeded = await tracker.trackReturnPattern('/api/test', '10.0.0.1', response, rule);
+    const rule = new BehaviorRule('return_pattern', 1, 3600, 'json:data.status==error');
+    const exceeded = await scanTracker.trackReturnPattern('/api/test', '10.0.0.1', response, rule);
     expect(typeof exceeded).toBe('boolean');
   });
 
   it('checkResponsePattern with json:path returns false for null body', async () => {
+    const scanTracker = new BehaviorTracker(
+      createTestConfig({ behaviorScanResponseBody: true }), defaultLogger,
+    );
     const response = createMockResponse(200, '');
     response.bodyText = null;
-    const rule = new BehaviorRule('return_pattern', 1, 3600, 'json:data.status');
-    const exceeded = await tracker.trackReturnPattern('/api/test', '10.0.0.1', response, rule);
+    const rule = new BehaviorRule('return_pattern', 1, 3600, 'json:data.status==error');
+    const exceeded = await scanTracker.trackReturnPattern('/api/test', '10.0.0.1', response, rule);
     expect(exceeded).toBe(false);
   });
 
@@ -212,16 +225,22 @@ describe('BehaviorTracker applyAction all branches', () => {
   });
 
   it('checkResponsePattern with regex: pattern', async () => {
+    const scanTracker = new BehaviorTracker(
+      createTestConfig({ behaviorScanResponseBody: true }), defaultLogger,
+    );
     const response = createMockResponse(200, 'error occurred in processing');
     const rule = new BehaviorRule('return_pattern', 0, 3600, 'regex:error.*processing');
-    const exceeded = await tracker.trackReturnPattern('/api/test', '10.0.0.1', response, rule);
+    const exceeded = await scanTracker.trackReturnPattern('/api/test', '10.0.0.1', response, rule);
     expect(exceeded).toBe(true);
   });
 
   it('checkResponsePattern with plain text pattern', async () => {
+    const scanTracker = new BehaviorTracker(
+      createTestConfig({ behaviorScanResponseBody: true }), defaultLogger,
+    );
     const response = createMockResponse(200, 'unauthorized access attempt');
     const rule = new BehaviorRule('return_pattern', 0, 3600, 'unauthorized');
-    const exceeded = await tracker.trackReturnPattern('/api/test', '10.0.0.1', response, rule);
+    const exceeded = await scanTracker.trackReturnPattern('/api/test', '10.0.0.1', response, rule);
     expect(exceeded).toBe(true);
   });
 });
@@ -230,38 +249,47 @@ describe('BehaviorTracker nested JSON matching', () => {
   it('matches json:path pattern', async () => {
     const config = createTestConfig();
     const tracker = new BehaviorTracker(config, defaultLogger);
-    const rule = new BehaviorRule('return_pattern', 1, 3600, 'json:item');
+    const scanTracker = new BehaviorTracker(
+      createTestConfig({ behaviorScanResponseBody: true }), defaultLogger,
+    );
+    const rule = new BehaviorRule('return_pattern', 1, 3600, 'json:item==rare_sword');
     const response = createMockResponse(200, JSON.stringify({ item: 'rare_sword' }));
 
-    await tracker.trackReturnPattern('/api/loot', '1.2.3.4', response, rule);
-    const result = await tracker.trackReturnPattern('/api/loot', '1.2.3.4', response, rule);
+    await scanTracker.trackReturnPattern('/api/loot', '1.2.3.4', response, rule);
+    const result = await scanTracker.trackReturnPattern('/api/loot', '1.2.3.4', response, rule);
     expect(result).toBe(true);
   });
 
   it('does not match json:path when field missing', async () => {
     const config = createTestConfig();
     const tracker = new BehaviorTracker(config, defaultLogger);
-    const rule = new BehaviorRule('return_pattern', 1, 3600, 'json:missing_field');
+    const scanTracker = new BehaviorTracker(
+      createTestConfig({ behaviorScanResponseBody: true }), defaultLogger,
+    );
+    const rule = new BehaviorRule('return_pattern', 1, 3600, 'json:missing_field==value');
     const response = createMockResponse(200, JSON.stringify({ other: 'value' }));
 
-    const result = await tracker.trackReturnPattern('/api/test', '1.2.3.4', response, rule);
+    const result = await scanTracker.trackReturnPattern('/api/test', '1.2.3.4', response, rule);
     expect(result).toBe(false);
   });
 
   it('handles invalid JSON gracefully', async () => {
     const config = createTestConfig();
     const tracker = new BehaviorTracker(config, defaultLogger);
-    const rule = new BehaviorRule('return_pattern', 1, 3600, 'json:field');
+    const scanTracker = new BehaviorTracker(
+      createTestConfig({ behaviorScanResponseBody: true }), defaultLogger,
+    );
+    const rule = new BehaviorRule('return_pattern', 1, 3600, 'json:field==value');
     const response = createMockResponse(200, 'not json');
 
-    const result = await tracker.trackReturnPattern('/api/test', '1.2.3.4', response, rule);
+    const result = await scanTracker.trackReturnPattern('/api/test', '1.2.3.4', response, rule);
     expect(result).toBe(false);
   });
 });
 
 describe('BehaviorTracker remaining branches', () => {
   it('checkResponsePattern default fallback (no prefix)', async () => {
-    const config = createTestConfig();
+    const config = createTestConfig({ behaviorScanResponseBody: true });
     const tracker = new BehaviorTracker(config, defaultLogger);
     const rule = new BehaviorRule('return_pattern', 1, 3600, 'rare_item');
     const response = createBehaviorResponse(200, 'You found a rare_item!');
@@ -271,7 +299,7 @@ describe('BehaviorTracker remaining branches', () => {
   });
 
   it('checkResponsePattern bodyText null returns false', async () => {
-    const config = createTestConfig();
+    const config = createTestConfig({ behaviorScanResponseBody: true });
     const tracker = new BehaviorTracker(config, defaultLogger);
     const rule = new BehaviorRule('return_pattern', 1, 3600, 'regex:test');
     const response = createBehaviorResponse(200, '');

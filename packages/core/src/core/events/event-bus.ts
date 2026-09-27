@@ -82,7 +82,8 @@ export class SecurityEventBus {
     passiveMode: boolean,
   ): Promise<void> {
     await this.sendMiddlewareEvent(
-      'cloud_detection', request,
+      /* Reference EVENT_CLOUD_BLOCKED. */
+      'cloud_blocked', request,
       /* v8 ignore next -- V8 cannot track ternary branch coverage inside string template literal */
       passiveMode ? 'logged_only' : 'request_blocked',
       `Cloud provider IP ${clientIp} detected`,

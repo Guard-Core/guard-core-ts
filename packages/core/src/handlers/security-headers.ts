@@ -132,9 +132,14 @@ export class SecurityHeadersManager {
     }
 
     if (options.corsOrigins) {
+      let allowCredentials = options.corsAllowCredentials ?? false;
+      if (options.corsOrigins.includes('*') && allowCredentials) {
+        this.logger.error('CORS config error: Wildcard origin disallowed with credentials');
+        allowCredentials = false;
+      }
       this.corsConfig = {
         origins: options.corsOrigins,
-        allowCredentials: options.corsAllowCredentials ?? false,
+        allowCredentials,
         allowMethods: options.corsAllowMethods ?? ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
         allowHeaders: options.corsAllowHeaders ?? ['*'],
       };
@@ -207,14 +212,24 @@ export class SecurityHeadersManager {
   getCorsHeaders(origin: string): Record<string, string> {
     if (!this.corsConfig) return {};
 
+    /* The wildcard-with-credentials pair is neutralized at config compute
+       time (credentials forced off with an error), so it never blocks the
+       wildcard response here; the credentials header simply never appears
+       (guard_core/handlers/_security_headers_config.py _compute_cors_config
+       + _security_headers_cors.py get_cors_headers). */
     const isAllowed = this.corsConfig.origins.includes('*') ||
       this.corsConfig.origins.includes(origin);
     if (!isAllowed) return {};
 
     const headers: Record<string, string> = {
-      'Access-Control-Allow-Origin': this.corsConfig.origins.includes('*') ? '*' : origin,
+      /* Reference _build_cors_headers: the origin echoes when listed, the
+         wildcard composes as '*' otherwise. */
+      'Access-Control-Allow-Origin': this.corsConfig.origins.includes(origin)
+        ? origin
+        : '*',
       'Access-Control-Allow-Methods': this.corsConfig.allowMethods.join(', '),
       'Access-Control-Allow-Headers': this.corsConfig.allowHeaders.join(', '),
+      'Access-Control-Max-Age': '3600',
     };
 
     if (this.corsConfig.allowCredentials) {

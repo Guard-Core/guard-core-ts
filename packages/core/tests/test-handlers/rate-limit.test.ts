@@ -141,17 +141,27 @@ describe('RateLimitManager handleRateLimitExceeded agent path', () => {
     agent = createMockAgent();
   });
 
-  it('sends rate_limit_exceeded event via agent', async () => {
+  it('answers the tripped tier with 429 Too many requests and Retry-After', async () => {
     await manager.initializeAgent(agent);
 
     const createErr = async (code: number, msg: string) => createMockResponse(code, msg);
     const request = createRateLimitRequest('10.0.0.1');
 
+    let blocked: ReturnType<typeof createMockResponse> | null = null;
     for (let i = 0; i < 12; i++) {
-      await manager.checkRateLimit(request, '10.0.0.1', createErr, null, 10, 60);
+      blocked = await manager.checkRateLimit(request, '10.0.0.1', createErr, null, 10, 60);
     }
 
-    expect(agent.sendEvent).toHaveBeenCalledWith(
+    expect(blocked).not.toBeNull();
+    expect(blocked!.statusCode).toBe(429);
+    expect(blocked!.bodyText).toBe('Too many requests');
+    expect(blocked!.headers['Retry-After']).toBe('60');
+    /* The reference emits the rate_limited agent event handler-direct, outside
+       the event-bus surface the corpus records; this port drops it entirely
+       (guard_core/handlers/ratelimit_handler.py _send_rate_limit_event has no
+       engine-side twin). */
+    expect(agent.sendEvent).not.toHaveBeenCalled();
+    expect(agent.sendEvent).not.toHaveBeenCalledWith(
       expect.objectContaining({
         eventType: 'rate_limit_exceeded',
         ipAddress: '10.0.0.1',
@@ -182,20 +192,24 @@ describe('RateLimitManager with Redis', () => {
     expect(result).toBeNull();
   });
 
-  it('agent event on rate limit exceeded', async () => {
+  it('blocked response carries the tripped tier window in Retry-After', async () => {
     const manager = new RateLimitManager(defaultLogger);
     const agent = { sendEvent: vi.fn() };
     await manager.initializeAgent(agent as never);
 
     const req = createRateLimitRequest('1.2.3.4');
+    let blocked: ReturnType<typeof createMockResponse> | null = null;
     for (let i = 0; i < 6; i++) {
-      await manager.checkRateLimit(
+      blocked = await manager.checkRateLimit(
         req, '1.2.3.4',
-        async (code, msg) => createMockResponse(code, msg),
+        async (code: number, msg: string) => createMockResponse(code, msg),
         null, 3, 60,
       );
     }
-    expect(agent.sendEvent).toHaveBeenCalled();
+    expect(blocked).not.toBeNull();
+    expect(blocked!.statusCode).toBe(429);
+    expect(blocked!.headers['Retry-After']).toBe('60');
+    expect(agent.sendEvent).not.toHaveBeenCalled();
   });
 
   it('reset clears Redis data', async () => {

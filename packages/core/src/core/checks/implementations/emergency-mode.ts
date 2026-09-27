@@ -11,7 +11,8 @@ export class EmergencyModeCheck extends SecurityCheck {
     const clientIp = request.clientHost ?? '';
     if (this.config.emergencyWhitelist.includes(clientIp)) return null;
 
-    await this.sendEvent('emergency_mode', request, 'request_blocked', 'Emergency mode active');
+    /* Reference EVENT_EMERGENCY_MODE_BLOCK. */
+    await this.sendEvent('emergency_mode_block', request, 'request_blocked', 'Emergency mode active');
     return this.createErrorResponse(503, 'Service temporarily unavailable');
   }
 }

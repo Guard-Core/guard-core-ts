@@ -5,6 +5,7 @@ import type { RouteConfig } from '../../../models/route-config.js';
 import type { RateLimitManager } from '../../../handlers/rate-limit.js';
 import type { IPBanManager } from '../../../handlers/ip-ban.js';
 import { incrementSuspiciousCounts, tryThresholdBan } from '../helpers.js';
+import { logActivity } from '../../../utils.js';
 import { SecurityCheck } from '../base.js';
 
 export class RateLimitCheck extends SecurityCheck {
@@ -52,65 +53,74 @@ export class RateLimitCheck extends SecurityCheck {
     const clientIp = request.clientHost;
     if (!clientIp) return null;
 
-    const rateLimitHandler = this.middleware.rateLimitHandler as RateLimitManager;
     const routeConfig = (request.state as Record<string, unknown>)['_routeConfig'] as RouteConfig | undefined;
-    const createError = this.createErrorResponse.bind(this);
 
-    /* v8 ignore next -- routeConfig?.rateLimit null check; rateLimit is always set in test fixtures */
     if (routeConfig?.rateLimit !== null && routeConfig?.rateLimit !== undefined) {
-      const response = await rateLimitHandler.checkRateLimit(
-        request, clientIp, createError, request.urlPath,
-        routeConfig.rateLimit, routeConfig.rateLimitWindow ?? this.config.rateLimitWindow,
+      const window = routeConfig.rateLimitWindow ?? 60;
+      const routeResponse = await this.applyRateLimitCheck(
+        request, clientIp, routeConfig.rateLimit, window,
+        'decorator_violation',
+        `Route-specific rate limit exceeded: ${routeConfig.rateLimit} requests per ${window}s`,
+        request.urlPath,
       );
-      if (response) {
-        if (this.isPassiveMode()) {
-          this.logger.info(`[PASSIVE] Route rate limit exceeded for ${clientIp}`);
-          return null;
-        }
-        await this.recordRateLimitAutoBan(request, clientIp, 'Route-specific rate limit exceeded');
-        return response;
-      }
+      if (routeResponse !== null) return routeResponse;
     }
 
     const endpointLimit = this.config.endpointRateLimits[request.urlPath];
     if (endpointLimit) {
       const [limit, window] = endpointLimit;
-      const response = await rateLimitHandler.checkRateLimit(
-        request, clientIp, createError, request.urlPath, limit, window,
+      const endpointResponse = await this.applyRateLimitCheck(
+        request, clientIp, limit, window,
+        'dynamic_rule_violation',
+        `Endpoint-specific rate limit exceeded: ${limit} requests per ${window}s for ${request.urlPath}`,
+        request.urlPath,
       );
-      if (response) {
-        if (this.isPassiveMode()) {
-          this.logger.info(`[PASSIVE] Endpoint rate limit exceeded for ${clientIp}`);
-          return null;
-        }
-        await this.recordRateLimitAutoBan(request, clientIp, 'Endpoint-specific rate limit exceeded');
-        return response;
-      }
+      if (endpointResponse !== null) return endpointResponse;
     }
 
     const geoResponse = await this.checkGeoRateLimit(request, clientIp, routeConfig ?? null);
-    if (geoResponse) {
-      if (this.isPassiveMode()) {
-        this.logger.info(`[PASSIVE] Geo rate limit exceeded for ${clientIp}`);
-        return null;
-      }
-      return geoResponse;
-    }
+    if (geoResponse) return geoResponse;
 
-    const response = await rateLimitHandler.checkRateLimit(
-      request, clientIp, createError, null,
-      this.config.rateLimit, this.config.rateLimitWindow,
+    return this.applyRateLimitCheck(
+      request, clientIp, this.config.rateLimit, this.config.rateLimitWindow,
+      '', '', null,
     );
-    if (response) {
-      if (this.isPassiveMode()) {
-        this.logger.info(`[PASSIVE] Global rate limit exceeded for ${clientIp}`);
-        return null;
-      }
-      await this.recordRateLimitAutoBan(request, clientIp, 'Global rate limit exceeded');
-      return response;
+  }
+
+  /* The twin of _apply_rate_limit_check
+     (guard_core/core/checks/implementations/rate_limit.py): the tripped tier
+     emits its middleware event before the passive/active branch, passive
+     mode swallows the response (the handler's log_activity dispatch already
+     fired on_block with status_code null), and the active path runs the
+     rate-limit autoban stage. The global tier carries no middleware event
+     (reference _check_global_rate_limit). */
+  private async applyRateLimitCheck(
+    request: GuardRequest,
+    clientIp: string,
+    rateLimit: number,
+    window: number,
+    eventType: string,
+    eventReason: string,
+    endpointPath: string | null,
+  ): Promise<GuardResponse | null> {
+    const rateLimitHandler = this.middleware.rateLimitHandler as RateLimitManager;
+    const response = await rateLimitHandler.checkRateLimit(
+      request, clientIp, this.createErrorResponse.bind(this), endpointPath, rateLimit, window,
+    );
+
+    if (response === null) return null;
+
+    if (eventType !== '') {
+      await this.sendEvent(eventType, request,
+        this.config.passiveMode ? 'logged_only' : 'request_blocked', eventReason);
     }
 
-    return null;
+    if (this.isPassiveMode()) return null;
+
+    await this.recordRateLimitAutoBan(
+      request, clientIp, eventReason !== '' ? eventReason : 'Global rate limit exceeded',
+    );
+    return response;
   }
 
   /* Reference RateLimitCheck._check_geo_rate_limit: the tier list is the
@@ -142,8 +152,11 @@ export class RateLimitCheck extends SecurityCheck {
     if (!tier) return null;
 
     const [limit, window] = tier;
-    return (this.middleware.rateLimitHandler as RateLimitManager).checkRateLimit(
-      request, clientIp, this.createErrorResponse.bind(this), request.urlPath, limit, window,
+    return this.applyRateLimitCheck(
+      request, clientIp, limit, window,
+      'decorator_violation',
+      `Geo rate limit exceeded for ${country ?? 'unknown'}: ${limit} requests per ${window}s`,
+      request.urlPath,
     );
   }
 }

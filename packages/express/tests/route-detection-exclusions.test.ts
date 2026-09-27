@@ -54,7 +54,7 @@ describe('per-route detection exclusions through the express middleware', () => 
     expect(excluded.status).toBe(200);
 
     const blocked = await fetch(`${url}/api/other?q=${encodeURIComponent(XSS)}`);
-    expect(blocked.status).toBe(403);
+    expect(blocked.status).toBe(400);
     expect(await blocked.text()).toBe('Suspicious activity detected');
   });
 
@@ -83,7 +83,7 @@ describe('per-route detection exclusions through the express middleware', () => 
       headers: { 'content-type': 'application/json' },
       body,
     });
-    expect(scanned.status).toBe(403);
+    expect(scanned.status).toBe(400);
 
     // The body toggle does not mute the query surface.
     const queryStillScans = await fetch(`${url}/api/no-body-scan?q=${encodeURIComponent(XSS)}`, {
@@ -91,6 +91,6 @@ describe('per-route detection exclusions through the express middleware', () => 
       headers: { 'content-type': 'application/json' },
       body: '{"comment":"benign"}',
     });
-    expect(queryStillScans.status).toBe(403);
+    expect(queryStillScans.status).toBe(400);
   });
 });

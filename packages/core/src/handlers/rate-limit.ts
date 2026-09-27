@@ -3,6 +3,8 @@ import type { AgentHandlerProtocol } from '../protocols/agent.js';
 import type { GuardRequest } from '../protocols/request.js';
 import type { GuardResponse } from '../protocols/response.js';
 import type { RedisManager } from './redis.js';
+import type { ResolvedSecurityConfig } from '../models/config.js';
+import { logActivity } from '../utils.js';
 
 const RATE_LIMIT_SCRIPT = `
 local key = KEYS[1]
@@ -25,7 +27,10 @@ export class RateLimitManager {
   private agentHandler: AgentHandlerProtocol | null = null;
   private rateLimitScriptSha: string | null = null;
 
-  constructor(private readonly logger: Logger) {}
+  constructor(
+    private readonly logger: Logger,
+    private readonly config?: ResolvedSecurityConfig,
+  ) {}
 
   async initializeRedis(redisHandler: RedisManager): Promise<void> {
     this.redisHandler = redisHandler;
@@ -67,6 +72,7 @@ export class RateLimitManager {
     if (count > rateLimit) {
       return this.handleRateLimitExceeded(
         request, clientIp, count, createErrorResponse, rateLimitWindow,
+        this.config,
       );
     }
 
@@ -128,33 +134,38 @@ export class RateLimitManager {
     return timestamps.length;
   }
 
+  /* The twin of _handle_rate_limit_exceeded
+     (guard_core/handlers/ratelimit_handler.py): the reference log-format
+     reason rides the log_activity on_block dispatch (stash on the active
+     path, direct passive fire with a null status_code), the 429 body is the
+     family "Too many requests" contract and the tripped tier's window is
+     the Retry-After value. */
   private async handleRateLimitExceeded(
     request: GuardRequest,
     clientIp: string,
     count: number,
     createErrorResponse: (statusCode: number, message: string) => Promise<GuardResponse>,
     window: number,
+    config?: ResolvedSecurityConfig,
   ): Promise<GuardResponse> {
-    this.logger.warn(`Rate limit exceeded for ${clientIp}: ${count} requests`);
+    const displayConfig = config ?? this.config;
+    logActivity(
+      request, this.logger, 'suspicious',
+      `Rate limit exceeded for IP: ${clientIp} (${count} requests in ${window}s window)`,
+      displayConfig?.passiveMode ?? false, '', displayConfig?.logSuspiciousLevel ?? 'WARNING',
+      {
+        checkName: 'rate_limit',
+        onBlock: displayConfig?.onBlock ?? null,
+        mutedCheckLogs: null,
+        sensitiveParams: displayConfig?.logSensitiveParams,
+        sensitiveBodyFields: displayConfig?.logSensitiveBodyFields,
+        sensitiveHeaders: displayConfig?.logSensitiveHeaders,
+      },
+    );
 
-    if (this.agentHandler) {
-      try {
-        await this.agentHandler.sendEvent({
-          eventType: 'rate_limit_exceeded',
-          ipAddress: clientIp,
-          actionTaken: 'request_blocked',
-          reason: `Rate limit exceeded: ${count} requests in ${window}s window`,
-          metadata: {
-            endpoint: request.urlPath,
-            method: request.method,
-            requestCount: count,
-            window,
-          },
-        });
-      } catch { /* never throw */ }
-    }
-
-    return createErrorResponse(429, 'Rate limit exceeded');
+    const response = await createErrorResponse(429, 'Too many requests');
+    response.setHeader('Retry-After', String(window));
+    return response;
   }
 
   async reset(): Promise<void> {

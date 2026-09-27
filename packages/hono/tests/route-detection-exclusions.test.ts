@@ -42,7 +42,7 @@ describe('per-route detection exclusions through the hono middleware', () => {
     const blocked = await app.request(`/api/other?q=${encodeURIComponent(XSS)}`, {
       headers: { 'x-forwarded-for': '10.0.0.1' },
     });
-    expect(blocked.status).toBe(403);
+    expect(blocked.status).toBe(400);
     expect(await blocked.text()).toBe('Suspicious activity detected');
   });
 
@@ -54,11 +54,11 @@ describe('per-route detection exclusions through the hono middleware', () => {
     expect(muted.status).toBe(200);
 
     const scanned = await app.request('/api/scan', { method: 'POST', headers: jsonHeaders, body });
-    expect(scanned.status).toBe(403);
+    expect(scanned.status).toBe(400);
 
     const queryStillScans = await app.request(`/api/mute?q=${encodeURIComponent(XSS)}`, {
       method: 'POST', headers: jsonHeaders, body: '{"comment":"benign"}',
     });
-    expect(queryStillScans.status).toBe(403);
+    expect(queryStillScans.status).toBe(400);
   });
 });
