@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.0] - 2026-09-27
+
+### Added
+
+- Parity: the spec 4.1.0 pipeline conformance corpus is adopted and closed to green. The corpus (219 cases, spec 4.1.0, byte-identical to the guard-core specs fixtures) now drives both gates: the detect runner (184 cases) and the new pipeline runner for the five pipeline-kind suites, which drives the real `initializeSecurityMiddleware` pipeline with a recording agent handler for event-name pinning under fail-closed xfail-baseline semantics. The pipeline gate is 35 passed, 0 failed, 0 xfail, 0 config divergences (spec 4.1.0); the detect corpus stays 184/0/0/0
+- Parity: the family response and event contract is adopted across the checks, closing the last documented TS divergences. Detection blocks answer 400 `Suspicious activity detected` (replacing the legacy 403 `Access denied`) with the reference log-format on_block reasons, rate-limit blocks answer 429 `Too many requests` with `Retry-After` set to the tripped tier window and per-tier middleware events (dynamic_rule_violation endpoint, decorator_violation route/geo, global without a tier) with tier fall-through to the global counter, ip_security gains the deny reasons (`IP not in global allowlist`, `IP not in global blocklist`, `IP from blocked country`) with `ip_blocked`/`decorator_violation` events and the 403 `Forbidden` body, `user_agent_blocked` replaces `ua_blocked` with the reference route/global event split and the `User-Agent not allowed` body, the disabled-by-decorator sentinel emits the `decorator_violation` `detection_disabled` event, and `emergency_mode` renames to `emergency_mode_block`, `cloud_detection` to `cloud_blocked` per the reference EVENT_ table
+- Parity: the reference behavior-rules surface is ported. New `globalBehaviorRules`/`behaviorScanResponseBody`/`behaviorMaxResponseBodyInspectBytes` config (fail-closed validation rejects body-pattern return rules with scanning off), the `BehaviorTracker` rebased on the reference sliding-window/action-dispatch semantics with bounded local stores and ban dispatch through the `IPBanManager`, and the `ProcessResponse`-equivalent pass in `ErrorResponseFactory.processResponse` driving route return rules then the global ones with `correlate_with_detection` threshold halving
+- Parity: the route decorator's `ip_whitelist`/`ip_blacklist` stage semantics are aligned with the family ports (route blacklist denies first, a configured route whitelist takes over the route verdict, families never cross)
+- The live dockerized smokes are pinned to the family response contract: the settled 400 `Suspicious activity detected` block body and the default `Too many requests` 429 body (custom 429 bodies keep overriding the default)
+
+### Changed
+
+- Adapters: the published dependency on `@guardcore/core` is now a real semver floor (`^4.2.0`) instead of the `workspace:*` protocol leaking into the published manifests (the published 4.0.4 artifacts carry the unresolvable literal); a root pnpm override keeps the workspace linked for development and CI
+
+### Note
+
+- The 4.1.0 family tags were a version-accuracy error and the 4.1.0 npm artifacts were unpublished. This release republishes the train correctly at 4.2.0, matching the engine (guard-core 4.2.0, spec 4.1.0 corpus)
+
 ## [4.1.0] - 2026-09-26
 
 ### Added

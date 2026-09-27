@@ -1,6 +1,6 @@
 {
   "name": "@guardcore/nestjs",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "description": "NestJS adapter for @guardcore/core security middleware",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -23,7 +23,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@guardcore/core": "workspace:*"
+    "@guardcore/core": "^4.2.0"
   },
   "devDependencies": {
     "tsup": "^8",
