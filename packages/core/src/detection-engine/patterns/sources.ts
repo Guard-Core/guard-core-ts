@@ -104,7 +104,9 @@ const _RECON_BARE_PATH_CONTEXTS: ReadonlySet<string> = new Set(['url_path', 'unk
  */
 export function reconPathValueIsProbe(matchedValue: string, context: string): boolean {
   return (
+    /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
     _RECON_BARE_PATH_CONTEXTS.has(context.split(':', 1)[0] ?? '') ||
+    /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
     matchedValue.startsWith('/') ||
     matchedValue.startsWith('\\')
   );

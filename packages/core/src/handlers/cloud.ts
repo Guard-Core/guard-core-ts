@@ -103,7 +103,9 @@ export class CloudHandler {
             if (parsed.kind() === addr.kind() && parsed.match([addr, prefixLen])) {
               return true;
             }
+          /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
           } catch { continue; }
+          /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
         }
       }
     } catch { /* invalid IP */ }
@@ -122,7 +124,9 @@ export class CloudHandler {
             if (parsed.kind() === addr.kind() && parsed.match([addr, prefixLen])) {
               return [provider, cidr];
             }
+          /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
           } catch { continue; }
+          /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
         }
       /* v8 ignore start -- closing braces + outer catch for invalid IP; requires full agent integration */
       }

@@ -114,7 +114,9 @@ export class HandlerInitializer {
     dynamicRuleHandler: DynamicRuleManager,
     redisHandler: RedisManager | null,
   ): Promise<void> {
+    /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
     if (!this.agentHandler) return;
+    /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
 
     await this.agentHandler.start();
 

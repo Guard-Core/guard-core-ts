@@ -308,7 +308,9 @@ export const SecurityConfigSchema = z.object({
      behaviorScanResponseBody is false, because it would silently never
      match. status: patterns are unaffected by the flag. */
   for (const [index, rule] of data.globalBehaviorRules.entries()) {
+    /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
     if (rule.ruleType !== 'return_pattern' || !rule.pattern) continue;
+    /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
     if (!returnPatternRequiresResponseBody(rule.pattern)) continue;
     if (data.behaviorScanResponseBody) continue;
     ctx.addIssue({

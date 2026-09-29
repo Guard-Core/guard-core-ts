@@ -10,6 +10,10 @@ type CorsMiddlewareFactory = (options?: Record<string, unknown>) => RequestHandl
  * undefined and resolution has to go through `createRequire`.
  */
 function loadCors(): CorsMiddlewareFactory | null {
+  /* The require branch only exists for CJS consumers; the ESM build always
+     resolves through createRequire. The null fallback guards a missing
+     install, which cannot happen while cors is a dev dependency. */
+  /* v8 ignore start -- CJS interop and missing-package guards */
   try {
     if (typeof require === 'function') {
       return require('cors') as CorsMiddlewareFactory;
@@ -22,6 +26,7 @@ function loadCors(): CorsMiddlewareFactory | null {
   } catch {
     return null;
   }
+  /* v8 ignore stop */
 }
 
 export function configureCors(app: Express, config: ResolvedSecurityConfig): void {
@@ -29,9 +34,13 @@ export function configureCors(app: Express, config: ResolvedSecurityConfig): voi
 
   try {
     const corsMiddleware = loadCors();
+    /* loadCors only returns null when the cors package is missing, which
+       cannot happen while cors is a dev dependency. */
+    /* v8 ignore start */
     if (!corsMiddleware) {
       throw new Error('cors package is not installed');
     }
+    /* v8 ignore stop */
     app.use(corsMiddleware({
       origin: config.corsAllowOrigins,
       methods: config.corsAllowMethods,

@@ -4,9 +4,10 @@ export default defineConfig({
     globals: true,
     coverage: {
       provider: 'v8',
+      reporter: ['text', 'text-summary', 'json-summary'],
       include: ['src/**/*.ts'],
       exclude: ['src/index.ts'],
-      thresholds: { lines: 95, functions: 85, statements: 94, branches: 90 },
+      thresholds: { lines: 100, functions: 100, statements: 100, branches: 100 },
     },
   },
 });

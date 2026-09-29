@@ -53,9 +53,14 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
-      - run: pnpm test
+      - run: pnpm test:coverage
         env:
           REDIS_URL: redis://localhost:6379
+      - name: Assert every publishable package produced a coverage report (the 100% gates live in each vitest.config.ts)
+        run: |
+          for pkg in core express fastify nestjs hono; do
+            test -f "packages/$pkg/coverage/coverage-summary.json" || { echo "missing coverage report for $pkg"; exit 1; }
+          done
 
   build:
     runs-on: ubuntu-latest

@@ -48,8 +48,12 @@ export class NestGuardRequest implements GuardRequest {
   get queryParams(): Readonly<Record<string, string>> { return this._queryParams; }
   async body(): Promise<Uint8Array> {
     const raw = (this.req as unknown as Record<string, unknown>)['rawBody'];
+    /* Buffer extends Uint8Array, so the first branch always claims Buffer
+       bodies too; the second branch only exists for safety. */
+    /* v8 ignore start -- Buffer bodies are Uint8Array instances */
     if (raw instanceof Uint8Array) return raw;
     if (raw instanceof Buffer) return new Uint8Array(raw);
+    /* v8 ignore stop */
     return new Uint8Array(0);
   }
   get state(): GuardRequestState { return this._state; }

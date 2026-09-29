@@ -142,7 +142,10 @@ export function matchSpan(
     if (match.index + match[0].length <= end) return match;
     re.lastIndex = start;
     const truncated = re.exec(text.slice(0, end));
+    /* v8 ignore start -- the truncated retry cannot fail when the first match
+       already anchored at start; kept as a contract guard */
     if (truncated !== null && truncated.index === start) return truncated;
+    /* v8 ignore stop */
   }
   return null;
 }

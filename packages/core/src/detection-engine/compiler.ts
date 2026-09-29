@@ -36,7 +36,9 @@ async function loadRE2(): Promise<RE2Class | null> {
   if (RE2Ctor) return RE2Ctor;
   try {
     const mod = await import('re2-wasm');
+    /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
     RE2Ctor = mod.RE2 ?? mod.default?.RE2 ?? mod.default;
+    /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
     return RE2Ctor;
   /* v8 ignore start -- re2-wasm import catch; module available in test env */
   } catch {

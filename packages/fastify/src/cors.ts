@@ -6,7 +6,10 @@ export async function configureCors(fastify: FastifyInstance, config: ResolvedSe
 
   try {
     const fastifyCors = await import('@fastify/cors');
-    await fastify.register(fastifyCors.default ?? fastifyCors, {
+    /* The dynamic import of an ESM build always carries a default export, so
+       the fallback arm is a CJS-interop guard. */
+    const resolvedCors = /* v8 ignore next */ fastifyCors.default ?? fastifyCors;
+    await fastify.register(resolvedCors, {
       origin: config.corsAllowOrigins,
       methods: config.corsAllowMethods,
       allowedHeaders: config.corsAllowHeaders,
