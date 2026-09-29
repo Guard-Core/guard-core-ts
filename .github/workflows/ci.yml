@@ -53,10 +53,17 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
-      - run: pnpm test:coverage
+      - run: pnpm test
         env:
           REDIS_URL: redis://localhost:6379
-      - name: Assert every publishable package produced a coverage report (the 100% gates live in each vitest.config.ts)
+      # The coverage gate runs once on the newest node: vitest 5.x coverage
+      # needs node:inspector/promises, which node 18 does not provide.
+      - if: matrix.node-version == 22
+        run: pnpm test:coverage
+        env:
+          REDIS_URL: redis://localhost:6379
+      - if: matrix.node-version == 22
+        name: Assert every publishable package produced a coverage report (the 100% gates live in each vitest.config.ts)
         run: |
           for pkg in core express fastify nestjs hono; do
             test -f "packages/$pkg/coverage/coverage-summary.json" || { echo "missing coverage report for $pkg"; exit 1; }
