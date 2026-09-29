@@ -9,9 +9,12 @@
     "test": {
       "dependsOn": ["^build"]
     },
+    /* The coverage gate must always execute: a cached replay would skip the
+       threshold enforcement and leave no fresh coverage artifacts for the ci
+       report assertion. */
     "test:coverage": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", "coverage/**"]
+      "cache": false
     },
     "lint": {},
     "clean": {
