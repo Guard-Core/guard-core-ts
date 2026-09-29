@@ -19,6 +19,7 @@
   "scripts": {
     "build": "tsup",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "lint": "tsc --noEmit",
     "clean": "rm -rf dist"
