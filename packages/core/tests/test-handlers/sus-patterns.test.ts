@@ -419,4 +419,23 @@ describe('SusPatternsManager scan deadline and quarantine', () => {
     expect(result.timeouts).toEqual([]);
     expect(result.threats.some((t) => t.detectionMethod === 'regex')).toBe(true);
   });
+
+  it('treats a slow completing scan with no verdict as a timeout (the 0.9x arm)', async () => {
+    /* The reference's second arm (_suspatterns_regex.py): a scan that
+       completes with no matches whose wall clock reached 0.9x the timeout
+       flips timeout_occurred. A stepped clock advancing 950 ms per read
+       measures every scan at 950 ms against a 1000 ms deadline: the scan
+       completes (950 < 1000) but sits at 0.95x the deadline. */
+    let reads = 0;
+    const slowCompleting = new ScanPoolSupervisor(1000, 1e12, () => (reads++) * 950);
+    const manager = new SusPatternsManager(createTestConfig(), defaultLogger, slowCompleting);
+    await manager.addPattern('slow-custom-\\d+');
+
+    const result = await manager.detect('hello', '1.2.3.4', 'unknown');
+
+    expect(result.timeouts).toContain('slow-custom-\\d+');
+    const timeoutThreats = result.threats.filter((t) => t.detectionMethod === 'pattern_timeout');
+    expect(timeoutThreats.length).toBeGreaterThan(0);
+    expect(result.isThreat).toBe(true);
+  });
 });

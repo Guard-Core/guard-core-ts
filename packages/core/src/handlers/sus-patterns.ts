@@ -12,6 +12,12 @@ import { ContentPreprocessor } from '../detection-engine/preprocessor.js';
 import { PatternCompiler } from '../detection-engine/compiler.js';
 import { PerformanceMonitor } from '../detection-engine/monitor.js';
 import { ScanPoolSupervisor } from '../detection-engine/scan-pool.js';
+
+/** The reference's 0.9x-timeout heuristic fraction (_suspatterns_regex.py:
+ *  `timeout_threshold = 0.9 * compiler.default_timeout`): a completed scan
+ *  with no accepted threat whose wall clock reached this fraction of the
+ *  verdict deadline is a timeout verdict (fail closed). */
+const SLOW_COMPLETION_FRACTION = 0.9;
 import { SemanticAnalyzer } from '../detection-engine/semantic.js';
 import type { SemanticAnalysis } from '../detection-engine/semantic.js';
 import {
@@ -313,11 +319,29 @@ export class SusPatternsManager {
       // overshoots detection_compiler_timeout yields no regex verdict, the
       // timeout itself becomes a pattern_timeout threat, the pattern source
       // joins the result timeouts, and the metric records timeout=true (the
-      // monitor's pattern_anomaly_timeout event). A quarantined pattern is
-      // not scanned and records nothing: the worker-less fallback's
-      // stand-in for the reference's consecutive-timeout pool replacement.
+      // monitor's pattern_anomaly_timeout event). The reference's second
+      // arm comes along too: a completed scan with no matches whose wall
+      // clock reached 0.9x the timeout is the same verdict (the reference
+      // warns and flips timeout_occurred under
+      // `not matches and elapsed >= 0.9 * compiler.default_timeout`), so a
+      // scan that crawled home just under the wire fails closed as well. A
+      // quarantined pattern is not scanned and records nothing: the
+      // worker-less fallback's stand-in for the reference's
+      // consecutive-timeout pool replacement.
       let threat: InternalRegexThreat | null = null;
+      let timeoutOccurred = outcome.status === 'timeout';
       if (outcome.status === 'timeout') {
+        timeouts.push(pattern.source);
+      } else if (outcome.status === 'completed') {
+        threat = outcome.value;
+        if (
+          threat === null
+          && outcome.elapsedMs >= SLOW_COMPLETION_FRACTION * this.scanPool.deadline
+        ) {
+          timeoutOccurred = true;
+        }
+      }
+      if (timeoutOccurred && threat === null) {
         timeouts.push(pattern.source);
         threat = {
           type: 'pattern_timeout',
@@ -327,8 +351,6 @@ export class SusPatternsManager {
           category: pattern.category,
           weight: resolvePatternWeight(pattern.source, pattern.category),
         };
-      } else if (outcome.status === 'completed') {
-        threat = outcome.value;
       }
 
       if (outcome.status !== 'quarantined') {
@@ -337,7 +359,7 @@ export class SusPatternsManager {
           elapsed,
           content.length,
           threat !== null,
-          outcome.status === 'timeout',
+          timeoutOccurred,
           this.agentHandler,
           correlationId,
         );
