@@ -11,6 +11,7 @@ import type { Logger } from '../models/logger.js';
 import { ContentPreprocessor } from '../detection-engine/preprocessor.js';
 import { PatternCompiler } from '../detection-engine/compiler.js';
 import { PerformanceMonitor } from '../detection-engine/monitor.js';
+import { ScanPoolSupervisor } from '../detection-engine/scan-pool.js';
 import { SemanticAnalyzer } from '../detection-engine/semantic.js';
 import type { SemanticAnalysis } from '../detection-engine/semantic.js';
 import {
@@ -171,6 +172,7 @@ export class SusPatternsManager {
   private semantic: SemanticAnalyzer;
   private monitor: PerformanceMonitor;
   private compiler: PatternCompiler | null;
+  private scanPool: ScanPoolSupervisor;
   private customPatterns = new Set<string>();
   private redisHandler: RedisManager | null = null;
   private agentHandler: AgentHandlerProtocol | null = null;
@@ -181,6 +183,7 @@ export class SusPatternsManager {
   constructor(
     config: ResolvedSecurityConfig,
     private readonly logger: Logger,
+    scanPool?: ScanPoolSupervisor,
   ) {
     this.compiler = new PatternCompiler(config.detectionCompilerTimeout * 1000, config.detectionMaxTrackedPatterns);
     this.preprocessor = new ContentPreprocessor(
@@ -195,6 +198,14 @@ export class SusPatternsManager {
       config.detectionMonitorHistorySize,
       config.detectionMaxTrackedPatterns,
     );
+    this.scanPool = scanPool ?? new ScanPoolSupervisor(config.detectionCompilerTimeout * 1000);
+    this.scanPool.onPoolEvent((event) => {
+      void this.monitor.recordPoolEvent(
+        event.type === 'pattern_quarantined' ? 'quarantined' : 'released',
+        event.pattern,
+        this.agentHandler,
+      );
+    });
     this.semanticThreshold = config.detectionSemanticThreshold;
     this.threatScoreThreshold = config.detectionThreatScoreThreshold;
     this.binaryMinRunLength = config.detectionBinaryMinRunLength;
@@ -292,17 +303,45 @@ export class SusPatternsManager {
       if (!skipFilter && !pattern.contexts.has(normalized)) continue;
 
       const patternStart = performance.now();
-      const threat = await this.checkRegexPattern(pattern, content, pattern.category, validatorContext, binaryPrefix);
-      const elapsed = (performance.now() - patternStart) / 1000;
-      await this.monitor.recordMetric(
+      const outcome = this.scanPool.run(
         pattern.source,
-        elapsed,
-        content.length,
-        threat !== null,
-        false,
-        this.agentHandler,
-        correlationId,
+        () => this.checkRegexPattern(pattern, content, pattern.category, validatorContext, binaryPrefix),
       );
+      const elapsed = (performance.now() - patternStart) / 1000;
+
+      // Reference timeout semantics (_suspatterns_regex.py): a scan that
+      // overshoots detection_compiler_timeout yields no regex verdict, the
+      // timeout itself becomes a pattern_timeout threat, the pattern source
+      // joins the result timeouts, and the metric records timeout=true (the
+      // monitor's pattern_anomaly_timeout event). A quarantined pattern is
+      // not scanned and records nothing: the worker-less fallback's
+      // stand-in for the reference's consecutive-timeout pool replacement.
+      let threat: InternalRegexThreat | null = null;
+      if (outcome.status === 'timeout') {
+        timeouts.push(pattern.source);
+        threat = {
+          type: 'pattern_timeout',
+          pattern: pattern.source,
+          match: '',
+          position: 0,
+          category: pattern.category,
+          weight: resolvePatternWeight(pattern.source, pattern.category),
+        };
+      } else if (outcome.status === 'completed') {
+        threat = outcome.value;
+      }
+
+      if (outcome.status !== 'quarantined') {
+        await this.monitor.recordMetric(
+          pattern.source,
+          elapsed,
+          content.length,
+          threat !== null,
+          outcome.status === 'timeout',
+          this.agentHandler,
+          correlationId,
+        );
+      }
       if (threat !== null) {
         threats.push(threat);
         matchedPatterns.push(pattern.source);
@@ -312,13 +351,13 @@ export class SusPatternsManager {
     return { threats, matchedPatterns, timeouts };
   }
 
-  private async checkRegexPattern(
+  private checkRegexPattern(
     pattern: { source: string; compiled: CompiledPythonPattern; category: string; custom: boolean },
     content: string,
     category: string,
     context: string,
     binaryPrefix: number[],
-  ): Promise<InternalRegexThreat | null> {
+  ): InternalRegexThreat | null {
     const windowedFinder = windowedFinderFor(pattern.source);
     if (windowedFinder !== undefined) {
       return firstAcceptedRegexThreat(windowedFinder(content), pattern.compiled, category, context, binaryPrefix);
@@ -444,6 +483,12 @@ export class SusPatternsManager {
 
     const regexThreats = [...mainPass.threats, ...rawDedup.threats];
     const matchedPatterns = [...mainPass.matchedPatterns, ...rawDedup.matchedPatterns];
+    /* Python _merge_raw_view_results: the processed-view timeouts are the
+       base list and only unseen raw-view timeouts append. */
+    const timeouts = [...mainPass.timeouts];
+    for (const t of rawPass.timeouts) {
+      if (!timeouts.includes(t)) timeouts.push(t);
+    }
 
     const decodedViewThreat = this.checkDecodedViewPathTraversal(processedContent, rawViewContent);
     if (decodedViewThreat !== null) {
@@ -457,6 +502,7 @@ export class SusPatternsManager {
     });
     regexThreats.push(...urlDecodedPass.threats);
     matchedPatterns.push(...urlDecodedPass.matchedPatterns);
+    timeouts.push(...urlDecodedPass.timeouts);
 
     if (decodeBudgetExhausted.value) {
       regexThreats.push({
@@ -475,6 +521,7 @@ export class SusPatternsManager {
       const additivePass = await this.checkRegexPatterns(additiveViewContent, context, correlationId);
       regexThreats.push(...additivePass.threats);
       matchedPatterns.push(...additivePass.matchedPatterns);
+      timeouts.push(...additivePass.timeouts);
     }
 
     const { threats: semanticThreats } = this.checkSemanticThreats(processedContent, content);
@@ -505,7 +552,7 @@ export class SusPatternsManager {
         pattern: threat.pattern,
         context: normalizedCtx,
         matchedContent: threat.match,
-        detectionMethod: 'regex',
+        detectionMethod: threat.type === 'pattern_timeout' ? 'pattern_timeout' : 'regex',
       })),
       ...effectiveSemanticThreats.map((threat) => ({
         pattern: `semantic:${threat.attack_type}`,
@@ -519,13 +566,17 @@ export class SusPatternsManager {
 
     /* Reference _build_detection_hit (detection_result_builders.py): each
        regex threat contributes its row category and each semantic threat its
-       attack type, deduplicated in first-seen order. */
+       attack type, deduplicated in first-seen order. A pattern_timeout
+       threat is neither (its _threat_category is None) and contributes
+       nothing. */
     const threatCategories: string[] = [];
     for (const threat of [...regexThreats, ...semanticThreats]) {
       const category = threat.type === 'semantic'
         ? (threat as InternalSemanticThreat).attack_type
-        : (threat as InternalRegexThreat).category;
-      if (!threatCategories.includes(category)) threatCategories.push(category);
+        : threat.type === 'regex'
+          ? (threat as InternalRegexThreat).category
+          : null;
+      if (category !== null && !threatCategories.includes(category)) threatCategories.push(category);
     }
 
     return {
@@ -534,7 +585,7 @@ export class SusPatternsManager {
       threats,
       threatCategories,
       executionTime,
-      timeouts: [],
+      timeouts,
       correlationId,
       originalLength,
       processedLength: countCodePoints(processedContent),
@@ -626,6 +677,7 @@ export class SusPatternsManager {
     if (this.compiler !== null) {
       await this.compiler.clearCache();
     }
+    this.scanPool.reset();
     await this.monitor.clearStats();
   }
 }
