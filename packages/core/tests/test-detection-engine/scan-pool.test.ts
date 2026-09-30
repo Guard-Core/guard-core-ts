@@ -117,7 +117,7 @@ describe('ScanPoolSupervisor', () => {
   });
 
   it('releases the pattern after the cooldown window under fake timers', () => {
-    vi.useFakeTimers();
+    vi.useFakeTimers({ toFake: ['Date'] });
     const supervisor = new ScanPoolSupervisor(50, 1000, () => Date.now());
     const events: ScanPoolEvent[] = [];
     supervisor.onPoolEvent((event) => events.push(event));
@@ -157,7 +157,7 @@ describe('ScanPoolSupervisor', () => {
   });
 
   it('keeps counting after release and quarantines again on four more timeouts', () => {
-    vi.useFakeTimers();
+    vi.useFakeTimers({ toFake: ['Date'] });
     const supervisor = new ScanPoolSupervisor(50, 1000, () => Date.now());
     for (let i = 0; i < SCAN_POOL_SIZE; i++) supervisor.reportTimeout('p');
     vi.advanceTimersByTime(1001);
@@ -193,7 +193,7 @@ describe('ScanPoolSupervisor', () => {
   });
 
   it('reset clears counters and quarantines', () => {
-    vi.useFakeTimers();
+    vi.useFakeTimers({ toFake: ['Date'] });
     const supervisor = new ScanPoolSupervisor(50, 60_000, () => Date.now());
     for (let i = 0; i < SCAN_POOL_SIZE; i++) supervisor.reportTimeout('p');
     supervisor.reportTimeout('q');
