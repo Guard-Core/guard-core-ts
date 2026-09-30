@@ -204,9 +204,10 @@ describe('ScanPoolSupervisor', () => {
     expect(supervisor.isActive('p')).toBe(true);
   });
 
-  it('times out a genuinely catastrophic regex against a near-zero deadline on the real clock', () => {
+  it('times out a genuinely slow scan against a near-zero deadline on the real clock', () => {
     const supervisor = new ScanPoolSupervisor(0.01, 60_000, performanceClock);
-    const outcome = supervisor.run('p', () => /(?:a+)+b/.exec('a'.repeat(22) + 'c'));
+    const haystack = 'x'.repeat(5_000_000);
+    const outcome = supervisor.run('p', () => /needle-qzx-late/.exec(haystack));
     expect(outcome.status).toBe('timeout');
     expect(outcome.value).toBeNull();
     expect(outcome.elapsedMs).toBeGreaterThan(0.01);
