@@ -213,4 +213,62 @@ describe('PerformanceMonitor', () => {
     expect(report!.totalExecutions).toBe(1);
     expect(report!.avgExecutionTime).toBeCloseTo(0.05, 2);
   });
+
+  describe('recordPoolEvent', () => {
+    it('sends the quarantine agent event and sanitized callback data', async () => {
+      const monitor = new PerformanceMonitor();
+      const agent = { sendEvent: vi.fn() };
+      const callback = vi.fn();
+      monitor.registerAnomalyCallback(callback);
+
+      await monitor.recordPoolEvent('quarantined', 'p', agent as never, 'corr-1');
+
+      expect(agent.sendEvent).toHaveBeenCalledTimes(1);
+      const event = agent.sendEvent.mock.calls[0][0] as Record<string, unknown>;
+      expect(event['eventType']).toBe('pattern_pool_quarantined');
+      expect(event['actionTaken']).toBe('pool_replaced');
+      expect(event['ipAddress']).toBe('system');
+      expect((event['metadata'] as Record<string, unknown>)['correlationId']).toBe('corr-1');
+
+      expect(callback).toHaveBeenCalledTimes(1);
+      const safe = callback.mock.calls[0][0] as Record<string, unknown>;
+      expect(safe['type']).toBe('quarantined');
+      expect(safe['pattern']).toBe('p');
+      expect(typeof safe['patternHash']).toBe('string');
+    });
+
+    it('sends the released agent event', async () => {
+      const monitor = new PerformanceMonitor();
+      const agent = { sendEvent: vi.fn() };
+      await monitor.recordPoolEvent('released', 'p', agent as never);
+      const event = agent.sendEvent.mock.calls[0][0] as Record<string, unknown>;
+      expect(event['eventType']).toBe('pattern_pool_released');
+      expect(event['actionTaken']).toBe('pool_released');
+    });
+
+    it('notifies callbacks without an agent handler', async () => {
+      const monitor = new PerformanceMonitor();
+      const callback = vi.fn();
+      monitor.registerAnomalyCallback(callback);
+      await monitor.recordPoolEvent('quarantined', 'p');
+      expect(callback).toHaveBeenCalledTimes(1);
+    });
+
+    it('swallows agent handler failures', async () => {
+      const monitor = new PerformanceMonitor();
+      const agent = { sendEvent: vi.fn().mockRejectedValue(new Error('down')) };
+      const callback = vi.fn();
+      monitor.registerAnomalyCallback(callback);
+      await expect(monitor.recordPoolEvent('quarantined', 'p', agent as never)).resolves.toBeUndefined();
+      expect(callback).toHaveBeenCalledTimes(1);
+    });
+
+    it('swallows callback failures', async () => {
+      const monitor = new PerformanceMonitor();
+      monitor.registerAnomalyCallback(() => {
+        throw new Error('callback boom');
+      });
+      await expect(monitor.recordPoolEvent('released', 'p')).resolves.toBeUndefined();
+    });
+  });
 });

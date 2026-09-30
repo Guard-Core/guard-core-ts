@@ -27,13 +27,13 @@ Docs: <https://rennf93.github.io/guard-core-ts/>
 
 - **IP Control** — Whitelisting, blacklisting, CIDR ranges, auto-ban on suspicious activity
 - **Rate Limiting** — Global, per-endpoint, per-route, geo-based limits with Redis sliding window
-- **Penetration Detection** — 75 regex patterns + semantic analysis for XSS, SQLi, command injection, path traversal
+- **Penetration Detection**: 157 regex patterns (spec 4.1.0 table) + semantic analysis for XSS, SQLi, command injection, path traversal, with per-scan verdict deadlines and consecutive-timeout pattern quarantine on the native regex path
 - **Security Headers** — 10 default headers (HSTS, CSP, CORP, COEP, COOP, etc.)
 - **Behavioral Analysis** — Usage monitoring, return pattern tracking, ban/throttle/alert actions
 - **Cloud Provider Blocking** — AWS, GCP, Azure IP range detection
 - **Country Filtering** — GeoIP-based blocking/whitelisting via MaxMind
 - **HTTPS Enforcement** — Automatic HTTP to HTTPS redirect with trusted proxy support
-- **Decorator System** — 20 decorator methods for per-route security configuration
+- **Decorator System**: 25 decorator methods for per-route security configuration
 - **Redis Integration** — Distributed rate limiting, shared IP bans, cloud IP caching
 - **Edge Runtime Support** — Uint8Array protocols, re2-wasm regex, no Node-only dependencies in core
 
@@ -183,7 +183,7 @@ guard.usageMonitor(5, 3600, 'ban')(myHandler);
 
 ## Python Parity
 
-This is a faithful TypeScript port of [guard-core](https://github.com/rennf93/guard-core). The Python codebase is the source of truth for features, architecture, and behavior. All 75 detection patterns, 44 SecurityConfig fields, 6 protocols, 17 security checks, and 9 handlers are ported 1:1.
+This is a faithful TypeScript port of [guard-core](https://github.com/rennf93/guard-core). The Python codebase is the source of truth for features, architecture, and behavior. All 157 detection patterns, 84 SecurityConfig fields, 6 protocols, 17 security checks, and 9 handlers are ported 1:1, and the engine is verified against the vendored spec 4.1.0 conformance corpus (219 cases) in `conformance/guard-core-spec-4.1.0`, wired as a CI gate.
 
 The Python Guard ecosystem:
 - [guard-core](https://github.com/rennf93/guard-core) — Engine (Python)

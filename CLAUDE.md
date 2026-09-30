@@ -15,13 +15,13 @@ What `@guardcore/core` provides:
 
 - IP control: whitelist/blacklist of IPs and CIDR ranges (ipaddr.js), auto-ban on suspicious activity (IPBanManager)
 - Rate limiting: global, per-endpoint, and geo-based limits; Redis sliding window executed atomically through a Lua script (evalsha with eval fallback) or an in-memory fallback (RateLimitManager)
-- Penetration detection: 75 regex pattern definitions across 17 context sets (SusPatternsManager) plus semantic analysis (attack probability, entropy, obfuscation, code injection scoring) in the detection engine
+- Penetration detection: the 157-row spec 4.1.0 pattern table (SusPatternsManager) plus semantic analysis (attack probability, entropy, obfuscation, code injection scoring) in the detection engine
 - Security headers: SecurityHeadersManager (HSTS, CSP, frame options, and related defaults)
 - Behavioral analysis: BehaviorTracker usage monitoring and return-pattern tracking with ban/throttle/alert actions
 - Cloud provider blocking: AWS, GCP, and Azure IP ranges with cached refresh (CloudHandler)
 - Country filtering via GeoIP lookups (optional maxmind peer)
 - HTTPS enforcement, request logging, emergency mode, required headers, referrer and user-agent rules, custom validators, bypass handling
-- Decorator system: BaseSecurityDecorator composed with 6 mixins (AccessControl, RateLimiting, Authentication, ContentFiltering, Behavioral, Advanced) into SecurityDecorator with 23 route-level decorator methods
+- Decorator system: BaseSecurityDecorator composed with 6 mixins (AccessControl, RateLimiting, Authentication, ContentFiltering, Behavioral, Advanced) into SecurityDecorator with 25 route-level decorator methods
 - Edge runtime support: protocol types use Uint8Array, core has no Node-only APIs, and Redis/maxmind/re2-wasm are optional peers that degrade gracefully when absent
 
 ## Ecosystem Position
@@ -180,10 +180,9 @@ Conventions:
 
 Conformance status (be precise in docs and PRs):
 
-- There is NO conformance suite on master; packages/core/tests contains only the suites listed above
-- A spec 4.0.3 conformance runner with a fail-closed baseline and CI gates runs against the vendored spec 4.0.3 corpus (conformance/guard-core-spec-4.0.3) with a fail-closed baseline
+- The spec 4.1.0 conformance runner lives in packages/core/tests/conformance and runs against the vendored spec 4.1.0 corpus (conformance/guard-core-spec-4.1.0, 219 cases) with a fail-closed baseline; CI gates it via `pnpm --filter @guardcore/core exec vitest run tests/conformance`
 
-Known CI state: master CI is currently broken (build, lint, and test jobs fail after the typescript 7 fallout). The fix is in review as DRAFT PR #48 (branch fix/master-ci). PRs branched from master will show these same failures; report them as pre-existing and reference PR #48 instead of trying to fix code.
+Known CI state: master CI is green (build, lint, test, conformance, and dependency-audit jobs).
 
 ## Code Quality Standards
 

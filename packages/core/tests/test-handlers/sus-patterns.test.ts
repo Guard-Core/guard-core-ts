@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { SusPatternsManager } from '../../src/handlers/sus-patterns.js';
+import { ScanPoolSupervisor } from '../../src/detection-engine/scan-pool.js';
 import { createTestConfig } from '../helpers.js';
 import { defaultLogger } from '../../src/models/logger.js';
 
@@ -307,5 +308,134 @@ describe('SusPatternsManager semantic threshold trigger', () => {
     expect(manager.getCustomPatterns()).not.toContain('[invalid-regex');
     const result = await manager.detect('test content', '1.2.3.4', 'unknown');
     expect(result.timeouts.length).toBe(0);
+  });
+});
+
+describe('SusPatternsManager scan deadline and quarantine', () => {
+  /* Deterministic supervisor clock: every clock read advances 1000 ms, so
+     every scan measured between two reads overshoots the 50 ms injected
+     deadline without doing real waiting (no real sleeps). The default
+     cooldown is astronomical so quarantines never expire mid-test; the
+     cooldown-expiry arm itself is proven at the supervisor level under
+     vitest fake timers. */
+  function timingOutSupervisor(cooldownMs = 1e12): ScanPoolSupervisor {
+    let reads = 0;
+    const clock = () => (reads++) * 1000;
+    return new ScanPoolSupervisor(50, cooldownMs, clock);
+  }
+
+  it('records a pattern_timeout verdict and result timeouts when scans overshoot the deadline', async () => {
+    const manager = new SusPatternsManager(createTestConfig(), defaultLogger, timingOutSupervisor());
+    await manager.addPattern('deadline-custom-\\d+');
+
+    const result = await manager.detect('hello', '1.2.3.4', 'unknown');
+
+    expect(result.timeouts.length).toBeGreaterThan(0);
+    expect(result.timeouts).toContain('deadline-custom-\\d+');
+    const timeoutThreats = result.threats.filter((t) => t.detectionMethod === 'pattern_timeout');
+    expect(timeoutThreats.length).toBeGreaterThan(0);
+    expect(timeoutThreats[0]?.matchedContent).toBe('');
+    expect(result.isThreat).toBe(true);
+
+    const stats = (await manager.getPerformanceStats()) as {
+      summary: { timeoutRate: number; totalExecutions: number };
+    };
+    expect(stats.summary.totalExecutions).toBeGreaterThan(0);
+    expect(stats.summary.timeoutRate).toBe(1);
+  });
+
+  it('does not contribute pattern_timeout categories to threatCategories', async () => {
+    const manager = new SusPatternsManager(createTestConfig(), defaultLogger, timingOutSupervisor());
+    const result = await manager.detect('hello', '1.2.3.4', 'unknown');
+    expect(result.threats.length).toBeGreaterThan(0);
+    expect(result.threatCategories).toEqual([]);
+  });
+
+  it('emits timeout anomalies through the agent handler', async () => {
+    const manager = new SusPatternsManager(createTestConfig(), defaultLogger, timingOutSupervisor());
+    const agent = { sendEvent: vi.fn() };
+    await manager.initializeAgent(agent as never);
+
+    await manager.detect('hello', '1.2.3.4', 'unknown');
+
+    const eventTypes = agent.sendEvent.mock.calls.map(
+      (call) => (call[0] as Record<string, unknown>)['eventType'],
+    );
+    expect(eventTypes).toContain('pattern_anomaly_timeout');
+  });
+
+  it('quarantines every pattern after four consecutive full-timeout scans and skips them', async () => {
+    const supervisor = timingOutSupervisor();
+    const manager = new SusPatternsManager(createTestConfig(), defaultLogger, supervisor);
+    const agent = { sendEvent: vi.fn() };
+    await manager.initializeAgent(agent as never);
+
+    for (let i = 0; i < 4; i++) {
+      await manager.detect('hello', '1.2.3.4', 'unknown');
+    }
+    expect(supervisor.quarantinedPatterns().length).toBeGreaterThan(0);
+
+    const eventTypes = agent.sendEvent.mock.calls.map(
+      (call) => (call[0] as Record<string, unknown>)['eventType'],
+    );
+    expect(eventTypes).toContain('pattern_pool_quarantined');
+
+    agent.sendEvent.mockClear();
+    const result = await manager.detect('hello', '1.2.3.4', 'unknown');
+    expect(result.timeouts).toEqual([]);
+    expect(result.threats).toEqual([]);
+    expect(agent.sendEvent).not.toHaveBeenCalled();
+  });
+
+  it('re-admits quarantined patterns once the pool state clears', async () => {
+    const supervisor = timingOutSupervisor();
+    const manager = new SusPatternsManager(createTestConfig(), defaultLogger, supervisor);
+
+    for (let i = 0; i < 4; i++) {
+      await manager.detect('hello', '1.2.3.4', 'unknown');
+    }
+    expect(supervisor.quarantinedPatterns().length).toBeGreaterThan(0);
+
+    supervisor.reset();
+    const result = await manager.detect('hello', '1.2.3.4', 'unknown');
+    expect(result.timeouts.length).toBeGreaterThan(0);
+  });
+
+  it('reset clears quarantine state', async () => {
+    const supervisor = timingOutSupervisor();
+    const manager = new SusPatternsManager(createTestConfig(), defaultLogger, supervisor);
+    for (let i = 0; i < 4; i++) {
+      await manager.detect('hello', '1.2.3.4', 'unknown');
+    }
+    expect(supervisor.quarantinedPatterns().length).toBeGreaterThan(0);
+    await manager.reset();
+    expect(supervisor.quarantinedPatterns()).toEqual([]);
+  });
+
+  it('keeps verdicts and an empty timeouts list when scans finish within the deadline', async () => {
+    const healthy = new ScanPoolSupervisor(2000, 60_000, () => 0);
+    const manager = new SusPatternsManager(createTestConfig(), defaultLogger, healthy);
+    const result = await manager.detect('<script>alert(1)</script>', '1.2.3.4', 'request_body');
+    expect(result.timeouts).toEqual([]);
+    expect(result.threats.some((t) => t.detectionMethod === 'regex')).toBe(true);
+  });
+
+  it('treats a slow completing scan with no verdict as a timeout (the 0.9x arm)', async () => {
+    /* The reference's second arm (_suspatterns_regex.py): a scan that
+       completes with no matches whose wall clock reached 0.9x the timeout
+       flips timeout_occurred. A stepped clock advancing 950 ms per read
+       measures every scan at 950 ms against a 1000 ms deadline: the scan
+       completes (950 < 1000) but sits at 0.95x the deadline. */
+    let reads = 0;
+    const slowCompleting = new ScanPoolSupervisor(1000, 1e12, () => (reads++) * 950);
+    const manager = new SusPatternsManager(createTestConfig(), defaultLogger, slowCompleting);
+    await manager.addPattern('slow-custom-\\d+');
+
+    const result = await manager.detect('hello', '1.2.3.4', 'unknown');
+
+    expect(result.timeouts).toContain('slow-custom-\\d+');
+    const timeoutThreats = result.threats.filter((t) => t.detectionMethod === 'pattern_timeout');
+    expect(timeoutThreats.length).toBeGreaterThan(0);
+    expect(result.isThreat).toBe(true);
   });
 });

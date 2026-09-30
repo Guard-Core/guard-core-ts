@@ -36,6 +36,8 @@ export interface PatternReport {
 
 type AnomalyCallback = (anomaly: Record<string, unknown>) => void;
 
+export type PoolEventType = 'quarantined' | 'released';
+
 const MAX_RECENT_TIMES = 100;
 const MAX_PATTERN_LENGTH = 100;
 const MIN_SAMPLES_FOR_STATS = 10;
@@ -230,6 +232,48 @@ export class PerformanceMonitor {
       for (const callback of this.anomalyCallbacks) {
         try { callback(safe); } catch { /* ignore */ }
       }
+    }
+  }
+
+  /**
+   * Scan-pool lifecycle events from the native-regex deadline machinery
+   * (scan-pool.ts): quarantine replaces the reference's consecutive-timeout
+   * pool swap, release re-admits the pattern once its cooldown elapses.
+   * Emission mirrors the anomaly path: agent event plus sanitized callback
+   * data (pattern redacted to 50 chars plus an 8-char hash), and a failing
+   * callback or agent handler never propagates.
+   */
+  async recordPoolEvent(
+    type: PoolEventType,
+    pattern: string,
+    agentHandler: AgentHandlerProtocol | null = null,
+    correlationId: string | null = null,
+  ): Promise<void> {
+    if (agentHandler) {
+      try {
+        await agentHandler.sendEvent({
+          timestamp: new Date(),
+          eventType: `pattern_pool_${type}`,
+          ipAddress: 'system',
+          actionTaken: type === 'quarantined' ? 'pool_replaced' : 'pool_released',
+          reason:
+            type === 'quarantined'
+              ? 'Pattern pulled from the active scan pool after repeated scan timeouts'
+              : 'Pattern re-admitted to the active scan pool after its quarantine cooldown',
+          metadata: { component: 'PerformanceMonitor', correlationId, type },
+        });
+      } catch {
+        // never throw from pool-event reporting
+      }
+    }
+
+    const safe: Record<string, unknown> = {
+      type,
+      pattern: truncatePattern(pattern),
+      patternHash: patternHash(pattern),
+    };
+    for (const callback of this.anomalyCallbacks) {
+      try { callback(safe); } catch { /* ignore */ }
     }
   }
 
