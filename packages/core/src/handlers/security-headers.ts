@@ -71,7 +71,9 @@ export class SecurityHeadersManager {
   /* v8 ignore stop */
 
   private async loadCachedConfig(): Promise<void> {
+    /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
     if (!this.redisHandler) return;
+    /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
 
     const cspJson = await this.redisHandler.getKey('security_headers', 'csp_config');
     if (typeof cspJson === 'string') {

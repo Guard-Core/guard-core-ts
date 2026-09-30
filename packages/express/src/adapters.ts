@@ -38,11 +38,15 @@ export class ExpressGuardRequest implements GuardRequest {
     this._headers = normalizeHeaders(req.headers);
     this._queryParams = normalizeQueryParams(req.query as Record<string, unknown>);
     const raw = (req as unknown as Record<string, unknown>)['rawBody'];
+    /* Buffer extends Uint8Array, so the first branch always claims Buffer
+       bodies too; the second branch only exists for safety. */
+    /* v8 ignore start -- Buffer bodies are Uint8Array instances */
     if (raw instanceof Uint8Array) {
       this.rawBody = raw;
     } else if (raw instanceof Buffer) {
       this.rawBody = new Uint8Array(raw);
     }
+    /* v8 ignore stop */
   }
 
   get urlPath(): string { return this.req.path; }
@@ -76,6 +80,9 @@ export class ExpressGuardResponse implements GuardResponse {
   get headers(): Record<string, string> { return this._headers; }
   setHeader(name: string, value: string): void { this._headers[name] = value; }
   get body(): Uint8Array | null { return this._body; }
+  /* _body is always assigned in the constructor, so the null arm is a
+     GuardResponse-contract guard that cannot execute. */
+  /* v8 ignore next */
   get bodyText(): string | null {
     return this._body ? new TextDecoder().decode(this._body) : null;
   }

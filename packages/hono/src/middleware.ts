@@ -131,5 +131,14 @@ function sendHonoResponse(c: Context, response: GuardResponse): Response {
 }
 
 function createPassthroughResponse(): GuardResponse {
-  return { statusCode: 200, headers: {}, setHeader() {}, body: null, bodyText: null };
+  /* Passthrough responses never carry headers; the noop only satisfies the
+     GuardResponse interface. */
+  return {
+    statusCode: 200,
+    headers: {},
+    /* v8 ignore next */
+    setHeader() {},
+    body: null,
+    bodyText: null,
+  };
 }

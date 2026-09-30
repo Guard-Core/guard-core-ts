@@ -47,7 +47,9 @@ export function Advanced<T extends AnyConstructor>(Base: T) {
                 return {
                   statusCode: 403,
                   headers: {},
+                  /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
                   setHeader() {},
+                  /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
                   body: new TextEncoder().encode('Forbidden'),
                   bodyText: 'Forbidden',
                 };

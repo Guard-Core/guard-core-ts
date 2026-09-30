@@ -175,9 +175,12 @@ function interceptResponse(
 }
 
 function createPassthroughResponse(): GuardResponse {
+  /* Passthrough responses never carry headers; the noop only satisfies the
+     GuardResponse interface. */
   return {
     statusCode: 200,
     headers: {},
+    /* v8 ignore next */
     setHeader() {},
     body: null,
     bodyText: null,

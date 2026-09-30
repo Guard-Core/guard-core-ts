@@ -19,6 +19,7 @@
   "scripts": {
     "build": "tsup",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "lint": "tsc --noEmit",
     "clean": "rm -rf dist"
   },
@@ -30,6 +31,7 @@
     "cors": "^2.8.5",
     "tsup": "^8",
     "typescript": "~5.9",
+    "@vitest/coverage-v8": "^5.0.1",
     "vitest": "^5"
   },
   "peerDependencies": {

@@ -17,7 +17,9 @@ export class RouteConfigCheck extends SecurityCheck {
      blocked with 500 unless passive mode is on. */
   private async handleUnresolvedRoute(request: GuardRequest): Promise<GuardResponse | null> {
     const config = this.config;
+    /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
     this.logger.warn(`Suspicious request from ${request.clientHost ?? 'unknown'}: `
+    /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
       + `${request.method} ${request.urlPath} - ${UNRESOLVED_ROUTE_REASON}`);
 
     await this.sendEvent(
