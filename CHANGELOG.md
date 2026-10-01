@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.3.0] - 2026-10-01
+
+### Added
+
+- The 20-suite reference corpus is adopted with three new conformance kinds and fail-closed per-kind baselines (guard-core-ts #90). `pattern_safety` replays the reference `validatePatternSafety` oracle's 94-case suite (29 passing, the structural-prefilter and cost-arbiter classes baselined per case with reasons tied to the TS sources); `events` drives pipeline requests plus 21 handler-call seams over 39 envelope-pinned cases (4 passing, `handler_name` and absent emitter seams baselined honestly); `redis_interop` asserts byte equality against live Redis for the implemented key families (3 passing, the unported write seams baselined). Determinism is enforced: the clock is frozen at a fixed instant, TTL compares configured value with a bounded probe window, and every baseline is failing-not-baselined red, stale red, and driverless red.
+- `detectionScanWorkerPool`: an opt-in bounded worker-thread execution mode for the native regex scan deadline (guard-core-ts #91). The unbounded candidate match loop dispatches to a 4-worker pool (the reference's shared-executor size), a deadline overshoot terminates the worker mid-`RegExp` and respawns a replacement so the bound holds, and the reference's `report_scan_timeout` semantics apply: success resets the consecutive counter and 4 consecutive timeouts replace the entire pool. Validation stays on the calling thread so verdicts are byte-identical to inline mode (parity-tested over threat and benign content).
+
+### Fixed
+
+- A failed `RedisManager.initialize` no longer leaks an eternally retrying ioredis client (guard-core-ts #91): the failure path attaches an error handler and disconnects on ping failure, closing the retry storm the events `redis_error` conformance drive exposed.
+
 ## [4.2.0] - 2026-09-27
 
 ### Added
