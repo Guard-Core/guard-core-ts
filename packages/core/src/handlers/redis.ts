@@ -22,6 +22,8 @@ type RedisClient = {
   zadd(key: string, ...args: unknown[]): Promise<number>;
   zremrangebyscore(key: string, min: number | string, max: number | string): Promise<number>;
   zcard(key: string): Promise<number>;
+  on(event: string, listener: (...args: unknown[]) => void): unknown;
+  disconnect(): void;
 };
 
 export class RedisManager implements RedisHandlerProtocol {
@@ -42,15 +44,24 @@ export class RedisManager implements RedisHandlerProtocol {
 
     try {
       const { default: Redis } = await import('ioredis');
-      this.client = new Redis(this.config.redisUrl) as unknown as RedisClient;
-      await this.client.ping();
+      const client = new Redis(this.config.redisUrl) as unknown as RedisClient;
+      /* A connection failure must not surface as an unhandled 'error' event
+         (ioredis retries in the background); initialize() reports the
+         failure and the client below is torn down so no retrying orphan is
+         left holding open handles. */
+      client.on('error', () => {});
+      try {
+        await client.ping();
+      } catch (e) {
+        client.disconnect();
+        throw e;
+      }
+      this.client = client;
       this.logger.info('Redis connection established');
-    /* v8 ignore start -- requires real ioredis connection failure which cannot be triggered when module is mocked */
     } catch (e) {
       this.logger.error(`Redis connection failed: ${e}`);
       this.client = null;
     }
-    /* v8 ignore stop */
   }
 
   async close(): Promise<void> {
