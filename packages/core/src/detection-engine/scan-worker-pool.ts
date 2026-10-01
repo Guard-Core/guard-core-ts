@@ -75,7 +75,7 @@ export const workerPoolClock: WorkerScanClock = () => performance.now();
  *  synchronously instead of racing a real timer. */
 export type DeadlineScheduler = (deadlineMs: number, fire: () => void) => () => void;
 
-const setTimeoutScheduler: DeadlineScheduler = (deadlineMs, fire) => {
+export const setTimeoutScheduler: DeadlineScheduler = (deadlineMs, fire) => {
   const timer = setTimeout(fire, deadlineMs);
   return () => clearTimeout(timer);
 };
@@ -244,12 +244,14 @@ export class WorkerScanPool {
   }
 
   private pump(): void {
-    while (this.queue.length > 0) {
-      const slot = this.slots.find((entry) => !entry.busy);
-      if (slot === undefined) return;
-      const pending = this.queue.shift();
-      if (pending === undefined) return;
+    /* An idle slot is taken only with a queued task next to it: every
+       dispatch enqueues before pumping, and execute marks its slot busy
+       synchronously, so the loop invariant holds by construction. */
+    let slot = this.slots.find((entry) => !entry.busy);
+    while (slot !== undefined && this.queue.length > 0) {
+      const pending = this.queue.shift() as PendingDispatch;
       void this.execute(slot, pending.task, pending.resolve);
+      slot = this.slots.find((entry) => !entry.busy);
     }
   }
 
@@ -258,14 +260,11 @@ export class WorkerScanPool {
     task: WorkerScanTask,
     resolve: (value: ScanOutcome<RegexCandidate[]>) => void,
   ): Promise<void> {
+    /* Exactly one side of the race resolves the dispatch: the worker answer
+       (answerPromise) or the deadline (deadlinePromise) - the winner is
+       known by the deadlineHit flag after the race, so resolve is called on
+       one path only. */
     slot.busy = true;
-    let settled = false;
-    const finish = (outcome: ScanOutcome<RegexCandidate[]>): void => {
-      if (settled) return;
-      settled = true;
-      resolve(outcome);
-    };
-
     let answer: RegexCandidate[] | null = null;
     const answerPromise = new Promise<void>((resolveAnswer) => {
       slot.waiter = (message: unknown) => {
@@ -276,12 +275,12 @@ export class WorkerScanPool {
     });
 
     let deadlineHit = false;
-    let cancelDeadline: () => void = () => {};
     const deadlinePromise = new Promise<void>((resolveDeadline) => {
-      cancelDeadline = this.schedule(this.deadlineMs, () => {
+      const cancelDeadline = this.schedule(this.deadlineMs, () => {
         deadlineHit = true;
         resolveDeadline();
       });
+      void cancelDeadline;
     });
 
     slot.worker.postMessage({ ...task });
@@ -291,7 +290,6 @@ export class WorkerScanPool {
        thread responsive - exactly the property the inline fallback lacks.
        A test-injected scheduler fires the deadline synchronously. */
     await Promise.race([answerPromise, deadlinePromise]);
-    cancelDeadline();
 
     if (deadlineHit) {
       /* Deadline path: the worker dies mid-RegExp and its result is
@@ -308,24 +306,24 @@ export class WorkerScanPool {
         );
       }
       this.pump();
-      finish({ status: 'timeout', value: null, elapsedMs: 0 });
+      resolve({ status: 'timeout', value: null, elapsedMs: 0 });
       return;
     }
 
     slot.busy = false;
     if (answer === null) {
-      finish({ status: 'error', value: null, elapsedMs: 0 });
+      resolve({ status: 'error', value: null, elapsedMs: 0 });
     } else {
       this.reportSuccess();
-      finish({ status: 'completed', value: answer, elapsedMs: 0 });
+      resolve({ status: 'completed', value: answer, elapsedMs: 0 });
     }
     this.pump();
   }
 
   private replaceSlot(stale: PoolSlot): void {
-    const idx = this.slots.indexOf(stale);
-    if (idx === -1) return;
-    this.slots[idx] = this.newSlot();
+    /* The stale slot always belongs to the pool: execute is the only caller
+       and holds the slot it was dispatched on. */
+    this.slots[this.slots.indexOf(stale)] = this.newSlot();
     this.emit({ type: 'worker_replaced', consecutiveTimeouts: this.consecutiveTimeouts, atMs: this.clock() });
   }
 

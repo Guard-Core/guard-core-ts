@@ -5,6 +5,7 @@ import {
   WORKER_POOL_SIZE,
   WorkerScanPool,
   createWorkerScanPool,
+  setTimeoutScheduler,
 } from '../../src/detection-engine/scan-worker-pool.js';
 import type {
   DeadlineScheduler,
@@ -47,6 +48,11 @@ class FakeWorker implements PoolWorker {
     this.messageListener?.({ candidates });
   }
 
+  /** Bypass the candidates wrapper: hand the waiter a raw message. */
+  deliverRaw(message: unknown): void {
+    this.messageListener?.(message);
+  }
+
   fail(): void {
     this.errorListener?.(new Error('corpus worker error'));
   }
@@ -78,21 +84,24 @@ interface Harness {
   pool: WorkerScanPool;
   workers: FakeWorker[];
   fireAll: () => void;
+  warnings: string[];
 }
 
 function harness(size: number, deadlineMs = 2000): Harness {
   const workers: FakeWorker[] = [];
+  const warnings: string[] = [];
   const { schedule, fireAll } = manualScheduler();
   const pool = new WorkerScanPool(deadlineMs, {
     size,
     schedule,
+    logger: { warn: (message: string) => warnings.push(message), error: () => {}, info: () => {} },
     spawn: () => {
       const worker = new FakeWorker();
       workers.push(worker);
       return worker;
     },
   });
-  return { pool, workers, fireAll };
+  return { pool, workers, fireAll, warnings };
 }
 
 const XSS_TASK: WorkerScanTask = {
@@ -243,6 +252,107 @@ describe('worker scan pool', () => {
     expect(workers.every((worker) => worker.terminated)).toBe(true);
     const afterClose = await pool.run('after', XSS_TASK, () => null);
     expect(afterClose.status).toBe('error');
+  });
+
+  test('exposes the configured deadline and supports event unsubscription', () => {
+    const { pool } = harness(2, 1234);
+    expect(pool.deadline).toBe(1234);
+    const events: string[] = [];
+    const unsubscribe = pool.onPoolEvent((event) => events.push(event.type));
+    unsubscribe();
+    pool.reportTimeout();
+    expect(events).toEqual([]);
+    expect(pool.consecutiveTimeoutCount).toBe(1);
+  });
+
+  test('a second close() is a no-op and queued dispatches settle as errors', async () => {
+    const { pool, workers } = harness(1);
+    const inFlight = pool.run('inflight', XSS_TASK, () => null);
+    const queued = pool.run('queued', XSS_TASK, () => null);
+    await dispatched(inFlight);
+    await pool.close();
+    expect((await inFlight).status).toBe('error');
+    expect((await queued).status).toBe('error');
+    await pool.close();
+    expect(workers.filter((worker) => worker.terminated)).toHaveLength(1);
+  });
+
+  test('malformed worker answers surface as error outcomes and bad candidates are skipped', async () => {
+    const { pool, workers } = harness(1);
+    const nonObject = pool.run('a', XSS_TASK, (candidates) => candidates.length);
+    await dispatched(nonObject);
+    (workers[0] as FakeWorker).deliver(undefined as unknown as Record<string, unknown>);
+    expect((await nonObject).status).toBe('error');
+
+    const noCandidates = pool.run('b', XSS_TASK, (candidates) => candidates.length);
+    await dispatched(noCandidates);
+    (workers[0] as FakeWorker).deliver({ nope: true });
+    expect((await noCandidates).status).toBe('error');
+
+    const filtered = pool.run('c', XSS_TASK, (candidates) => candidates.length);
+    await dispatched(filtered);
+    (workers[0] as FakeWorker).deliver([
+      { text: 42, index: 'x', groups: [] },
+      { text: '<script>alert(1)</script>', index: 1, groups: ['<script>alert(1)</script>', 7, null] },
+    ]);
+    const outcome = await filtered;
+    expect(outcome.status).toBe('completed');
+    expect(outcome.value).toBe(1);
+  });
+
+  test('deadline and replacement warnings name the pool state', async () => {
+    const { pool, warnings, fireAll } = harness(2);
+    const first = pool.run('a', XSS_TASK, () => null);
+    fireAll();
+    await first;
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain('worker terminated and replaced');
+
+    for (let i = 0; i < 2; i++) {
+      const pending = pool.run(`p${i}`, XSS_TASK, () => null);
+      fireAll();
+      await pending;
+    }
+    /* The second timeout is the size-th consecutive one: its deadline
+       warning carries the replacement suffix and the whole-pool swap logs
+       its own reference warning. */
+    expect(warnings).toHaveLength(4);
+    /* The 'a' timeout plus p0's are the size-th consecutive pair: report
+       timeout swaps the whole pool (logging inside report_timeout, before
+       the deadline warning carries the replacement suffix), and p1 then
+       starts a fresh counter with a plain deadline warning. */
+    expect(warnings[1]).toContain('guard_core worker scan pool replaced after 2 consecutive timeouts');
+    expect(warnings[2]).toContain('worker terminated and replaced; pool replaced after consecutive timeouts');
+    expect(warnings[3]).toContain('worker terminated and replaced');
+    expect(warnings[3]).not.toContain('pool replaced');
+  });
+
+  test('the real deadline scheduler fires once and cancels cleanly', async () => {
+    const fired: number[] = [];
+    const cancel = setTimeoutScheduler(5, () => fired.push(1));
+    await new Promise<void>((resolve) => setTimeout(resolve, 50));
+    expect(fired).toEqual([1]);
+    cancel();
+    await new Promise<void>((resolve) => setTimeout(resolve, 20));
+    expect(fired).toEqual([1]);
+  });
+
+  test('primitive worker answers and null candidates are rejected deterministically', async () => {
+    const { pool, workers } = harness(1);
+    const primitive = pool.run('a', XSS_TASK, (candidates) => candidates.length);
+    await dispatched(primitive);
+    (workers[0] as FakeWorker).deliverRaw('nope');
+    expect((await primitive).status).toBe('error');
+
+    const nullCandidate = pool.run('b', XSS_TASK, (candidates) => candidates.length);
+    await dispatched(nullCandidate);
+    (workers[0] as FakeWorker).deliver([
+      null,
+      { text: '<script>alert(1)</script>', index: 3, groups: ['<script>alert(1)</script>'] },
+    ]);
+    const outcome = await nullCandidate;
+    expect(outcome.status).toBe('completed');
+    expect(outcome.value).toBe(1);
   });
 
   test('the config knob is opt-in and defaults to false', () => {
