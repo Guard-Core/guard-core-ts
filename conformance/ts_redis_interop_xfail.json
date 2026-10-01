@@ -1,0 +1,17 @@
+{
+  "spec_version": "4.1.0",
+  "_comment": "Documented divergences of the TS on-the-wire Redis surface against the redis_interop corpus (live Redis, per-case prefix, byte equality per index.json comparison.redis_interop). Fail-closed: a failing case NOT listed here is red; a listed case that now passes is red (stale baseline). Each entry names the TS source responsible.",
+  "cases": {
+    "redis_interop/rio_rate_limit_endpoint_tier": "endpoint-tier rate-limit keys use the raw request path (rate-limit.ts checkRateLimit key construction), not the reference sha256 path digest",
+    "redis_interop/rio_ban_cidr_network": "no CIDR network ban write seam: IPBanManager (ip-ban.ts) persists exact IPs only (banned_ips namespace)",
+    "redis_interop/rio_behavior_usage_increment": "BehaviorTracker (behavior.ts) is memory-only: initializeRedis stores the handler but no usage/return zset is ever written to Redis",
+    "redis_interop/rio_behavior_return_increment": "BehaviorTracker (behavior.ts) is memory-only: initializeRedis stores the handler but no usage/return zset is ever written to Redis",
+    "redis_interop/rio_security_headers_csp_config": "SecurityHeadersManager.cacheConfiguration (security-headers.ts) persists JSON.stringify bytes (camelCase hsts keys, no json.dumps spacing), diverging from the reference canonical JSON",
+    "redis_interop/rio_security_headers_hsts_config": "SecurityHeadersManager.cacheConfiguration (security-headers.ts) persists JSON.stringify bytes (camelCase hsts keys, no json.dumps spacing), diverging from the reference canonical JSON",
+    "redis_interop/rio_security_headers_custom_headers": "SecurityHeadersManager.cacheConfiguration (security-headers.ts) persists JSON.stringify bytes (camelCase hsts keys, no json.dumps spacing), diverging from the reference canonical JSON",
+    "redis_interop/rio_ipinfo_database_cache_write": "IPInfoManager.initializeRedis (geoip.ts) is an empty stub: no ipinfo:database cache write and no injectable download",
+    "redis_interop/rio_cloud_ranges_v2_write": "CloudHandler (cloud.ts) writes the legacy cloud_ranges namespace (ranges only, no regions), not cloud_ranges_v2",
+    "redis_interop/rio_cloud_ip_v2_write": "no RedisCloudIpStore port: the cloud_ip_v2 namespace does not exist in the TS engine",
+    "redis_interop/rio_dynamic_rules_snapshot_write": "DynamicRuleManager (dynamic-rules.ts) does not persist a dynamic_rules:last_known snapshot"
+  }
+}

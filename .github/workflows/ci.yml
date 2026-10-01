@@ -83,6 +83,16 @@ jobs:
 
   conformance:
     runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v6
@@ -92,6 +102,8 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @guardcore/core exec vitest run tests/conformance
+        env:
+          REDIS_URL: redis://localhost:6379
 
   dependency-audit:
     runs-on: ubuntu-latest
