@@ -30,6 +30,8 @@ vi.mock('ioredis', () => {
     ping: vi.fn(() => Promise.resolve('PONG')),
     quit: vi.fn(() => Promise.resolve('OK')),
     script: vi.fn(() => Promise.resolve('sha123')),
+    on: vi.fn(),
+    disconnect: vi.fn(),
   }; }
   return { default: MockRedis };
 });

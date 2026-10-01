@@ -199,6 +199,8 @@ vi.mock('ioredis', () => {
     incr: vi.fn().mockResolvedValue(1),
     expire: vi.fn().mockResolvedValue(1),
     exists: vi.fn().mockResolvedValue(0),
+    on: vi.fn(),
+    disconnect: vi.fn(),
   }; }
   return { default: MockRedis };
 });
