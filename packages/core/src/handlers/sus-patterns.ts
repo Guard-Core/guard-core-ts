@@ -12,6 +12,9 @@ import { ContentPreprocessor } from '../detection-engine/preprocessor.js';
 import { PatternCompiler } from '../detection-engine/compiler.js';
 import { PerformanceMonitor } from '../detection-engine/monitor.js';
 import { ScanPoolSupervisor } from '../detection-engine/scan-pool.js';
+import type { ScanOutcome } from '../detection-engine/scan-pool.js';
+import { createWorkerScanPool } from '../detection-engine/scan-worker-pool.js';
+import type { RegexCandidate, WorkerScanPool } from '../detection-engine/scan-worker-pool.js';
 
 /** The reference's 0.9x-timeout heuristic fraction (_suspatterns_regex.py:
  *  `timeout_threshold = 0.9 * compiler.default_timeout`): a completed scan
@@ -193,6 +196,9 @@ export class SusPatternsManager {
   private monitor: PerformanceMonitor;
   private compiler: PatternCompiler | null;
   private scanPool: ScanPoolSupervisor;
+  private workerPool: WorkerScanPool | null = null;
+  private workerPoolUnavailable = false;
+  private readonly scanWorkerPoolEnabled: boolean;
   private customPatterns = new Set<string>();
   private redisHandler: RedisManager | null = null;
   private agentHandler: AgentHandlerProtocol | null = null;
@@ -226,6 +232,7 @@ export class SusPatternsManager {
         this.agentHandler,
       );
     });
+    this.scanWorkerPoolEnabled = config.detectionScanWorkerPool;
     this.semanticThreshold = config.detectionSemanticThreshold;
     this.threatScoreThreshold = config.detectionThreatScoreThreshold;
     this.binaryMinRunLength = config.detectionBinaryMinRunLength;
@@ -325,10 +332,7 @@ export class SusPatternsManager {
       if (!skipFilter && !pattern.contexts.has(normalized)) continue;
 
       const patternStart = performance.now();
-      const outcome = this.scanPool.run(
-        pattern.source,
-        () => this.checkRegexPattern(pattern, content, pattern.category, validatorContext, binaryPrefix),
-      );
+      const outcome = await this.runPatternScan(pattern, content, validatorContext, binaryPrefix);
       const elapsed = (performance.now() - patternStart) / 1000;
 
       // Reference timeout semantics (_suspatterns_regex.py): a scan that
@@ -342,8 +346,9 @@ export class SusPatternsManager {
       // `not matches and elapsed >= 0.9 * compiler.default_timeout`), so a
       // scan that crawled home just under the wire fails closed as well. A
       // quarantined pattern is not scanned and records nothing: the
-      // worker-less fallback's stand-in for the reference's
-      // consecutive-timeout pool replacement.
+      // inline path's stand-in for the reference's consecutive-timeout
+      // pool replacement; with detectionScanWorkerPool the replacement is
+      // the real one (the worker is terminated and the pool is swapped).
       let threat: InternalRegexThreat | null = null;
       let timeoutOccurred = outcome.status === 'timeout';
       if (outcome.status === 'timeout') {
@@ -387,6 +392,88 @@ export class SusPatternsManager {
     }
 
     return { threats, matchedPatterns, timeouts };
+  }
+
+  /* One pattern scan, on the configured execution path. The inline path
+     (default) runs the whole scan under the ScanPoolSupervisor's
+     deadline-bounded synchronous fallback. The opt-in worker path
+     (detectionScanWorkerPool) dispatches the plain full-content candidate
+     loop to the bounded worker pool - patterns with a structural matcher
+     (windowed finder, scan matcher, scan window) stay inline because their
+     matching logic is engine-side and not portable to a worker; their
+     verdicts are identical either way. */
+  private async runPatternScan(
+    pattern: {
+      source: string;
+      compiled: CompiledPythonPattern;
+      contexts: ReadonlySet<string>;
+      category: string;
+      custom: boolean;
+    },
+    content: string,
+    validatorContext: string,
+    binaryPrefix: number[],
+  ): Promise<ScanOutcome<InternalRegexThreat | null>> {
+    if (!this.scanWorkerPoolEnabled || SusPatternsManager.hasStructuralMatcher(pattern.source)) {
+      return this.scanPool.run(
+        pattern.source,
+        () => this.checkRegexPattern(pattern, content, pattern.category, validatorContext, binaryPrefix),
+      );
+    }
+
+    const pool = await this.ensureWorkerPool();
+    if (pool === null) {
+      return this.scanPool.run(
+        pattern.source,
+        () => this.checkRegexPattern(pattern, content, pattern.category, validatorContext, binaryPrefix),
+      );
+    }
+
+    /* The worker compiles the pattern from the JS-translated source (the
+       canonical table's Python-flavored source is translated by
+       regex-compat at compile time), with the same flag mapping as the
+       inline plain-search path. */
+    const flags = pattern.custom
+      ? pattern.compiled.re.flags.replace('y', 'gm')
+      : pattern.compiled.re.flags.replace('y', 'g');
+    return pool.run(
+      pattern.source,
+      { patternSource: pattern.compiled.re.source, flags, content },
+      (candidates) =>
+        firstAcceptedRegexThreat(
+          candidates.map((candidate) => execArrayFromCandidate(candidate, content)),
+          pattern.compiled,
+          pattern.category,
+          validatorContext,
+          binaryPrefix,
+        ),
+    );
+  }
+
+  private static hasStructuralMatcher(source: string): boolean {
+    return (
+      windowedFinderFor(source) !== undefined
+      || scanMatcherFor(source) !== undefined
+      || scanWindowBoundsFor(source) !== undefined
+    );
+  }
+
+  /* Lazily built on the first worker-path scan; a runtime without
+     worker_threads falls back to the inline path with a single warning
+     (the knob is opt-in and edge runtimes have no pool to run). */
+  private async ensureWorkerPool(): Promise<WorkerScanPool | null> {
+    if (this.workerPool !== null) return this.workerPool;
+    if (this.workerPoolUnavailable) return null;
+    const pool = await createWorkerScanPool(this.scanPool.deadline, { logger: this.logger });
+    if (pool === null) {
+      this.workerPoolUnavailable = true;
+      this.logger.warn(
+        'detectionScanWorkerPool is enabled but worker threads are unavailable in this runtime; scans stay on the inline deadline path',
+      );
+      return null;
+    }
+    this.workerPool = pool;
+    return pool;
   }
 
   private checkRegexPattern(
@@ -738,6 +825,22 @@ export class SusPatternsManager {
       await this.compiler.clearCache();
     }
     this.scanPool.reset();
+    if (this.workerPool !== null) {
+      await this.workerPool.close();
+      this.workerPool = null;
+      this.workerPoolUnavailable = false;
+    }
     await this.monitor.clearStats();
   }
+}
+
+/* Rebuild a RegExpExecArray-shaped candidate from the worker's structured
+   answer: element 0 is the full match text, capture groups follow, and the
+   validators read match[0], match.index and match.input exactly as they do
+   on the inline path. */
+function execArrayFromCandidate(candidate: RegexCandidate, content: string): RegExpExecArray {
+  return Object.assign([...candidate.groups], {
+    index: candidate.index,
+    input: content,
+  }) as unknown as RegExpExecArray;
 }

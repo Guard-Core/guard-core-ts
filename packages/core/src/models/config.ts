@@ -189,6 +189,14 @@ export const SecurityConfigSchema = z.object({
   detectionMaxBodyInspectBytes: z.number().int().min(1000).default(262144),
   detectionThreatScoreThreshold: z.number().min(0).max(1).default(1.0),
   detectionBinaryMinRunLength: z.number().int().min(4).max(1024).default(16),
+  /* Opt-in worker-thread scan execution (the reference's shared 4-worker
+     regex pool, compiler.py shared_regex_executor): when true, the plain
+     full-content candidate loop of each pattern scan dispatches to a bounded
+     worker pool and the verdict deadline terminates the worker instead of
+     letting an unbounded native RegExp block the event loop. Default false:
+     the deadline-bounded synchronous fallback stays the default execution
+     mode (worker-less targets have no pool to run). */
+  detectionScanWorkerPool: z.boolean().default(false),
   excludedDetectionParams: z.array(z.string()).default([]),
   excludedDetectionBodyFields: z.array(z.string()).default([]),
   excludedDetectionHeaders: z.array(z.string()).default([]),
