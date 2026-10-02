@@ -31,7 +31,7 @@
     "cors": "^2.8.5",
     "tsup": "^8",
     "typescript": "~5.9",
-    "@vitest/coverage-v8": "^5.0.1",
+    "@vitest/coverage-v8": "^5.0.2",
     "vitest": "^5"
   },
   "peerDependencies": {
