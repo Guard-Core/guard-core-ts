@@ -9,9 +9,9 @@
   "dependencies": {
     "@guardcore/core": "workspace:*",
     "@guardcore/nestjs": "workspace:*",
-    "@nestjs/common": "^12.0.4",
-    "@nestjs/core": "^12.0.4",
-    "@nestjs/platform-express": "^12.0.4",
+    "@nestjs/common": "^12.1.1",
+    "@nestjs/core": "^12.1.1",
+    "@nestjs/platform-express": "^12.1.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
