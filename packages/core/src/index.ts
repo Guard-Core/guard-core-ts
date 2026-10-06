@@ -101,6 +101,17 @@ export { EventFilter, METRIC_RESPONSE_TIME, METRIC_REQUEST_COUNT, METRIC_ERROR_R
   METRIC_TYPE_VALUES } from './core/events/event-filter.js';
 export type { AgentEventEnricher } from './core/events/event-filter.js';
 export { CompositeAgentHandler } from './core/events/composite-handler.js';
+/* Event enrichment layer (parity with the reference enricher.py +
+   event_types.py ENRICHMENT_KEY_* / ThreatScorer). */
+export { EventEnricher, threatScoreFor, DEFAULT_THREAT_SCORE,
+  BEHAVIOR_CORRELATION_WINDOW_SECONDS, DEFAULT_OTEL_SERVICE_NAME,
+  THREAT_SCORE_MAP, ENRICHMENT_KEY_PROJECT_ID, ENRICHMENT_KEY_SERVICE_NAME,
+  ENRICHMENT_KEY_DEPLOYMENT_ENV, ENRICHMENT_KEY_THREAT_SCORE,
+  ENRICHMENT_KEY_RULE_ID, ENRICHMENT_KEY_RULE_VERSION,
+  ENRICHMENT_KEY_BEHAVIOR_KEY, ENRICHMENT_KEY_RECENT_EVENT_COUNT,
+} from './core/events/enricher.js';
+export type { EnrichmentContext, DynamicRuleMatcher, BehaviorCounter,
+  EnrichableEvent, EnrichableMetric } from './core/events/enricher.js';
 export { OtelHandler } from './core/events/otel-handler.js';
 export type { OtelHandlerConfig, OtelInstrumentation, OtelTraceContext } from './core/events/otel-handler.js';
 export { LogfireHandler } from './core/events/logfire-handler.js';

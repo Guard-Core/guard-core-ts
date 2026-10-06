@@ -1,8 +1,8 @@
 /* Event/metric filter and enrichment contracts for agent handler fan-out,
    the TS port of guard_core/core/events/event_types.py (EventFilter) and the
-   enricher seam the composite handler accepts (reference enricher.py, whose
-   EventEnricher/ThreatScorer implementation is not part of this work order;
-   the seam here keeps the composite parity-complete).
+   enricher seam the composite handler accepts (reference composite_handler.py;
+   the reference EventEnricher/ThreatScorer implementation lives in
+   enricher.ts, which satisfies the AgentEventEnricher interface here).
 
    Metric type constants mirror METRIC_RESPONSE_TIME / METRIC_REQUEST_COUNT /
    METRIC_ERROR_RATE. */
