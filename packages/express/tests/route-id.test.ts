@@ -3,6 +3,7 @@ import express from 'express';
 import type { Server } from 'node:http';
 import { AddressInfo } from 'node:net';
 import { createSecurityMiddleware } from '../src/index.js';
+import { resolveExpressRouteId } from '../src/route-id.js';
 import {
   BaseSecurityDecorator,
   SecurityConfigSchema,
@@ -78,5 +79,95 @@ describe('express decorator route config wiring (W3)', () => {
     const response = await fetch(`${baseUrl}/plain`);
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ ok: true });
+  });
+});
+
+describe('resolveExpressRouteId layer matching (unit)', () => {
+  function decoratedHandle(id: string): Record<string, unknown> {
+    const handle = () => {};
+    handle['_guardRouteId'] = id;
+    return handle;
+  }
+
+  function reqWith(overrides: Record<string, unknown>): Parameters<typeof resolveExpressRouteId>[0] {
+    return { method: 'GET', path: '/decorated', url: '/decorated', ...overrides } as never;
+  }
+
+  it('prefers the direct route match (route-level mounting)', () => {
+    const req = reqWith({ route: { stack: [{ handle: {} }, { handle: decoratedHandle('gw:direct') }], methods: { get: true } } });
+    expect(resolveExpressRouteId(req)).toBe('gw:direct');
+  });
+
+  it('returns null when the direct route declares a different method', () => {
+    const req = reqWith({ route: { stack: [{ handle: decoratedHandle('gw:direct') }], methods: { post: true } } });
+    expect(resolveExpressRouteId(req)).toBeNull();
+  });
+
+  it('scans the app router stack and matches express 5 matcher arrays', () => {
+    const req = reqWith({
+      app: { _router: { stack: [
+        { handle: {} },
+        { route: { stack: [{ handle: decoratedHandle('gw:scan') }], methods: { get: true } }, matchers: [(p: string) => p === '/decorated'] },
+      ] } },
+    });
+    expect(resolveExpressRouteId(req)).toBe('gw:scan');
+  });
+
+  it('matches express 4 stateful match() layers', () => {
+    const req = reqWith({
+      app: { router: { stack: [
+        { route: { stack: [{ handle: decoratedHandle('gw:scan4') }] }, match: (p: string) => p === '/decorated' },
+      ] } },
+    });
+    expect(resolveExpressRouteId(req)).toBe('gw:scan4');
+  });
+
+  it('treats a throwing matcher, a throwing match(), and bare layers as non-matches', () => {
+    const req = reqWith({
+      app: { _router: { stack: [
+        { route: { stack: [{ handle: () => {} }] }, matchers: [() => { throw new Error('boom'); }] },
+        { route: { stack: [{ handle: () => {} }] }, match: () => { throw new Error('boom'); } },
+        { route: { stack: [{ handle: () => {} }] } },
+      ] } },
+    });
+    expect(resolveExpressRouteId(req)).toBeNull();
+  });
+
+  it('returns null without an app router', () => {
+    expect(resolveExpressRouteId(reqWith({}))).toBeNull();
+  });
+
+  it('returns null for routes without a usable stack', () => {
+    expect(resolveExpressRouteId(reqWith({ route: {} }))).toBeNull();
+    expect(resolveExpressRouteId(reqWith({ route: { stack: [] } }))).toBeNull();
+  });
+
+  it('returns null when the app has no usable router stack', () => {
+    expect(resolveExpressRouteId(reqWith({ app: {} }))).toBeNull();
+    expect(resolveExpressRouteId(reqWith({ app: { router: { stack: 42 } } }))).toBeNull();
+  });
+
+  it('falls back to the raw url when req.path is missing', () => {
+    const req = {
+      method: 'GET',
+      url: '/decorated',
+      app: { _router: { stack: [
+        { route: { stack: [{ handle: decoratedHandle('gw:nopath') }], methods: { get: true } }, matchers: [(p: string) => p === '/decorated'] },
+      ] } },
+    } as never;
+    expect(resolveExpressRouteId(req)).toBe('gw:nopath');
+  });
+
+  it('endpoint id falls back to url and skips handle-less stack entries', async () => {
+    const { resolveExpressEndpointId } = await import('../src/route-id.js');
+    const req = {
+      method: 'GET',
+      url: '/decorated',
+      app: { _router: { stack: [
+        { route: { stack: [undefined, { handle: undefined }, { handle: decoratedHandle('gw:endpoint') }], methods: { get: true } }, matchers: [(p: string) => p === '/decorated'] },
+      ] } },
+    } as never;
+    expect(resolveExpressEndpointId(req)).toBe('handle');
+    expect(resolveExpressEndpointId(reqWith({ route: {} }))).toBeNull();
   });
 });

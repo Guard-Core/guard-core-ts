@@ -55,13 +55,15 @@ function routeIdFromRoute(route: ExpressRouteLike, method: string): string | nul
   return null;
 }
 
-function appRouterOf(req: Request): ExpressRouterLike | null {
+function appRouterOf(req: Request): (ExpressRouterLike & { stack: ExpressLayerLike[] }) | null {
   const app = req.app as unknown as Record<string, unknown> | undefined;
   if (!app) return null;
   /* express 4 stores the router as _router; express 5 exposes `router`. */
   const candidate = (app['_router'] ?? app['router']) as ExpressRouterLike | undefined;
   if (!candidate || !Array.isArray(candidate.stack)) return null;
-  return candidate;
+  /* The Array.isArray check above is the validation; the intersection type
+     records it so the scan below needs no second fallback. */
+  return candidate as ExpressRouterLike & { stack: ExpressLayerLike[] };
 }
 
 function layerMatches(layer: ExpressLayerLike, path: string): boolean {
@@ -98,8 +100,7 @@ export function resolveExpressRouteId(req: Request): string | null {
   if (router === null) return null;
 
   const path = req.path ?? req.url.split('?')[0];
-  const stack = router.stack ?? [];
-  for (const layer of stack) {
+  for (const layer of router.stack) {
     const route = layer.route;
     if (!route) continue;
     if (!layerMatches(layer, path)) continue;
