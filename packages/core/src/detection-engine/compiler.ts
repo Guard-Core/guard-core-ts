@@ -30,6 +30,16 @@ const DEFAULT_TEST_STRINGS = [
   '<'.repeat(100) + '>'.repeat(100),
 ];
 
+/* Explicit bounds for the safety probe. validatePatternSafety executes a
+   library-supplied pattern synchronously, and CodeQL (js/polynomial-redos)
+   flags an unbounded exec() of non-literal regex source. Both inputs are
+   capped far above any realistic detection pattern (the sus-pattern corpus
+   peaks well under 200 chars; the longest default probe is 1000), which
+   bounds the probe's worst case to a constant and keeps the timing
+   heuristic meaningful. */
+const MAX_VALIDATED_PATTERN_LENGTH = 1024;
+const MAX_PROBE_STRING_LENGTH = 1000;
+
 let RE2Ctor: RE2Class | null = null;
 
 async function loadRE2(): Promise<RE2Class | null> {
@@ -175,6 +185,10 @@ export class PatternCompiler {
     pattern: string,
     testStrings?: string[],
   ): [boolean, string] {
+    if (pattern.length > MAX_VALIDATED_PATTERN_LENGTH) {
+      return [false, `Pattern exceeds maximum validated length of ${MAX_VALIDATED_PATTERN_LENGTH}`];
+    }
+
     for (const dangerous of DANGEROUS_PATTERNS) {
       if (dangerous.test(pattern)) {
         return [false, `Pattern contains dangerous construct: ${dangerous.source}`];
@@ -186,6 +200,9 @@ export class PatternCompiler {
     try {
       const compiled = this.compileSync(pattern);
       for (const testStr of strings) {
+        if (testStr.length > MAX_PROBE_STRING_LENGTH) {
+          return [false, `Probe test string exceeds maximum length of ${MAX_PROBE_STRING_LENGTH}`];
+        }
         const start = performance.now();
         compiled.exec(testStr);
         const elapsed = performance.now() - start;

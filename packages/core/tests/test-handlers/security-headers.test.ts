@@ -157,6 +157,29 @@ describe('SecurityHeadersManager', () => {
     expect(headers2['X-Content-Type-Options']).toBe('nosniff');
   });
 
+  it('trailing-slash strip keeps cache-key parity between slash variants', async () => {
+    await manager.getHeaders('/api/test');
+    await manager.getHeaders('/api/test/');
+    await manager.getHeaders('/api/test///');
+    const cache = (manager as unknown as { headersCache: Map<string, Record<string, string>> }).headersCache;
+    expect(cache.size).toBe(1);
+    const headers = await manager.getHeaders('/api/test/');
+    expect(headers['X-Content-Type-Options']).toBe('nosniff');
+  });
+
+  it('pathological slash runs resolve in linear time (no anchored-quantifier regex)', async () => {
+    /* '/'+run+'x' was the quadratic input for replace(/\/+$/, ''): every
+       offset rescans the slash run against the $ anchor. The linear strip
+       must finish well inside the test timeout. */
+    const midRunPath = `/${'/'.repeat(200_000)}x`;
+    const headers = await manager.getHeaders(midRunPath);
+    expect(headers['X-Content-Type-Options']).toBe('nosniff');
+
+    const tailRunPath = `/api${'/'.repeat(200_000)}`;
+    const tailHeaders = await manager.getHeaders(tailRunPath);
+    expect(tailHeaders['X-Frame-Options']).toBe('SAMEORIGIN');
+  });
+
   it('configure with enabled=false clears all headers', async () => {
     manager.configure({ enabled: false });
     const headers = await manager.getHeaders('/api/test');

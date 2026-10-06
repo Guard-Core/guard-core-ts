@@ -23,7 +23,10 @@ vi.mock('ioredis', () => {
       return Promise.resolve(count);
     }),
     keys: vi.fn((pattern: string) => {
-      const prefix = pattern.replace('*', '');
+      /* Strip every wildcard: replace('*') left a stray literal '*' inside
+         compound patterns like 'ns:a*:b', dead-ending the prefix (CodeQL
+         js/incomplete-sanitization). */
+      const prefix = pattern.replaceAll('*', '');
       const matches = [...store.keys()].filter((k) => k.startsWith(prefix));
       return Promise.resolve(matches);
     }),
@@ -102,6 +105,16 @@ describe('RedisManager', () => {
     await manager.setKey('ns', 'b', '2');
     const result = await manager.keys('ns:*');
     expect(result).not.toBeNull();
+  });
+
+  it('keys with multiple wildcards strips every star from the match prefix', async () => {
+    await manager.setKey('ns', 'a', '1');
+    await manager.setKey('ns', 'b', '2');
+    /* The mock approximates globs by startsWith(pattern minus '*' chars);
+       replace('*') kept a stray star in multi-wildcard patterns and matched
+       nothing. */
+    const result = await manager.keys('*ns*');
+    expect(result).toHaveLength(2);
   });
 
   it('deletePattern removes matching keys', async () => {

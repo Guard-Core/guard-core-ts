@@ -124,4 +124,32 @@ describe('redactPairsInText adversarial inputs', () => {
     const elapsedMs = Number(process.hrtime.bigint() - start) / 1e6;
     expect(elapsedMs).toBeLessThan(500);
   });
+
+  it('percent-heavy name runs stay linear (CodeQL js/polynomial-redos trigger)', () => {
+    const sensitive = new Set(['token']);
+    const start = process.hrtime.bigint();
+    /* A 100k '%' run followed by a separator: the regex scanner went quadratic
+       here (every offset rescans the run); the linear scanner must not. */
+    const out = redactPairsInText(`${'%'.repeat(100_000)}=token=x`, sensitive);
+    const elapsedMs = Number(process.hrtime.bigint() - start) / 1e6;
+    expect(out).toBe(`${'%'.repeat(100_000)}=token=[REDACTED]`);
+    expect(elapsedMs).toBeLessThan(500);
+  });
+
+  it('recognizes the same pairs on tricky quote and separator shapes', () => {
+    const sensitive = new Set(['token', 'password']);
+    /* quoted JSON-ish name */
+    expect(redactPairsInText('"password":"hunter2"', sensitive)).toBe('"password":[REDACTED]');
+    /* stray opening quote falls back to the empty-quote-group match */
+    expect(redactPairsInText('"password=x', sensitive)).toBe('"password=[REDACTED]');
+    /* a quote with no mirroring opener never starts a name */
+    expect(redactPairsInText('password"=x', sensitive)).toBe('password"=x');
+    /* name run must sit immediately before the separator */
+    expect(redactPairsInText('password ==x', sensitive)).toBe('password ==x');
+    expect(redactPairsInText('password =x', sensitive)).toBe('password =x');
+    /* quoted value runs to the mirroring quote */
+    expect(redactPairsInText('password="(a b c)" tail', sensitive)).toBe('password=[REDACTED] tail');
+    /* match scan resumes after a non-sensitive pair's separator whitespace */
+    expect(redactPairsInText('"a"= password=x', sensitive)).toBe('"a"= password=[REDACTED]');
+  });
 });

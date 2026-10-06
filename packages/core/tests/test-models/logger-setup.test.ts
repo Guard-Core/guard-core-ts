@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { mkdtempSync, readFileSync, existsSync, rmSync, mkdirSync } from 'node:fs';
+import { mkdtempSync, readFileSync, existsSync, rmSync, writeFileSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -135,6 +135,26 @@ describe('setupCustomLogging', () => {
     logger.info('still-logs');
     expect(consoleSpies.info).toHaveBeenCalled();
     expect(warns.length).toBe(0);
+  });
+
+  it('fails fast (no recursive-mkdir spin) when a log path runs through a regular file', async () => {
+    /* A path component that is a regular file must surface as an immediate
+       error and fall back to console-only logging. Directory creation is a
+       bounded component-wise mkdir: node's recursive mkdirSync retries
+       forever at 100% CPU on Linux when an uncreatable parent answers
+       ENOENT (any mkdir under /proc), which is what the '/proc/...' test
+       above exercises on Linux CI. */
+    const dir = mkdtempSync(join(tmpdir(), 'guard-log-'));
+    const blocker = join(dir, 'blocker');
+    try {
+      writeFileSync(blocker, 'x'); /* a plain file, later used as a parent path */
+      const logger = await setupCustomLogging({ logFile: join(blocker, 'nested', 'guard.log') });
+      logger.info('console-only');
+      expect(consoleSpies.info).toHaveBeenCalled();
+      expect(existsSync(join(blocker, 'nested'))).toBe(false);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });
 

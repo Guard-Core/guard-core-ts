@@ -104,8 +104,30 @@ describe('PatternCompiler', () => {
 
   it('validatePatternSafety catches slow patterns', () => {
     const compiler = new PatternCompiler();
-    const [isSafe] = compiler.validatePatternSafety('(a+)+$', ['a'.repeat(25) + 'X']);
-    expect(typeof isSafe).toBe('boolean');
+    /* The catastrophic pattern is assembled at runtime: the validator's
+       static DANGEROUS_PATTERNS gate rejects it before anything is compiled
+       or executed, so no ReDoS-shaped regex literal is ever embedded in test
+       source (CodeQL js/redos). */
+    const catastrophic = `(a${'+'})+$`;
+    const [isSafe, reason] = compiler.validatePatternSafety(catastrophic, ['a'.repeat(25) + 'X']);
+    expect(isSafe).toBe(false);
+    expect(reason).toContain('dangerous construct');
+  });
+
+  it('validatePatternSafety rejects oversized patterns and probe strings', () => {
+    const compiler = new PatternCompiler();
+    const [patternUnsafe, patternReason] = compiler.validatePatternSafety('a'.repeat(1100));
+    expect(patternUnsafe).toBe(false);
+    expect(patternReason).toContain('maximum validated length');
+
+    const [probeUnsafe, probeReason] = compiler.validatePatternSafety('\\d+', ['b'.repeat(1100)]);
+    expect(probeUnsafe).toBe(false);
+    expect(probeReason).toContain('maximum length');
+
+    /* The caps sit above realistic patterns: a boundary-size pattern still
+       validates safe on default probes. */
+    const [boundarySafe] = compiler.validatePatternSafety('\\btest\\b');
+    expect(boundarySafe).toBe(true);
   });
 
   it('validatePatternSafety catches invalid regex', () => {

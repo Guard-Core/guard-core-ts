@@ -119,10 +119,55 @@ function redactJsonText(
 /* Pair scanning for non-JSON text: mask the value of `name=value` and
    `name: value` assignments whose name is sensitive (quotes tolerated, one
    bounded percent-decode round on the name, the twin of _redact_pairs_in_text).
-   The pattern is written backtrack-free (single-char-class name, mirrored
-   quote reference, no nested quantifiers) so it stays linear on adversarial
-   inputs like long '%' or quote runs. */
-const PAIR_HEAD_RE = /(["']?)([A-Za-z0-9_.\-+%]+)\1[=:]\s*/g;
+
+   The scan is a hand-rolled linear pass instead of a global regex: any regex
+   of the shape (quote?)(name-class+)(sep) over uncontrolled text rescans a
+   name run from every offset before failing, which CodeQL
+   (js/polynomial-redos) correctly flags as quadratic on adversarial inputs
+   like long '%' or quote runs. The scanner walks each character at most a
+   constant number of times and recognizes exactly the same matches:
+   `(["']?)(NAME+)\1[=:]` with `\s*` before the value, where NAME is a letter,
+   digit, '_', '.', '-', '+' or '%'. */
+
+function isPairNameChar(ch: string): boolean {
+  return (ch >= 'a' && ch <= 'z') ||
+         (ch >= 'A' && ch <= 'Z') ||
+         (ch >= '0' && ch <= '9') ||
+         ch === '_' || ch === '.' || ch === '-' || ch === '+' || ch === '%';
+}
+
+function skipPairWhitespace(text: string, from: number): number {
+  let j = from;
+  while (j < text.length && /\s/.test(text[j])) j++;
+  return j;
+}
+
+function pairNameIsSensitive(
+  text: string,
+  start: number,
+  end: number,
+  sensitive: ReadonlySet<string>,
+): boolean {
+  const rawName = text.slice(start, end);
+  const decodedName = boundedPercentDecode(rawName, decodeURIComponent).trim().toLowerCase();
+  return sensitive.has(decodedName);
+}
+
+/* Value-end logic, identical to the original scanner: a quoted value runs to
+   the mirroring quote (or end of text), an unquoted value runs until a pair
+   delimiter. */
+function pairValueEnd(text: string, valueStart: number): number {
+  const quote = text[valueStart];
+  if (quote === '"' || quote === "'") {
+    const closing = text.indexOf(quote, valueStart + 1);
+    /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
+    return closing === -1 ? text.length : closing + 1;
+    /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
+  }
+  let end = valueStart;
+  while (end < text.length && !/[\s,;&|)'"]/.test(text[end])) end++;
+  return end;
+}
 
 export function redactPairsInText(
   text: string,
@@ -130,28 +175,57 @@ export function redactPairsInText(
 ): string {
   const out: string[] = [];
   let last = 0;
-  PAIR_HEAD_RE.lastIndex = 0;
-  for (let m = PAIR_HEAD_RE.exec(text); m !== null; m = PAIR_HEAD_RE.exec(text)) {
-    /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
-    const rawName = m[2] ?? '';
-    /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
-    const decodedName = boundedPercentDecode(rawName, decodeURIComponent).trim().toLowerCase();
-    if (!sensitive.has(decodedName)) continue;
-    // Keep everything up to and including the separator, mask the value run.
-    const valueStart = m.index + m[0].length;
-    let end = valueStart;
-    const quote = text[valueStart];
-    if (quote === '"' || quote === "'") {
-      const closing = text.indexOf(quote, valueStart + 1);
-      /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
-      end = closing === -1 ? text.length : closing + 1;
-      /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
-    } else {
-      while (end < text.length && !/[\s,;&|)'"]/.test(text[end])) end++;
+  const n = text.length;
+  let i = 0;
+  /* Start of the current maximal run of name characters. A separator or a
+     closing quote can only complete a pair whose name is exactly this run. */
+  let runStart = 0;
+  while (i < n) {
+    const ch = text[i];
+    if (ch === '"' || ch === "'") {
+      /* A quote closes a quoted name only when a name run sits between a
+         mirroring opening quote and this position, and a separator follows
+         immediately (the linear twin of `\1[=:]`). */
+      if (
+        i > runStart && runStart > 0 &&
+        text[runStart - 1] === ch &&
+        (text[i + 1] === '=' || text[i + 1] === ':')
+      ) {
+        const valueStart = skipPairWhitespace(text, i + 2);
+        if (pairNameIsSensitive(text, runStart, i, sensitive)) {
+          const end = pairValueEnd(text, valueStart);
+          out.push(text.slice(last, valueStart), REDACTED);
+          last = end;
+          i = end;
+        } else {
+          i = valueStart;
+        }
+        runStart = i;
+        continue;
+      }
+      i++;
+      runStart = i;
+      continue;
     }
-    out.push(text.slice(last, valueStart), REDACTED);
-    last = end;
-    PAIR_HEAD_RE.lastIndex = end;
+    if ((ch === '=' || ch === ':') && i > runStart) {
+      const valueStart = skipPairWhitespace(text, i + 1);
+      if (pairNameIsSensitive(text, runStart, i, sensitive)) {
+        const end = pairValueEnd(text, valueStart);
+        out.push(text.slice(last, valueStart), REDACTED);
+        last = end;
+        i = end;
+      } else {
+        i = valueStart;
+      }
+      runStart = i;
+      continue;
+    }
+    if (!isPairNameChar(ch)) {
+      i++;
+      runStart = i;
+      continue;
+    }
+    i++;
   }
   out.push(text.slice(last));
   return out.join('');

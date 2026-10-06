@@ -250,6 +250,42 @@ describe('createSecurityMiddleware', () => {
 });
 
 describe('configureCors', () => {
+  function mountCors(allowOrigins: string[]) {
+    const mockApp = { use: vi.fn() } as never;
+    const config = {
+      enableCors: true,
+      corsAllowOrigins: allowOrigins,
+      corsAllowMethods: ['GET'],
+      corsAllowHeaders: ['*'],
+      corsAllowCredentials: false,
+      corsExposeHeaders: [],
+      corsMaxAge: 600,
+    } as never;
+    configureCors(mockApp, config);
+    const typedApp = mockApp as unknown as { use: ReturnType<typeof vi.fn> };
+    expect(typedApp.use).toHaveBeenCalled();
+    return typedApp.use.mock.calls[0][0] as (
+      req: unknown,
+      res: unknown,
+      next: () => void,
+    ) => void;
+  }
+
+  function runCors(middleware: ReturnType<typeof mountCors>, origin?: string): Promise<Record<string, string>> {
+    return new Promise((resolve) => {
+      const headers: Record<string, string> = {};
+      const res = {
+        setHeader: (key: string, value: unknown) => { headers[key] = String(value); },
+        getHeader: (key: string) => headers[key],
+      } as never;
+      const req = {
+        method: 'GET',
+        headers: origin === undefined ? {} : { origin },
+      } as never;
+      middleware(req, res, () => resolve(headers));
+    });
+  }
+
   it('does nothing when enableCors is false', () => {
     const mockApp = { use: vi.fn() } as never;
     const config = { enableCors: false } as never;
@@ -273,6 +309,27 @@ describe('configureCors', () => {
     configureCors(mockApp, config);
     const typedApp = mockApp as unknown as { use: ReturnType<typeof vi.fn> };
     expect(typedApp.use).toHaveBeenCalled();
+  });
+
+  it('allowlist echoes a configured origin and withholds the header otherwise', async () => {
+    const middleware = mountCors(['https://good.example']);
+
+    const allowed = await runCors(middleware, 'https://good.example');
+    expect(allowed['Access-Control-Allow-Origin']).toBe('https://good.example');
+    expect(allowed['Vary']).toContain('Origin');
+
+    const denied = await runCors(middleware, 'https://evil.example');
+    expect(denied['Access-Control-Allow-Origin']).toBeUndefined();
+
+    /* A request without an Origin header is not a CORS request: no header. */
+    const noOrigin = await runCors(middleware);
+    expect(noOrigin['Access-Control-Allow-Origin']).toBeUndefined();
+  });
+
+  it('keeps the cors package array semantics: a bare "*" entry stays inert', async () => {
+    const middleware = mountCors(['*']);
+    const headers = await runCors(middleware, 'https://any.example');
+    expect(headers['Access-Control-Allow-Origin']).toBeUndefined();
   });
 
   it('throws when cors package is not installed', () => {

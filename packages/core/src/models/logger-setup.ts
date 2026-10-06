@@ -63,13 +63,37 @@ interface FileSink {
    instance; a new setup closes them (the reference's own-handler sweep). */
 let activeFileSink: FileSink | null = null;
 
+/* Create `dir` component by component with plain mkdirSync instead of
+   mkdirSync(dir, { recursive: true }). node's recursive implementation
+   retries forever (spinning the event loop at 100% CPU) when the OS answers
+   ENOENT for an uncreatable parent, which is exactly what Linux answers for
+   any mkdir under /proc; a plain mkdirSync surfaces the error immediately,
+   and the caller falls back to console-only logging. */
+function ensureDirectory(
+  fs: typeof import('node:fs'),
+  path: typeof import('node:path'),
+  dir: string,
+): void {
+  const parts = dir.split(path.sep).filter((p) => p.length > 0 && p !== '.');
+  let current = dir.startsWith(path.sep) ? path.sep : '';
+  for (const part of parts) {
+    current = path.join(current, part);
+    if (fs.existsSync(current)) continue;
+    try {
+      fs.mkdirSync(current);
+    } catch (e) {
+      if ((e as NodeJS.ErrnoException).code !== 'EEXIST') throw e;
+    }
+  }
+}
+
 async function openFileSink(logFile: string): Promise<FileSink | null> {
   try {
     const fs = await import('node:fs');
     const path = await import('node:path');
     const dir = path.dirname(logFile);
     if (dir && dir !== '.' && !fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
+      ensureDirectory(fs, path, dir);
     }
     return {
       write(line: string) {
