@@ -8,6 +8,16 @@ import { defaultLogger } from '../../src/models/logger.js';
 import { createMockResponseFactory } from '../helpers.js';
 import type { SecurityMiddlewareComponents } from '../../src/index.js';
 
+const { initializeSecurityMiddlewareMock } = vi.hoisted(() => ({
+  initializeSecurityMiddlewareMock: vi.fn(),
+}));
+
+vi.mock('../../src/middleware-support.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../src/middleware-support.js')>();
+  initializeSecurityMiddlewareMock.mockImplementation(actual.initializeSecurityMiddleware);
+  return { ...actual, initializeSecurityMiddleware: initializeSecurityMiddlewareMock };
+});
+
 async function buildComponents(configOverrides: Record<string, unknown> = {}): Promise<SecurityMiddlewareComponents> {
   const config = SecurityConfigSchema.parse({ enableRedis: false, ...configOverrides });
   return initializeSecurityMiddleware(config, defaultLogger, createMockResponseFactory());
@@ -189,6 +199,44 @@ describe('attachNodeWebSocketGuard (node upgrade integration)', () => {
     expect(await guardReq.body()).toEqual(new Uint8Array(0));
     expect(guardReq.state).toEqual({});
     expect(guardReq.scope).toEqual({});
+  });
+
+  it('lazily initializes its own components when none are shared', async () => {
+    const server = createServer();
+    servers.push(server);
+    attachNodeWebSocketGuard(server, { config: { enableRedis: false, blacklist: ['127.0.0.1'] } });
+    server.on('upgrade', (_req, socket) => {
+      socket.write('HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\n\r\n');
+      socket.end();
+    });
+
+    const port = await listen(server);
+    const result = await upgradeAgainst(server, port);
+    expect(result.status).toBe(403);
+    expect(result.body).toContain('WebSocket upgrade rejected');
+  });
+
+  it('fails closed and resets the lazy init when the initializer itself throws', async () => {
+    initializeSecurityMiddlewareMock.mockImplementationOnce(async () => {
+      throw new Error('initializer bug');
+    });
+    const server = createServer();
+    servers.push(server);
+    attachNodeWebSocketGuard(server, { config: { enableRedis: false } });
+    server.on('upgrade', (_req, socket) => {
+      socket.write('HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\n\r\n');
+      socket.end();
+    });
+
+    const port = await listen(server);
+    const first = await upgradeAgainst(server, port);
+    expect(first.status).toBe(403);
+    expect(first.body).toContain('Security check failed');
+
+    /* The catch reset the single-flight promise: the next upgrade retries
+       initialization and succeeds through the real initializer. */
+    const second = await upgradeAgainst(server, port);
+    expect(second.status).toBe(101);
   });
 
   it('forwards non-upgrade emits untouched', async () => {

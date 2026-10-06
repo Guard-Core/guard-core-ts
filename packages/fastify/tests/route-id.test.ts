@@ -43,6 +43,14 @@ describe('fastify decorator route config wiring (W3)', () => {
     const routeConfig = decorator.ensureRouteConfig(decoratedHandler);
     routeConfig.customValidators.push(async () => teapotResponse());
 
+    const multiMethodHandler = async (
+      _req: GuardRequest,
+      reply: { status(n: number): { send(b: unknown): unknown } },
+    ) => { void reply; return { ok: true }; };
+    decorator.applyRouteConfig(multiMethodHandler);
+    const multiConfig = decorator.ensureRouteConfig(multiMethodHandler);
+    multiConfig.customValidators.push(async () => teapotResponse());
+
     app = Fastify();
     await app.register(guardPlugin, {
       config: { enableRedis: false },
@@ -50,6 +58,9 @@ describe('fastify decorator route config wiring (W3)', () => {
     });
     app.get('/decorated', decoratedHandler);
     app.get('/plain', jsonHandler);
+    /* Multi-method registration: onRoute must file the route meta under
+       every declared method. */
+    app.route({ method: ['GET', 'POST'], url: '/multi', handler: multiMethodHandler });
     await app.ready();
   });
 
@@ -68,5 +79,13 @@ describe('fastify decorator route config wiring (W3)', () => {
     const response = await app.inject({ method: 'GET', url: '/plain' });
     expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual({ ok: true });
+  });
+
+  it('resolves the decorator config for every method of a multi-method route', async () => {
+    for (const method of ['GET', 'POST'] as const) {
+      const response = await app.inject({ method, url: '/multi' });
+      expect(response.statusCode).toBe(418);
+      expect(response.headers['x-guard-proof']).toBe('route-config');
+    }
   });
 });

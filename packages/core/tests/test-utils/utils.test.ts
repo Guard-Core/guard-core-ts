@@ -289,6 +289,23 @@ describe('detectPenetrationAttempt', () => {
     const [isThreat] = await detectPenetrationAttempt(request);
     expect(isThreat).toBe(false);
   });
+
+  it('treats a request that cannot cache its body as a failed read', async () => {
+    /* A frozen request state makes the bounded reader's per-request cache
+       write throw, so readCappedBody rejects; detection must treat the body
+       as unavailable instead of crashing the scan. */
+    const { SusPatternsManager } = await import('../../src/handlers/sus-patterns.js');
+    const manager = new SusPatternsManager(createTestConfig(), defaultLogger);
+    const body = new TextEncoder().encode(JSON.stringify({ comment: 'safe text' }));
+    const request = createMockRequest({
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: async () => body,
+    });
+    Object.freeze(request.state);
+    const [isThreat] = await scanRequestWithManager(manager, request);
+    expect(isThreat).toBe(false);
+  });
 });
 
 describe('scanRequestWithManager engine routing', () => {

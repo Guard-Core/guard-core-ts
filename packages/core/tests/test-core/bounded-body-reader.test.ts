@@ -230,4 +230,50 @@ describe('readCappedBody', () => {
     releaseFirst();
     expect((await first)!.length).toBe(1024);
   });
+
+  it('releases queued waiters when the concurrency budget is reset', async () => {
+    setBodyReadConcurrencyLimit(1);
+    let releaseHolder: () => void = () => {};
+    const gate = new Promise<void>((resolve) => { releaseHolder = resolve; });
+    const holder = createMockRequest({ headers: {} }) as GuardRequest & {
+      readBodyPrefix(max: number): Promise<Uint8Array>;
+    };
+    holder.readBodyPrefix = async (max: number) => {
+      await gate;
+      return bytes('h'.repeat(max));
+    };
+    const config = createTestConfig({ detectionMaxBodyInspectBytes: 1024, bodyReadTimeout: 30, bodyReadMaxConcurrent: 1 });
+    const held = readCappedBody(holder, { config, logger: defaultLogger });
+
+    const queued = createMockRequest({ headers: {} }) as GuardRequest & {
+      readBodyPrefix(max: number): Promise<Uint8Array>;
+    };
+    queued.readBodyPrefix = async (max: number) => bytes('q'.repeat(max));
+    const waiter = readCappedBody(queued, { config, logger: defaultLogger });
+
+    /* Flush the microtask chain: the holder now holds the only slot and the
+       waiter sits in the release queue. Resetting now must invoke the
+       queued release immediately, so the waiter completes without the
+       holder's gate ever opening. */
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    resetBodyReadConcurrency();
+    const waiterResult = await waiter;
+    releaseHolder();
+    await held;
+    expect(waiterResult!.length).toBe(1024);
+    expect(waiterResult![0]).toBe('q'.charCodeAt(0));
+    resetBodyReadConcurrency();
+  });
+
+  it('applies default caps when no config is supplied', async () => {
+    const body = bytes('b'.repeat(4096));
+    const request = createMockRequest({ headers: {} }) as GuardRequest & {
+      readBodyPrefix(max: number): Promise<Uint8Array>;
+    };
+    request.readBodyPrefix = async (max: number) => bytes('b'.repeat(max));
+    const result = await readCappedBody(request, { logger: defaultLogger });
+    /* The default detectionMaxBodyInspectBytes cap is 256 KiB. */
+    expect(result!.length).toBe(262144);
+    expect(result![0]).toBe(body[0]);
+  });
 });

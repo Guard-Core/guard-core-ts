@@ -77,7 +77,7 @@ export const guardPlugin = fp(async function guardPlugin(fastify: FastifyInstanc
     const routeId = handlerRouteId(handler);
     const endpointId = handlerEndpointId(handler);
     if (routeId === null && endpointId === null) return;
-    const methods = Array.isArray(routeOptions.method) ? routeOptions.method : [routeOptions.method ?? ''];
+    const methods = Array.isArray(routeOptions.method) ? routeOptions.method : [String(routeOptions.method)];
     for (const method of methods) {
       routeMeta.set(`${String(method).toUpperCase()}|${routeOptions.url}`, { routeId, endpointId });
     }
@@ -92,11 +92,19 @@ export const guardPlugin = fp(async function guardPlugin(fastify: FastifyInstanc
        request state (decorator route configs resolve through it). */
     const routeOptions = request.routeOptions as unknown as {
       config?: Record<string, unknown>;
-      method?: string;
+      method?: string | string[];
       url?: string;
     } | undefined;
-    const meta = routeOptions?.method && routeOptions?.url
-      ? routeMeta.get(`${routeOptions.method.toUpperCase()}|${routeOptions.url}`)
+    /* Multi-method routes declare `method` as an array at request time too;
+       the incoming request matches exactly one declared method. */
+    const declared = Array.isArray(routeOptions?.method)
+      ? routeOptions.method
+      : [routeOptions?.method ?? ''];
+    const methodKey = declared.find(
+      (m) => m.toUpperCase() === request.method.toUpperCase(),
+    );
+    const meta = routeOptions?.url && methodKey
+      ? routeMeta.get(`${methodKey.toUpperCase()}|${routeOptions.url}`)
       : undefined;
     if (meta?.routeId !== null && meta?.routeId !== undefined) {
       guardReq.state.guardRouteId = meta.routeId;
