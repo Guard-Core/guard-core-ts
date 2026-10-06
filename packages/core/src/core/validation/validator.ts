@@ -4,6 +4,7 @@ import type { ResolvedSecurityConfig } from '../../models/config.js';
 import type { Logger } from '../../models/logger.js';
 import type { GuardRequest } from '../../protocols/request.js';
 import type { SecurityEventBus } from '../events/event-bus.js';
+import { pathIsExcluded } from './path-matching.js';
 
 export class RequestValidator {
   constructor(
@@ -67,9 +68,11 @@ export class RequestValidator {
   }
 
   async isPathExcluded(request: GuardRequest): Promise<boolean> {
-    const excluded = this.config.excludePaths.some((path) =>
-      request.urlPath.startsWith(path),
-    );
+    /* Reference semantics (guard_core/core/validation/path_matching.py):
+       the request path and the configured exclusions are normalized
+       (recursive percent-decode + dot-segment collapse) and matched
+       subtree-or-equal. A path that cannot be decoded stays checked. */
+    const excluded = pathIsExcluded(request.urlPath, this.config.excludePaths);
 
     if (excluded) {
       await this.eventBus.sendMiddlewareEvent(

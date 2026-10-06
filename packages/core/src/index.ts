@@ -73,3 +73,46 @@ export {
 } from './core/routing/detection-exclusions.js';
 export type { ResolvedDetectionExclusions } from './core/routing/detection-exclusions.js';
 export type { PathRouteConfigEntry } from './core/routing/resolver.js';
+
+/* Path normalization + subtree exclusion matching (parity with
+   guard_core/core/validation/path_matching.py). */
+export {
+  normalizeUrlPath, normalizeExcludePaths, pathMatchesExclusions, pathIsExcluded,
+} from './core/validation/path-matching.js';
+
+/* Bounded body reader (parity with guard_core/_utils/body_reader.py). */
+export {
+  parseContentLength, readCappedBody, setBodyReadConcurrencyLimit,
+  resetBodyReadConcurrency, straddleOverlapBytes,
+} from './core/bounded-body-reader.js';
+export type { BoundedBodyReaderDeps } from './core/bounded-body-reader.js';
+
+/* Structured logging (parity with guard_core/_utils/logging_utils.py) and
+   the logFormat/customLogFile consumer. */
+export {
+  JsonFormatter, formatTextLog, setupCustomLogging, resolveConfiguredLogger,
+  DEFAULT_LOGGER_NAME,
+} from './models/logger-setup.js';
+export type { LogRecord, CustomLoggingOptions } from './models/logger-setup.js';
+
+/* Agent handler fan-out + export sinks (parity with the reference
+   composite/otel/logfire event handlers). */
+export { EventFilter, METRIC_RESPONSE_TIME, METRIC_REQUEST_COUNT, METRIC_ERROR_RATE,
+  METRIC_TYPE_VALUES } from './core/events/event-filter.js';
+export type { AgentEventEnricher } from './core/events/event-filter.js';
+export { CompositeAgentHandler } from './core/events/composite-handler.js';
+export { OtelHandler } from './core/events/otel-handler.js';
+export type { OtelHandlerConfig, OtelInstrumentation, OtelTraceContext } from './core/events/otel-handler.js';
+export { LogfireHandler } from './core/events/logfire-handler.js';
+export type { LogfireHandlerConfig, LogfireClient } from './core/events/logfire-handler.js';
+
+/* WebSocket upgrade guard (parity with the reference guard_websocket). */
+export {
+  guardWebSocketUpgrade, WS_CLOSE_POLICY_VIOLATION, WS_CLOSE_TRY_AGAIN_LATER,
+  WS_CLOSE_IP_BANNED, WS_CLOSE_IP_NOT_ALLOWED, WS_CLOSE_RATE_LIMIT_EXCEEDED,
+  WS_CLOSE_CLIENT_ADDRESS_UNKNOWN, WS_CLOSE_SECURITY_CHECK_FAILED,
+  WS_CLOSE_SUSPICIOUS_ACTIVITY,
+} from './core/websocket-guard.js';
+export type { WebSocketCloseReason, WebSocketGuardVerdict } from './core/websocket-guard.js';
+export { attachNodeWebSocketGuard, NodeUpgradeGuardRequest } from './core/node-websocket-guard.js';
+export type { NodeWebSocketGuardOptions } from './core/node-websocket-guard.js';

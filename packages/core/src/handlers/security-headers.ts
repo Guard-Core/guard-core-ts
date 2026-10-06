@@ -29,8 +29,21 @@ function validateHeaderValue(value: string): string {
   return value.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g, '');
 }
 
+/* Strip every trailing '/' from a value.
+   A linear scan instead of `replace(/\/+$/, "")`: requestPath reaches this
+   from the incoming request, and CodeQL (js/polynomial-redos) flags anchored
+   quantifier regexes over uncontrolled data. Behavior is identical - all
+   trailing slashes are removed, none added. */
+function stripTrailingSlashes(value: string): string {
+  let end = value.length;
+  while (end > 0 && value[end - 1] === '/') {
+    end--;
+  }
+  return value.slice(0, end);
+}
+
 function generateCacheKey(requestPath: string): string {
-  const normalized = requestPath.toLowerCase().replace(/\/+$/, '');
+  const normalized = stripTrailingSlashes(requestPath.toLowerCase());
   let hash = 0;
   for (let i = 0; i < normalized.length; i++) {
     hash = (hash << 5) - hash + normalized.charCodeAt(i);

@@ -181,6 +181,91 @@ guard.blockCountries(['CN', 'RU'])(myHandler);
 guard.usageMonitor(5, 3600, 'ban')(myHandler);
 ```
 
+Decorator route configs resolve at request time through the adapters, which copy the decorated handler's `_guardRouteId` onto the guard request state:
+
+| Adapter | Handler resolution | Notes |
+|---|---|---|
+| Express | Supported | Route-level mounting resolves through `req.route`; app-level mounting scans the app router stack for the first matching route. Routes inside mounted sub-routers resolve only when the guard is mounted at that router level. |
+| Fastify | Supported | The plugin's `onRoute` hook captures the handler's route id at registration time (register the plugin before your routes). |
+| Hono | Supported | Resolved from `c.req.matchedRoutes` (the composed handler chain). |
+| NestJS | Not available | Nest middleware (where the guard pipeline runs) runs before routing and the Express layer only exposes the framework's proxy closure, never the controller method; Nest's own handler surface (`ExecutionContext.getHandler()`) exists only in guards/interceptors, which run after the middleware. Use the `routeConfigs` path-entry option (or Fastify-style native route options on other adapters) for per-route configuration in Nest. |
+
+## Agent fan-out and export sinks
+
+`CompositeAgentHandler` fans events and metrics out to several `AgentHandlerProtocol` sinks behind one handler (muted-type filtering via `EventFilter`, an optional enricher seam, per-sink failure isolation, degraded-start tracking, first non-null dynamic rules), mirroring the Python composite handler. Export handlers for OpenTelemetry and Logfire map security events to `guard.event.*` spans (with traceparent/tracestate parent extraction and `guard.*` metadata forwarding) and metrics to the reference instrument set (`guard.request.duration`, `guard.request.count`, `guard.error.count`); the SDK/logfire clients are injected through seams so the engine keeps zero hard dependencies:
+
+```typescript
+import { CompositeAgentHandler, OtelHandler, LogfireHandler, EventFilter } from '@guardcore/core';
+
+const composite = new CompositeAgentHandler(
+  [
+    agentClient,                       // your GuardAgent sink
+    new OtelHandler({ serviceName: 'api', instrumentation: myOtelWiring }),
+    new LogfireHandler({ serviceName: 'api', client: myLogfireClient }),
+  ],
+  { eventFilter: new EventFilter(['pattern_added']) },
+);
+```
+
+## WebSocket guard
+
+The same checks the HTTP pipeline applies (client identity, IP bans, allow lists, rate limiting, penetration detection) run on WebSocket upgrade requests, mirroring the Python `guard_websocket` reference (close codes 1008/1013; a rejected handshake answers HTTP 403 pre-accept). Express, Hono, and NestJS expose `attachWebSocketGuard(server, options)`; it gates the Node server's upgrade dispatch itself, so attach order relative to your ws/socket.io/node-ws setup does not matter:
+
+```typescript
+import http from 'node:http';
+import { attachWebSocketGuard } from '@guardcore/express';
+
+const server = http.createServer(app);
+attachWebSocketGuard(server, {
+  config,
+  // pass the middleware's components to share Redis / rate-limit / pattern managers
+});
+```
+
+Fastify note: WebSocket upgrades in Fastify ride the raw Node server through `@fastify/websocket`, which the plugin cannot intercept from inside the Fastify hook lifecycle. Use the core helper directly on your server: `import { attachNodeWebSocketGuard } from '@guardcore/core'`.
+
+On non-Node runtimes (Workers, Deno, Bun), wire the core `guardWebSocketUpgrade(request, components)` into the host's upgrade hook.
+
+## Structured logging (logFormat / customLogFile)
+
+The `logFormat: 'json'` and `customLogFile` config fields are live. An injected `config.logger` always wins; otherwise `logFormat: 'json'` makes every guard log line a JSON object (`timestamp`, `level`, `logger`, `message`), and `customLogFile` appends the same formatted lines to a file (directory created on demand; failures degrade to console-only with a warning). All adapters and the WebSocket guard go through this resolution.
+
+```typescript
+const config = {
+  logFormat: 'json',
+  customLogFile: '/var/log/guard/security.log',
+};
+```
+
+## Detection scan execution (default decision, evidence-based)
+
+The default regex scan execution is a deadline-bounded synchronous fallback with consecutive-timeout pattern quarantine: JavaScript RegExp cannot be interrupted, so a bounded inline path with quarantine is the only execution mode that works everywhere (worker-less edge runtimes included). A true worker pool is available opt-in with `detectionScanWorkerPool: true`.
+
+The trade-off is measured, not guessed. Run `pnpm --filter @guardcore/core bench` (`packages/core/benchmarks/scan-pool-bench.ts`), which scans a realistic + adversarial corpus on both paths and reports wall time and the worst main-thread freeze:
+
+```text
+corpus: 23 payloads (382144 bytes)
+
+inline deadline-bounded fallback (default):
+  wall time              : 221 ms
+  max main-thread stall  : 216 ms
+opt-in worker pool (detectionScanWorkerPool: true):
+  wall time              : 275 ms
+  max main-thread stall  : 22 ms
+```
+
+The pool buys event-loop latency (roughly 10x smaller worst stall on this corpus) at a throughput cost from per-scan message marshaling. Keep the default when raw throughput matters most; enable the pool when worst-case loop stalls (tail latency for unrelated requests) dominate your SLO.
+
+## Bounded body reads
+
+Detection body reads are bounded: `detectionMaxBodyInspectBytes` caps what is scanned, `bodyReadTimeout` (default 3s) bounds a stalled adapter read, and `bodyReadMaxConcurrent` (default 64) bounds in-flight reads process-wide. Adapters that can read a byte cap natively implement the optional `GuardRequest.readBodyPrefix(maxBytes)` protocol; the express body parser and Fastify/onRequest adapters delegate the memory bound to the framework parser and trim after the fact.
+
+## Route-level options
+
+- `routeConfigs` path entries (all adapters): exact path or `prefix/*` matching, longest path wins.
+- `RouteConfig.sessionLimits`: per-route map of header name to a per-session request cap within the route's rate-limit window; counters key by `session:<header>:<value>` so distinct sessions behind one IP are limited independently.
+- Fastify native options: `fastify.get('/x', { config: { guardRouteConfig } }, handler)` wins over every other route surface.
+
 ## Python Parity
 
 This is a faithful TypeScript port of [guard-core](https://github.com/rennf93/guard-core). The Python codebase is the source of truth for features, architecture, and behavior. All 157 detection patterns, 84 SecurityConfig fields, 6 protocols, 17 security checks, and 9 handlers are ported 1:1, and the engine is verified against the vendored spec 4.1.0 conformance corpus (219 cases) in `conformance/guard-core-spec-4.1.0`, wired as a CI gate.

@@ -11,7 +11,7 @@ import type {
   PathRouteConfigEntry,
 } from '@guardcore/core';
 import { RouteConfig as RouteConfigClass } from '@guardcore/core';
-import { SecurityConfigSchema, defaultLogger, initializeSecurityMiddleware } from '@guardcore/core';
+import { SecurityConfigSchema, resolveConfiguredLogger, initializeSecurityMiddleware } from '@guardcore/core';
 import fp from 'fastify-plugin';
 import { FastifyGuardRequest, FastifyResponseFactory } from './adapters.js';
 
@@ -27,12 +27,35 @@ export interface GuardPluginOptions {
   routeConfigs?: PathRouteConfigEntry[];
 }
 
+/* W3 wiring: routes registered AFTER the plugin carry their handler's
+   `_guardRouteId` (stamped by the core decorator's applyRouteConfig) from the
+   onRoute hook into this map, keyed like Fastify's own route identity. The
+   onRequest hook copies the id onto the guard request state so the core
+   RouteConfigResolver resolves decorator route configs at request time
+   (mirrors the Python adapters stamping guard_route_id). */
+interface GuardRouteMeta {
+  routeId: string | null;
+  endpointId: string | null;
+}
+
+function handlerRouteId(handler: unknown): string | null {
+  const id = (handler as Record<string, unknown> | null | undefined)?.['_guardRouteId'];
+  return typeof id === 'string' ? id : null;
+}
+
+function handlerEndpointId(handler: unknown): string | null {
+  const name = (handler as { name?: string } | null | undefined)?.name;
+  return name ? name : null;
+}
+
 /* Wrapped with fastify-plugin so the hooks land on the registering
    instance instead of an encapsulated child scope: without the wrapper the
    guard silently applied to no routes. */
 export const guardPlugin = fp(async function guardPlugin(fastify: FastifyInstance, options: GuardPluginOptions): Promise<void> {
   const resolved = SecurityConfigSchema.parse(options.config);
-  const logger: Logger = resolved.logger ?? defaultLogger;
+  /* D5: logFormat / customLogFile are live - an injected config.logger
+     wins, otherwise a json format or custom log file builds the logger. */
+  const logger: Logger = await resolveConfiguredLogger(resolved);
   const responseFactory = new FastifyResponseFactory();
 
   const components: SecurityMiddlewareComponents = await initializeSecurityMiddleware(
@@ -44,16 +67,56 @@ export const guardPlugin = fp(async function guardPlugin(fastify: FastifyInstanc
     components.routeResolver.registerPathRouteConfigs(options.routeConfigs);
   }
 
+  const routeMeta = new Map<string, GuardRouteMeta>();
+
+  /* onRoute fires per route at registration time, when the handler function
+     is still the user's - the only point where `_guardRouteId` is reachable
+     (request.routeOptions never exposes the handler). */
+  fastify.addHook('onRoute', (routeOptions) => {
+    const handler = (routeOptions as unknown as { handler?: unknown }).handler;
+    const routeId = handlerRouteId(handler);
+    const endpointId = handlerEndpointId(handler);
+    if (routeId === null && endpointId === null) return;
+    const methods = Array.isArray(routeOptions.method) ? routeOptions.method : [String(routeOptions.method)];
+    for (const method of methods) {
+      routeMeta.set(`${String(method).toUpperCase()}|${routeOptions.url}`, { routeId, endpointId });
+    }
+  });
+
   logger.info('Guard security plugin initialized');
 
   fastify.addHook('onRequest', async (request, reply) => {
     const guardReq = new FastifyGuardRequest(request);
 
+    /* W3: copy the matched handler's decorator route id onto the guard
+       request state (decorator route configs resolve through it). */
+    const routeOptions = request.routeOptions as unknown as {
+      config?: Record<string, unknown>;
+      method?: string | string[];
+      url?: string;
+    } | undefined;
+    /* Multi-method routes declare `method` as an array at request time too;
+       the incoming request matches exactly one declared method. */
+    const declared = Array.isArray(routeOptions?.method)
+      ? routeOptions.method
+      : [routeOptions?.method ?? ''];
+    const methodKey = declared.find(
+      (m) => m.toUpperCase() === request.method.toUpperCase(),
+    );
+    const meta = routeOptions?.url && methodKey
+      ? routeMeta.get(`${methodKey.toUpperCase()}|${routeOptions.url}`)
+      : undefined;
+    if (meta?.routeId !== null && meta?.routeId !== undefined) {
+      guardReq.state.guardRouteId = meta.routeId;
+    }
+    if (meta?.endpointId !== null && meta?.endpointId !== undefined) {
+      guardReq.state.guardEndpointId = meta.endpointId;
+    }
+
     /* Fastify's native route-level options: a RouteConfig passed as
        `config: { guardRouteConfig }` on the route wins over every other
        route surface (reference decorator semantics). */
-    const routeOptionsConfig = (request.routeOptions as unknown as { config?: Record<string, unknown> } | undefined)?.config;
-    const directConfig = routeOptionsConfig?.['guardRouteConfig'];
+    const directConfig = routeOptions?.config?.['guardRouteConfig'];
     if (directConfig instanceof RouteConfigClass) {
       guardReq.state.guardRouteConfig = directConfig;
     }

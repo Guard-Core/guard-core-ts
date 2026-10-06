@@ -797,6 +797,18 @@ export class SusPatternsManager {
     return [...this.getDefaultPatterns(), ...this.getCustomPatterns()];
   }
 
+  /* Longest compiled pattern source length (default + custom), used by the
+     bounded body reader for the boundary straddle over-read (reference
+     _straddle_overlap_bytes, which takes max(len(pattern.pattern)) over the
+     compiled pattern set). */
+  getLongestPatternLength(): number {
+    let longest = 0;
+    for (const pattern of this.getAllPatterns()) {
+      if (pattern.length > longest) longest = pattern.length;
+    }
+    return longest;
+  }
+
   async getPerformanceStats(): Promise<Record<string, unknown> | null> {
     return {
       summary: this.monitor.getSummaryStats(),

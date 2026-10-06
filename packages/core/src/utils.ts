@@ -17,6 +17,7 @@ import {
 } from './core/routing/detection-exclusions.js';
 import type { ResolvedDetectionExclusions } from './core/routing/detection-exclusions.js';
 import { fireBlockHook } from './core/block-events.js';
+import { readCappedBody } from './core/bounded-body-reader.js';
 
 /**
  * Excluded headers whose typical values are client addresses (the reference's
@@ -481,7 +482,7 @@ export async function scanRequestWithManager(
   const budget: ScanBudget = { values: 0, chars: 0, categories: [] };
   const exclusions = resolveScanExclusions(config, resolvedExclusions);
 
-  const [isThreat, info] = await runRequestSurfaceScan(manager, request, clientIp, budget, exclusions);
+  const [isThreat, info] = await runRequestSurfaceScan(manager, request, clientIp, budget, exclusions, config);
   return [isThreat, info, budget.categories];
 }
 
@@ -491,6 +492,7 @@ async function runRequestSurfaceScan(
   clientIp: string,
   budget: ScanBudget,
   exclusions: ScanExclusions,
+  config?: ResolvedSecurityConfig,
 ): Promise<[boolean, string]> {
   for (const [key, value] of Object.entries(request.queryParams)) {
     if (isExcludedParam(exclusions, key)) continue;
@@ -533,7 +535,7 @@ async function runRequestSurfaceScan(
   // _scan_body_surface gate, global or per route) skips the surface
   // entirely while headers, params, and the URL path still scan.
   if (!exclusions.scanBody) return [false, ''];
-  return scanBodySurface(manager, request, clientIp, budget, exclusions);
+  return scanBodySurface(manager, request, clientIp, budget, exclusions, config);
 }
 
 async function scanBodySurface(
@@ -542,11 +544,24 @@ async function scanBodySurface(
   clientIp: string,
   budget: ScanBudget,
   exclusions: ScanExclusions,
+  config?: ResolvedSecurityConfig,
 ): Promise<[boolean, string]> {
   let rawBody: string;
   try {
-    const bodyBytes = await request.body();
-    if (bodyBytes.length === 0) return [false, ''];
+    /* Bounded read (the reference _read_capped_body): the body is capped by
+       detectionMaxBodyInspectBytes and bounded by the read timeout and the
+       process-wide concurrency budget; null means the body is unavailable
+       and the surface is skipped, exactly like a read that raises. */
+    const bodyBytes = await readCappedBody(request, {
+      ...(config ? { config } : {}),
+      logger: defaultLogger,
+      /* Stub managers (tests, custom engines) may not expose the pattern
+         surface; the over-read simply disables. */
+      longestPatternLength: typeof manager.getLongestPatternLength === 'function'
+        ? manager.getLongestPatternLength()
+        : null,
+    }, clientIp);
+    if (bodyBytes === null || bodyBytes.length === 0) return [false, ''];
     rawBody = new TextDecoder().decode(bodyBytes);
     if (!rawBody.trim()) return [false, ''];
   } catch {

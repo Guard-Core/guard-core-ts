@@ -5,6 +5,19 @@ packages:
 ignoredBuiltDependencies:
   - esbuild
 
+# Targeted version overrides for advisories whose parents pin the vulnerable
+# release exactly, so a plain `pnpm update` cannot clear them. Both patched
+# versions are drop-in patch releases; nothing in this repo imports these
+# packages directly.
+overrides:
+  # GHSA-jqcg-44mw-7w3h (critical): express@5.2.1 pins proxy-addr 2.0.7;
+  # 2.0.8 fixes IP spoofing via IPv4-mapped IPv6 trust subnets.
+  proxy-addr@2.0.7: 2.0.8
+  # GHSA-68fv-2mgg-jv7q (high): magicast@0.5.5 (via @vitest/coverage-v8)
+  # pulls source-map-js 1.2.1; 1.2.2 fixes event-loop DoS via indexed
+  # source-map section offsets.
+  source-map-js@1.2.1: 1.2.2
+
 auditConfig:
   ignoreGhsas:
     # build/test tooling (vite, vitest, esbuild, postcss, nanoid, launch-editor); never shipped

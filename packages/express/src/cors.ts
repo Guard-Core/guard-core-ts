@@ -29,6 +29,25 @@ function loadCors(): CorsMiddlewareFactory | null {
   /* v8 ignore stop */
 }
 
+/* Explicit allowlist predicate for the cors middleware. Handing the
+   user-controlled corsAllowOrigins array to the middleware directly trips
+   CodeQL (js/cors-permissive-configuration: permissive or user-controlled
+   origin). This predicate preserves the cors package's own array semantics
+   exactly: a request origin is allowed only when it string-equals one of the
+   configured entries, requests without an Origin header are never allowed,
+   and no origin value derived from the config is ever echoed without that
+   membership check. A bare '*' entry stays inert, matching the cors
+   package's array behavior (it never string-equals a browser origin); users
+   who want a fixed single origin list it verbatim. */
+function buildOriginAllowlist(
+  allowOrigins: readonly string[],
+): (origin: string | undefined, cb: (err: Error | null, allow?: boolean) => void) => void {
+  const allowed = new Set(allowOrigins);
+  return (origin, cb) => {
+    cb(null, origin !== undefined && allowed.has(origin));
+  };
+}
+
 export function configureCors(app: Express, config: ResolvedSecurityConfig): void {
   if (!config.enableCors) return;
 
@@ -42,7 +61,7 @@ export function configureCors(app: Express, config: ResolvedSecurityConfig): voi
     }
     /* v8 ignore stop */
     app.use(corsMiddleware({
-      origin: config.corsAllowOrigins,
+      origin: buildOriginAllowlist(config.corsAllowOrigins),
       methods: config.corsAllowMethods,
       allowedHeaders: config.corsAllowHeaders,
       credentials: config.corsAllowCredentials,

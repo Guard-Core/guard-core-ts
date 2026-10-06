@@ -19,6 +19,11 @@ export interface GuardRequest {
   readonly headers: Readonly<Record<string, string>>;
   readonly queryParams: Readonly<Record<string, string>>;
   body(): Promise<Uint8Array>;
+  /** Optional bounded read: return at most maxBytes of the body without
+   *  consuming the whole stream. Adapters that implement it let the bounded
+   *  body reader cap the fetch itself instead of trimming after the fact
+   *  (the reference's read_body_prefix protocol). */
+  readBodyPrefix?(maxBytes: number): Promise<Uint8Array>;
   readonly state: GuardRequestState;
   readonly scope: Readonly<Record<string, unknown>>;
 }

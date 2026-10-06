@@ -11,7 +11,7 @@ import type {
   RouteConfig,
   PathRouteConfigEntry,
 } from '@guardcore/core';
-import { SecurityConfigSchema, defaultLogger, initializeSecurityMiddleware } from '@guardcore/core';
+import { SecurityConfigSchema, resolveConfiguredLogger, initializeSecurityMiddleware } from '@guardcore/core';
 import { NestGuardRequest, NestResponseFactory } from './adapters.js';
 
 export const GUARD_MIDDLEWARE_TOKEN = Symbol('GUARD_MIDDLEWARE_COMPONENTS');
@@ -91,7 +91,10 @@ export class GuardModule {
           provide: GUARD_MIDDLEWARE_TOKEN,
           useFactory: async () => {
             const resolved = SecurityConfigSchema.parse(options.config);
-            const logger: Logger = resolved.logger ?? defaultLogger;
+            /* D5: logFormat / customLogFile are live - an injected
+               config.logger wins, otherwise a json format or custom log file
+               builds the logger. */
+            const logger: Logger = await resolveConfiguredLogger(resolved);
             const responseFactory = new NestResponseFactory();
             const components = await initializeSecurityMiddleware(
               resolved, logger, responseFactory,

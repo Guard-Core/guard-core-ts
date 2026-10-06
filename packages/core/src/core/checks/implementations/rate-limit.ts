@@ -68,6 +68,9 @@ export class RateLimitCheck extends SecurityCheck {
       if (routeResponse !== null) return routeResponse;
     }
 
+    const sessionResponse = await this.checkSessionLimit(request, clientIp, routeConfig ?? null);
+    if (sessionResponse) return sessionResponse;
+
     const endpointLimit = this.config.endpointRateLimits[request.urlPath];
     if (endpointLimit) {
       const [limit, window] = endpointLimit;
@@ -123,6 +126,51 @@ export class RateLimitCheck extends SecurityCheck {
       request, clientIp, eventReason !== '' ? eventReason : 'Global rate limit exceeded',
     );
     return response;
+  }
+
+  /* Session limits (D5: the RouteConfig.sessionLimits field previously had
+     no consumer anywhere in the family - Python's RouteConfig has no such
+     field, so this is a TS-only surface made live). The map keys name the
+     request headers carrying a session identity and the values cap the
+     requests counted per distinct session value within the route's window
+     (routeConfig.rateLimitWindow ?? config.rateLimitWindow). Counters key by
+     "session:<header>:<value>", so a shared NAT IP with distinct session
+     tokens is limited per session instead of per IP. A request carrying none
+     of the configured headers skips the tier and falls through to the
+     endpoint/global limits; a non-positive limit is invalid and the tier
+     skips with a warning. */
+  private async checkSessionLimit(
+    request: GuardRequest,
+    clientIp: string,
+    routeConfig: RouteConfig | null,
+  ): Promise<GuardResponse | null> {
+    const sessionLimits = routeConfig?.sessionLimits;
+    if (!sessionLimits || Object.keys(sessionLimits).length === 0) return null;
+
+    const routeConfigState = (request.state as Record<string, unknown>)['_routeConfig'] as RouteConfig | undefined;
+    const window = routeConfigState?.rateLimitWindow ?? this.config.rateLimitWindow;
+
+    for (const [headerName, limit] of Object.entries(sessionLimits)) {
+      if (!Number.isFinite(limit) || limit <= 0) {
+        this.logger.warn(
+          `Ignoring invalid sessionLimits entry '${headerName}' (${limit}): the limit must be a positive number`,
+        );
+        continue;
+      }
+      const sessionValue = request.headers[headerName.toLowerCase()];
+      if (sessionValue === undefined || sessionValue === null || sessionValue === '') continue;
+
+      const sessionEndpoint = `session:${headerName.toLowerCase()}:${sessionValue}`;
+      const sessionResponse = await this.applyRateLimitCheck(
+        request, clientIp, limit, window,
+        'decorator_violation',
+        `Session rate limit exceeded for header '${headerName}': ${limit} requests per ${window}s per session`,
+        sessionEndpoint,
+      );
+      if (sessionResponse !== null) return sessionResponse;
+    }
+
+    return null;
   }
 
   /* Reference RateLimitCheck._check_geo_rate_limit: the tier list is the
