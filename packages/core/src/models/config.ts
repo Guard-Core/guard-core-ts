@@ -216,6 +216,18 @@ export const SecurityConfigSchema = z.object({
      detectionScanBody overrides it per route. */
   detectionScanBody: z.boolean().default(true),
 
+  /* Bounded body-read knobs, the TS port of body_read_timeout (0 < x <= 30,
+     default 3.0s) and sync_body_read_max_concurrent (1 <= x <= 10000,
+     default 64, renamed bodyReadMaxConcurrent here because the TS tree has
+     no sync/async split). bodyReadTimeout bounds every request-body
+     detection read against a stalled adapter or stream; on timeout the body
+     is treated as unavailable (the same fail-closed outcome as a read that
+     raises). bodyReadMaxConcurrent bounds how many bounded reads may be in
+     flight at once across the process; attempts beyond the budget queue and
+     then give up with the same fail-closed outcome. */
+  bodyReadTimeout: z.number().gt(0).max(30).default(3.0),
+  bodyReadMaxConcurrent: z.number().int().min(1).max(10000).default(64),
+
   enableAgent: z.boolean().default(false),
   agentApiKey: z.string().nullable().default(null),
   agentEndpoint: z.string().url().default('https://api.fastapi-guard.com'),

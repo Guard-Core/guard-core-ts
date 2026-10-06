@@ -795,6 +795,40 @@ describe('helpers remaining branches', () => {
   });
 });
 
+async function makeManager(): Promise<import('../../src/handlers/sus-patterns.js').SusPatternsManager> {
+  const { SusPatternsManager } = await import('../../src/handlers/sus-patterns.js');
+  return new SusPatternsManager(createTestConfig(), defaultLogger);
+}
+
+describe('scanRequestWithManager bounded body reads', () => {
+  it('skips the body surface when the bounded reader refuses an oversized body', async () => {
+    const manager = await makeManager();
+    const config = createTestConfig({ detectionMaxBodyInspectBytes: 1024 });
+    /* Oversized declared body and no readBodyPrefix on the request: the
+       bounded read returns null and the scan treats the body as absent
+       (headers/params still scanned). */
+    const request = createMockRequest({
+      headers: { 'content-length': '5000', 'user-agent': 'TestAgent/1.0' },
+      body: async () => new Uint8Array(0),
+      queryParams: { safe: 'value' },
+    });
+    const [isThreat] = await scanRequestWithManager(manager, request, config);
+    expect(isThreat).toBe(false);
+  });
+
+  it('treats a benign body over the read budget as clean, not an error', async () => {
+    const manager = await makeManager();
+    const config = createTestConfig({ detectionMaxBodyInspectBytes: 1024 });
+    const request = createMockRequest({
+      headers: { 'content-type': 'text/plain', 'user-agent': 'TestAgent/1.0' },
+      body: async () => new TextEncoder().encode('just some words'),
+    });
+    const [isThreat, info] = await scanRequestWithManager(manager, request, config);
+    expect(isThreat).toBe(false);
+    expect(info).toBe('');
+  });
+});
+
 describe('logActivity CRITICAL level', () => {
   it('logs at CRITICAL level (maps to error)', () => {
     const spy = vi.spyOn(defaultLogger, 'error').mockImplementation(() => {});

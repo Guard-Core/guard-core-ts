@@ -11,8 +11,9 @@ import type {
   RouteConfig,
   PathRouteConfigEntry,
 } from '@guardcore/core';
-import { SecurityConfigSchema, defaultLogger, initializeSecurityMiddleware } from '@guardcore/core';
+import { SecurityConfigSchema, resolveConfiguredLogger, initializeSecurityMiddleware } from '@guardcore/core';
 import { HonoGuardRequest, HonoResponseFactory } from './adapters.js';
+import { resolveHonoRouteId, resolveHonoEndpointId } from './route-id.js';
 
 export interface GuardMiddlewareOptions {
   config: SecurityConfig;
@@ -34,28 +35,31 @@ export interface GuardMiddlewareOptions {
 
 export function createGuardMiddleware(options: GuardMiddlewareOptions): MiddlewareHandler {
   const resolved = SecurityConfigSchema.parse(options.config);
-  const logger: Logger = resolved.logger ?? defaultLogger;
   const responseFactory = new HonoResponseFactory();
 
   let initialized = false;
   let initPromise: Promise<void> | null = null;
   let components: SecurityMiddlewareComponents;
+  let logger: Logger;
 
   function initialize(): Promise<void> {
     if (initialized) return Promise.resolve();
     /* Single-flight: concurrent first requests share one initialization. */
-    initPromise ??= initializeSecurityMiddleware(
-      resolved, logger, responseFactory,
-      options.agentHandler, options.geoIpHandler, options.guardDecorator,
-    )
-      .then((initializedComponents) => {
-        components = initializedComponents;
-        if (options.routeConfigs) {
-          components.routeResolver.registerPathRouteConfigs(options.routeConfigs);
-        }
-        initialized = true;
-        logger.info('Guard security middleware initialized');
-      })
+    initPromise ??= (async () => {
+      /* D5: logFormat / customLogFile are live - an injected config.logger
+         wins, otherwise a json format or custom log file builds the logger. */
+      logger = await resolveConfiguredLogger(resolved);
+      const initializedComponents = await initializeSecurityMiddleware(
+        resolved, logger, responseFactory,
+        options.agentHandler, options.geoIpHandler, options.guardDecorator,
+      );
+      components = initializedComponents;
+      if (options.routeConfigs) {
+        components.routeResolver.registerPathRouteConfigs(options.routeConfigs);
+      }
+      initialized = true;
+      logger.info('Guard security middleware initialized');
+    })()
       .catch((error: unknown) => {
         /* Allow a retry on the next request instead of caching the failure. */
         initPromise = null;
@@ -72,6 +76,15 @@ export function createGuardMiddleware(options: GuardMiddlewareOptions): Middlewa
       ? options.connectingIpResolver(c) ?? null
       : (c.env as Record<string, unknown> | undefined)?.['remoteAddr'] as string | undefined ?? null;
     const guardReq = new HonoGuardRequest(c.req, connectingIp);
+
+    /* W3 wiring: the decorated handler's `_guardRouteId` (stamped by the
+       core decorator's applyRouteConfig) rides the guard request state so
+       RouteConfigResolver resolves decorator route configs at request time,
+       like the Python adapters stamping guard_route_id. */
+    const routeId = resolveHonoRouteId(c);
+    if (routeId !== null) guardReq.state.guardRouteId = routeId;
+    const endpointId = resolveHonoEndpointId(c);
+    if (endpointId !== null) guardReq.state.guardEndpointId = endpointId;
 
     const passthrough = await components.bypassHandler.handlePassthrough(
       guardReq, async () => createPassthroughResponse(),

@@ -22,7 +22,8 @@
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "lint": "tsc --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "bench": "tsx benchmarks/scan-pool-bench.ts"
   },
   "dependencies": {
     "ipaddr.js": "^2.5",
@@ -32,6 +33,7 @@
     "@types/node": "^26.6.3",
     "@vitest/coverage-v8": "^5.0.2",
     "tsup": "^8",
+    "tsx": "^4.23.15",
     "typescript": "~5.9",
     "vitest": "^5.0.2"
   },

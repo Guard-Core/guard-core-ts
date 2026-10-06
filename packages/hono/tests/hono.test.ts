@@ -468,14 +468,17 @@ describe('createGuardMiddleware', () => {
   it('initializes once under concurrent first requests', async () => {
     const { createGuardMiddleware } = await import('../src/middleware.js');
     let releaseInit: ((value: unknown) => void) | undefined;
-    hoistedInit.mockImplementationOnce(
-      () => new Promise((resolve) => { releaseInit = resolve; }),
-    );
+    /* The gate resolves later; releaseInit is assigned synchronously. */
+    const gate = new Promise((resolve) => { releaseInit = resolve; });
+    hoistedInit.mockImplementationOnce(() => gate);
 
     const middleware = createGuardMiddleware({ config: {} });
     const first = middleware(createMockContext() as never, vi.fn().mockResolvedValue(undefined));
     const second = middleware(createMockContext() as never, vi.fn().mockResolvedValue(undefined));
 
+    /* The lazy init chain reaches the mocked initializer one microtask in
+       (logger resolution first); let it land before releasing. */
+    await Promise.resolve();
     releaseInit!(hoistedComponents);
     await Promise.all([first, second]);
 

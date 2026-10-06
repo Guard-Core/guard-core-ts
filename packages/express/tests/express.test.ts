@@ -387,14 +387,17 @@ describe('createSecurityMiddleware full flow', () => {
 
   it('initializes once under concurrent first requests', async () => {
     let releaseInit: ((value: unknown) => void) | undefined;
-    mockInitialize.mockImplementationOnce(
-      () => new Promise((resolve) => { releaseInit = resolve; }),
-    );
+    /* The gate resolves later; releaseInit is assigned synchronously. */
+    const gate = new Promise((resolve) => { releaseInit = resolve; });
+    mockInitialize.mockImplementationOnce(() => gate);
 
     const middleware = createSecurityMiddleware({ config: {} });
     const first = middleware(createMockReqForMiddleware(), createMockResForMiddleware() as never, vi.fn());
     const second = middleware(createMockReqForMiddleware(), createMockResForMiddleware() as never, vi.fn());
 
+    /* The lazy init chain reaches the mocked initializer one microtask in
+       (logger resolution first); let it land before releasing. */
+    await Promise.resolve();
     releaseInit!(sharedMockComponents);
     await Promise.all([first, second]);
 
