@@ -242,6 +242,19 @@ export const SecurityConfigSchema = z.object({
   enableDynamicRules: z.boolean().default(false),
   dynamicRuleInterval: z.number().int().positive().default(300),
 
+  /* Enrichment surface (enricher.py + event_types.py ENRICHMENT_KEY_*):
+     enableEnrichment stamps the guard.* keys (project identity, threat
+     score, matched dynamic rule, behavior correlation) onto every event and
+     metric through the composite handler; it is the guard-agent-gated tier,
+     so the superRefine below rejects it without enableAgent (the reference
+     validate_agent_config). otelServiceName is the reference
+     otel_service_name (default 'guard-core') and otelResourceAttributes the
+     reference otel_resource_attributes (the deployment.environment entry
+     feeds the deployment-environment key). */
+  enableEnrichment: z.boolean().default(false),
+  otelServiceName: z.string().default('guard-core'),
+  otelResourceAttributes: z.record(z.string(), z.string()).default({}),
+
   /* Failure-policy knobs, the TS port of the reference's fail_secure,
      redis_fail_open and route_resolution_strict (guard_core/_security_config_fields.py).
      fail_secure blocks with 500 when any check raises; redis_fail_open opts Redis
@@ -307,6 +320,16 @@ export const SecurityConfigSchema = z.object({
       code: 'custom',
       message: 'enableAgent must be true when enableDynamicRules is true',
       path: ['enableDynamicRules'],
+    });
+  }
+  /* The reference validate_agent_config: enrichment is the guard-agent-gated
+     tier of the telemetry pipeline. */
+  if (data.enableEnrichment && !data.enableAgent) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'enableEnrichment requires enableAgent=true; enrichment is the '
+        + 'guard-agent-gated tier. Either enable guard-agent or set enableEnrichment=false.',
+      path: ['enableEnrichment'],
     });
   }
   if (

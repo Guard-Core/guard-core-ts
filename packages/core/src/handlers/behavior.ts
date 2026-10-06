@@ -302,6 +302,24 @@ export class BehaviorTracker {
     this.usageCounts.clear();
     this.returnPatterns.clear();
   }
+
+  /* getRecentEventCount mirrors BehaviorTracker.get_recent_event_count
+     (guard_core/handlers/behavior_handler.py): the number of locally tracked
+     usage timestamps for the ip inside the sliding window, summed across
+     every endpoint bucket. An empty ip answers 0 (the reference's early
+     return). Consumed by the event enricher's
+     guard.behavior.recent_event_count key. */
+  getRecentEventCount(ip: string, windowSeconds: number): number {
+    if (!ip) return 0;
+    const cutoff = Date.now() / 1000 - windowSeconds;
+    let count = 0;
+    for (const clients of this.usageCounts.values()) {
+      for (const ts of clients.get(ip) ?? []) {
+        if (ts >= cutoff) count++;
+      }
+    }
+    return count;
+  }
 }
 
 /* Utility re-export guard: BehaviorAction stays part of the public surface. */
