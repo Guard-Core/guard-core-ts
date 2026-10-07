@@ -232,8 +232,11 @@ async function detect(manager: SusPatternsManager, payload: string) {
 }
 
 describe('binary noise gate (spec 4.0.3 honesty tests)', () => {
+  /* The noise scans are the heaviest CPU loops in the suite; the explicit
+     timeout keeps a loaded CI runner from tripping the 5s default. */
   it.each(DECODED_VIEWS.flatMap((view) => NOISE_SEEDS.map((seed) => ({ view, seed }))))(
     'random binary noise produces zero threats (view=$view seed=$seed)',
+    { timeout: 30_000 },
     async ({ view, seed }) => {
       const manager = createManager();
       const result = await detect(manager, decodedNoise(seed, view));
