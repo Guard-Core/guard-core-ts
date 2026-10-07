@@ -10,6 +10,7 @@ import type { ResolvedSecurityConfig } from '../models/config.js';
 import type { Logger } from '../models/logger.js';
 import { ContentPreprocessor } from '../detection-engine/preprocessor.js';
 import { PatternCompiler } from '../detection-engine/compiler.js';
+import { PatternValidationCache } from '../detection-engine/validation-cache.js';
 import { PerformanceMonitor } from '../detection-engine/monitor.js';
 import { ScanPoolSupervisor } from '../detection-engine/scan-pool.js';
 import type { ScanOutcome } from '../detection-engine/scan-pool.js';
@@ -217,7 +218,17 @@ export class SusPatternsManager {
     private readonly logger: Logger,
     scanPool?: ScanPoolSupervisor,
   ) {
-    this.compiler = new PatternCompiler(config.detectionCompilerTimeout * 1000, config.detectionMaxTrackedPatterns);
+    /* The disk-backed cost-verdict cache (the reference _suspatterns_state
+       _build_enhanced_detection_state seam): constructed only when
+       detectionPatternValidationCachePath is set, so the validator's
+       empirical layer reuses prior certifications across boots. */
+    this.compiler = new PatternCompiler(
+      config.detectionCompilerTimeout * 1000,
+      config.detectionMaxTrackedPatterns,
+      config.detectionPatternValidationCachePath !== null
+        ? new PatternValidationCache(config.detectionPatternValidationCachePath, this.logger)
+        : null,
+    );
     this.preprocessor = new ContentPreprocessor(
       config.detectionMaxContentLength,
       config.detectionPreserveAttackPatterns,

@@ -192,6 +192,19 @@ export const SecurityConfigSchema = z.object({
   detectionMaxBodyInspectBytes: z.number().int().min(1000).default(262144),
   detectionThreatScoreThreshold: z.number().min(0).max(1).default(1.0),
   detectionBinaryMinRunLength: z.number().int().min(4).max(1024).default(16),
+  /* The reference detection_pattern_validation_cache_path (a str | None, so
+     a non-empty filesystem path string here): the opt-in disk-backed cache
+     for the pattern-safety validator's empirical cost-verdict outcome,
+     keyed by pattern, flags and engine version. A boot on a degraded host
+     reuses prior certifications instead of re-timing the same patterns; the
+     cheap deterministic layers (dangerous constructs, compile check)
+     always re-run, and entries from a different engine version are
+     dropped. */
+  detectionPatternValidationCachePath: z.string().nullable().default(null)
+    .refine(
+      (v) => v === null || v.trim().length > 0,
+      'detectionPatternValidationCachePath must be a non-empty filesystem path or null',
+    ),
   /* Opt-in worker-thread scan execution (the reference's shared 4-worker
      regex pool, compiler.py shared_regex_executor): when true, the plain
      full-content candidate loop of each pattern scan dispatches to a bounded
