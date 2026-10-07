@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- The GeoIP manager is complete (guard-core-ts #103, matrix gaps 2, 3, 26 and 32): `IPInfoManager` gains the config surface (`ipinfoToken`, `ipinfoDbPath`, `geoIpDbMaxAge` with the 86400-second default), the token-authed ipinfo.io download pipeline (three attempts with exponential backoff, the atomic tmp-plus-rename write, the latin-1 Redis snapshot with a max-age TTL, and the mtime freshness gate), `refresh` (download, reopen, swap; failures keep the current reader), `close`, the `entryCount` getter and `getStatus`, and a real `initializeRedis` that holds the handler and runs the snapshot-first initialize flow. `initialize` mirrors the reference cache short-circuit, the corrupted-file removal (`_open_database_or_none`), and the post-failure `get_country` warning that points at `refresh()`. The `GeoIPHandler` protocol picks up the missing `refresh` and `close` members, and `checkCountryAccess` plus the geo telemetry (`geo_lookup_failed`, `country_blocked`) land in the same seam.
+
+
+
+### Added
+
 - The telemetry sink and muting surface is wired from config (guard-core-ts #102, matrix gaps 15 through 18): `SecurityConfig` gains `enableOtel`, `otelExporterEndpoint`, `enableLogfire`, `logfireServiceName`, `mutedEventTypes`, `mutedMetricTypes` and `mutedCheckLogs`, and the handler initializer now ports the reference `build_composite_handler` / `build_event_filter` / `build_enricher` flow - the composite fan-out (injected agent plus the OTEL and Logfire sinks) starts once and every event consumer (event bus, metrics collector, error response factory, handler managers, decorator) holds the composite instead of the raw agent, exactly like the reference's `initialize_agent_integrations` handoff. The registry exposes `telemetryHandler`, `eventFilter` and `enricher`. Muting drops matching event and metric envelopes at the seam, `mutedCheckLogs` gates the checks' on_block dispatch by check name (the previously hardwired-null hook seam), and enrichment rides the same composite. OTEL and Logfire stay dependency-free: the exporter endpoint and service name ride config while the SDK/logfire client injection remains the application's seam, mirroring the reference's `[otel]` / `[logfire]` extras. A telemetry-only setup (sink or enrichment with no agent) now starts the pipeline, like the reference gate.
 
 
