@@ -26,7 +26,9 @@ export class IPBanManager {
 
   /* Returns true when the ban was stored, mirroring the reference ban_ip
      (guard_core/handlers/_ipban_bans.py) whose boolean lets the autoban
-     engine distinguish an applied ban from a refused one. */
+     engine distinguish an applied ban from a refused one. The success path
+     reports EVENT_IP_BANNED through _send_ban_event (_ipban_events.py):
+     action "banned", the ip_ban handler name, duration-only metadata. */
   async banIp(ip: string, duration: number, reason: string): Promise<boolean> {
     const now = Date.now() / 1000;
     const expiresAt = now + duration;
@@ -45,11 +47,13 @@ export class IPBanManager {
     if (this.agentHandler) {
       try {
         await this.agentHandler.sendEvent({
+          timestamp: new Date(),
           eventType: 'ip_banned',
           ipAddress: ip,
-          actionTaken: 'ip_banned',
+          actionTaken: 'banned',
           reason,
-          metadata: { duration, expiresAt },
+          handlerName: 'ip_ban',
+          metadata: { duration },
         });
       } catch { /* never throw from event dispatch */ }
     }
@@ -96,10 +100,13 @@ export class IPBanManager {
     if (this.agentHandler) {
       try {
         await this.agentHandler.sendEvent({
+          timestamp: new Date(),
           eventType: 'ip_unbanned',
           ipAddress: ip,
-          actionTaken: 'ip_unbanned',
-          reason: 'Manual unban',
+          actionTaken: 'unbanned',
+          reason: 'dynamic_rule_whitelist',
+          handlerName: 'ip_ban',
+          metadata: { action: 'unban' },
         });
       } catch { /* never throw */ }
     }

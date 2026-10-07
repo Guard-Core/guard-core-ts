@@ -1,6 +1,10 @@
 import type { Logger } from '../models/logger.js';
 import type { AgentHandlerProtocol } from '../protocols/agent.js';
 import type { RedisManager } from './redis.js';
+import { redactHeaderValueForDisplay, redactUrlForDisplay } from '../redaction.js';
+
+/* Reference _SECURITY_HEADERS_HANDLER_NAME (_security_headers_events.py). */
+const SECURITY_HEADERS_HANDLER_NAME = 'security_headers';
 
 const DEFAULT_HEADERS: Record<string, string> = {
   'X-Content-Type-Options': 'nosniff',
@@ -82,6 +86,32 @@ export class SecurityHeadersManager {
     this.agentHandler = agentHandler;
   }
   /* v8 ignore stop */
+
+  /* The twin of the SecurityHeadersEventsMixin senders
+     (_security_headers_events.py): handler-named SecurityEvents whose
+     dispatch failures never propagate. The reference events carry no
+     ip_address/reason kwargs, so both envelope fields default to ''. */
+  private async sendHeadersEvent(
+    eventType: string,
+    actionTaken: string,
+    metadata: Record<string, unknown>,
+  ): Promise<void> {
+    if (!this.agentHandler) return;
+
+    try {
+      await this.agentHandler.sendEvent({
+        timestamp: new Date(),
+        eventType,
+        ipAddress: '',
+        actionTaken,
+        reason: '',
+        handlerName: SECURITY_HEADERS_HANDLER_NAME,
+        metadata,
+      });
+    } catch {
+      /* never throw from event dispatch */
+    }
+  }
 
   private async loadCachedConfig(): Promise<void> {
     /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
@@ -221,7 +251,73 @@ export class SecurityHeadersManager {
     this.headersCache.set(cacheKey, headers);
     this.cacheTimestamps.set(cacheKey, now);
 
+    /* Reference EVENT_SECURITY_HEADERS_APPLIED on a fresh header build
+       (security_headers_handler.py get_headers; cache hits stay silent like
+       the reference's early return). */
+    if (requestPath) {
+      await this.sendHeadersEvent(
+        'security_headers_applied', 'headers_added',
+        {
+          path: redactUrlForDisplay(requestPath, null, null, null),
+          headersCount: Object.keys(headers).length,
+          hasCsp: 'Content-Security-Policy' in headers,
+          hasHsts: 'Strict-Transport-Security' in headers,
+        },
+      );
+    }
+
     return { ...headers };
+  }
+
+  /* The twin of validate_csp_report (handlers/_security_headers_events.py):
+     a browser CSP violation report is validated against the required fields,
+     logged with redacted values, and reported to the agent as
+     EVENT_CSP_VIOLATION. Returns false when the report is malformed. */
+  async validateCspReport(report: Record<string, unknown>): Promise<boolean> {
+    const cspReport = (report['csp-report'] ?? {}) as Record<string, unknown>;
+    const requiredFields = ['document-uri', 'violated-directive', 'blocked-uri'];
+    for (const field of requiredFields) {
+      if (!(field in cspReport)) return false;
+    }
+
+    const safeDirective = redactHeaderValueForDisplay(String(cspReport['violated-directive']), null, null, null);
+    const safeBlockedUri = this.safeCspUri(cspReport['blocked-uri']);
+    const safeDocumentUri = this.safeCspUri(cspReport['document-uri']);
+    this.logger.warn(
+      `CSP Violation: ${safeDirective} blocked ${safeBlockedUri} on ${safeDocumentUri}`,
+    );
+
+    if (this.agentHandler) {
+      await this.sendHeadersEvent(
+        'csp_violation', 'logged',
+        {
+          documentUri: safeDocumentUri,
+          violatedDirective: safeDirective,
+          blockedUri: safeBlockedUri,
+          /* _safe_csp_uri(report.get('source-file')): a missing entry reads
+             str(None) in the reference, so 'None' is the faithful absent
+             rendering. */
+          sourceFile: cspReport['source-file'] === undefined
+            ? 'None'
+            : this.safeCspUri(cspReport['source-file']),
+          lineNumber: this.safeCspLineNumber(cspReport['line-number']),
+        },
+      );
+    }
+
+    return true;
+  }
+
+  /* The twin of _safe_csp_uri: attacker-controlled report values pass
+     through the URL redactor before they reach any log or event. */
+  private safeCspUri(value: unknown): string {
+    return redactUrlForDisplay(String(value), null, null, null);
+  }
+
+  /* The twin of _safe_csp_line_number. */
+  private safeCspLineNumber(value: unknown): number | null {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
   }
 
   getCorsHeaders(origin: string): Record<string, string> {

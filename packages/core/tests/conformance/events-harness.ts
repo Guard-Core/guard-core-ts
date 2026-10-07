@@ -18,7 +18,7 @@ import { extractClientIp } from '../../src/utils.js';
 import type { AgentHandlerProtocol } from '../../src/protocols/agent.js';
 import type { GeoIPHandler } from '../../src/protocols/geo-ip.js';
 import type { GuardRequest } from '../../src/protocols/request.js';
-import type { CloudHandler } from '../../src/handlers/cloud.js';
+import { CloudHandler } from '../../src/handlers/cloud.js';
 import { corpusConfigToCamel, corpusRoutesToRouteConfig, defaultSafetyKnobs, EVENTS_REDIS_PREFIX } from './events-config.js';
 import { canonicalJson, VOLATILE_EVENT_FIELDS } from './suite-kinds.js';
 import { createMockResponseFactory } from '../helpers.js';
@@ -101,7 +101,9 @@ export function parseEventSuite(text: string, name: string): EventSuite {
 export const FROZEN_EPOCH_MS = 1767225600123; // 2026-01-01T00:00:00.123Z
 
 export function eventsRedisUrl(): string {
-  return process.env.REDIS_URL ?? 'redis://localhost:6379/0';
+  /* The reference harness pins the corpus redis URL as a constant so the
+     captured redis_url metadata is deterministic. */
+  return 'redis://localhost:6379/0';
 }
 
 /* Widened runtime registry: handler-initializer returns the full handler
@@ -147,18 +149,26 @@ function corpusRequest(
   const urlPath = overrides.url_path ?? '/api';
   const encoder = new TextEncoder();
   const bodyBytes = overrides.body ? encoder.encode(overrides.body) : new Uint8Array(0);
+  const headers = Object.fromEntries(
+    Object.entries(overrides.headers ?? {}).map(([k, v]) => [k.toLowerCase(), v]),
+  );
+  /* The reference _PipelineRequest derives content-length from the body when
+     the drive does not pin it. */
+  if (bodyBytes.length > 0 && !('content-length' in headers)) {
+    headers['content-length'] = String(bodyBytes.length);
+  }
   const state: Record<string, unknown> = { clientIp: overrides.client_ip };
   if (routes[urlPath]) state['guardRouteConfig'] = corpusRoutesToRouteConfig(routes[urlPath]);
   return {
     urlPath,
     urlScheme: 'http',
     urlFull: `http://example.com${urlPath}`,
-    urlReplaceScheme: (s: string) => `${s}://example.com${urlPath}`,
+    /* Plain display form without the path, matching the reference mock's
+       url_replace_scheme. */
+    urlReplaceScheme: (s: string) => `${s}://example.com`,
     method: overrides.method ?? 'GET',
     clientHost: overrides.client_ip,
-    headers: Object.fromEntries(
-      Object.entries(overrides.headers ?? {}).map(([k, v]) => [k.toLowerCase(), v]),
-    ),
+    headers,
     queryParams: {},
     body: async () => bodyBytes,
     state: state as never,
@@ -204,6 +214,16 @@ export class EventsCaseRun {
       agent,
       geo,
     )) as unknown as MiddlewareComponentsLike;
+    /* The reference harness runs every pipeline drive against the fresh
+       engine state from reset_global_state(): the sus-patterns and security
+       headers module singletons carry no agent handler (prepare() never
+       attaches one; the direct handler drives attach theirs explicitly).
+       Mirror that wiring by detaching the initializer-wired managers, so a
+       pipeline drive captures only the middleware-bus events like the
+       reference capture run (handler-driven direct drives build their own
+       manager instances). */
+    (components.registry.susPatternsHandler as { agentHandler: unknown })['agentHandler'] = null;
+    (components.registry.securityHeadersHandler as { agentHandler: unknown })['agentHandler'] = null;
 
     for (const drive of corpusCase.drives) {
       try {
@@ -252,10 +272,18 @@ export class EventsCaseRun {
     routes: Record<string, Record<string, unknown>>,
   ): Promise<void> {
     if (drive.call === 'cloud_stub') {
-      /* The reference harness pins the cloud handler's lookup answers; the
-         TS seam is the CloudProviderCheck's private handler reference. */
+      /* The reference harness pins the cloud handler's lookup answers
+         (provider + network detail) with the capturing agent wired; the TS
+         seam is the CloudProviderCheck's private handler reference. */
       const check = findCheck(components, 'cloud_provider');
-      check['cloudHandler'] = { isCloudIp: () => true } as unknown as CloudHandler;
+      const stub = new CloudHandler(defaultLogger);
+      stub['isCloudIp'] = (): boolean => true;
+      (stub as unknown as { getCloudProviderDetails: () => [string, string] })['getCloudProviderDetails'] = (): [string, string] => [
+        (drive['provider'] as string) ?? 'AWS',
+        (drive['network'] as string) ?? '203.0.113.0/24',
+      ];
+      await stub.initializeAgent(agent);
+      check['cloudHandler'] = stub;
       return;
     }
     if (drive.call === 'ipban_fault') {
@@ -281,8 +309,16 @@ export class EventsCaseRun {
     if (drive.guard_route_unresolved) {
       (request.state as Record<string, unknown>)['guard_route_unresolved'] = true;
     }
-    /* drop_cached_client_ip: the TS pipeline never caches the client ip in
-       request state, so there is nothing to drop. */
+    /* Adapter-dispatch mirror (reference _EventsMiddleware.dispatch): the
+       middleware resolves the client identity through extract_client_ip with
+       the capturing agent before the pipeline runs, so an untrusted
+       X-Forwarded-For chain reports the spoofing event exactly once.
+       drop_cached_client_ip deletes the preset identity first, modeling the
+       first request. */
+    if (drive.drop_cached_client_ip) {
+      delete (request.state as Record<string, unknown>).clientIp;
+    }
+    (request.state as Record<string, unknown>).clientIp = await extractClientIp(request, config, agent);
     await components.pipeline.execute(request);
   }
 
@@ -343,11 +379,13 @@ export class EventsCaseRun {
         return;
       }
       case 'remove_pattern': {
-        /* The reference seeds the registry directly so the case pins the
-           removal event alone; the TS add/remove emit nothing either way. */
+        /* The reference seeds the registry directly with no agent wired so
+           the case pins the removal event alone (totals stay deterministic);
+           the TS manager mirrors that: seed with the agent detached, attach,
+           then remove. */
         const manager = new SusPatternsManager(config, defaultLogger);
-        await manager.initializeAgent(agent);
         await manager.addPattern(drive['pattern'] as string);
+        await manager.initializeAgent(agent);
         await manager.removePattern(drive['pattern'] as string);
         return;
       }
@@ -414,41 +452,34 @@ export class EventsCaseRun {
         return;
       }
       case 'geo_country_stub': {
-        /* The reference seam is IPInfoManager.check_country_access; the TS
-           engine resolves the country verdict inside the pipeline's
-           ip_security check, so the drive is a pipeline request over the
-           drive's stubbed geo answer with the case's blocked list in
-           config. */
-        const geoConfig = SecurityConfigSchema.parse({
-          ...defaultSafetyKnobs(),
-          blockedCountries: (drive['blocked_countries'] as string[]) ?? [],
-          geoResolver: (ip: string) => (ip === drive['ip'] ? ((drive['country'] as string) ?? 'CN') : null),
-        });
-        const driveGeo = corpusGeoStub({ [drive['ip'] as string]: (drive['country'] as string) ?? 'CN' });
-        const geoComponents = (await initializeSecurityMiddleware(
-          geoConfig,
-          defaultLogger,
-          createMockResponseFactory(),
-          agent,
-          driveGeo,
-        )) as unknown as MiddlewareComponentsLike;
-        await geoComponents.pipeline.execute(
-          corpusRequest({ client_ip: drive['ip'] as string, url_path: '/api' }, {}),
+        /* The reference seam is IPInfoManager.check_country_access driven
+           directly with the case's blocked list and the stubbed country
+           answer (events_harness.py _call_geo_country_stub). */
+        const handler = new IPInfoManager(defaultLogger);
+        const savedGetCountry = handler.getCountry.bind(handler);
+        handler['getCountry'] = (ip: string): string | null =>
+          ip === (drive['ip'] as string) ? ((drive['country'] as string) ?? 'CN') : savedGetCountry(ip);
+        await handler.initializeAgent(agent);
+        await handler.checkCountryAccess(
+          drive['ip'] as string,
+          (drive['blocked_countries'] as string[]) ?? ['CN'],
         );
         return;
       }
       case 'geo_download_failure': {
-        /* No TS emission seam: IPInfoManager.initialize (geoip.ts) has no
-           injectable download and only logs failures. Drive the real
-           initialize so the gap is observed, not skipped. */
+        /* The TS initialize() failure path emits EVENT_GEO_LOOKUP_FAILED
+           (database_download_failed); drive the real initialize so the
+           emission gap or match is observed, not skipped. */
         const handler = new IPInfoManager(defaultLogger);
         await handler.initializeAgent(agent);
         await handler.initialize();
         return;
       }
       case 'csp_report': {
-        /* No TS seam: SecurityHeadersManager has no CSP report validation
-           and no csp_violation event (security-headers.ts). */
+        const manager = new SecurityHeadersManager(defaultLogger);
+        await manager.initializeAgent(agent);
+        const valid = await manager.validateCspReport(drive['report'] as Record<string, unknown>);
+        if (!valid) throw new Error('corpus CSP report was rejected as invalid');
         return;
       }
       case 'path_excluded': {
@@ -474,6 +505,7 @@ export class EventsCaseRun {
         await redis.initialize();
         const manager = new RateLimitManager(defaultLogger, redisConfig);
         await manager.initializeRedis(redis);
+        await manager.initializeAgent(agent);
         /* Force the NOSCRIPT path: a bogus script sha makes evalsha fail and
            the manager fall back (rate-limit.ts getRedisRequestCount). */
         manager['rateLimitScriptSha'] = 'f'.repeat(40);
@@ -487,7 +519,10 @@ export class EventsCaseRun {
           async (statusCode: number, message: string) =>
             (await components.errorResponseFactory.createErrorResponse(statusCode, message)) as never,
         );
-        await redis.close();
+        /* Silent teardown like the reference drive (only the reload event is
+           captured). */
+        redis['closed'] = true;
+        redis['client'] = null;
         return;
       }
       case 'redis_connect': {
@@ -500,7 +535,10 @@ export class EventsCaseRun {
         const redis = new RedisManager(redisConfig, defaultLogger);
         await redis.initializeAgent(agent);
         await redis.initialize();
-        await redis.close();
+        /* The reference drive tears down silently (_closed + _discard_client)
+           so only the connection_established event is captured. */
+        redis['closed'] = true;
+        redis['client'] = null;
         return;
       }
       case 'redis_connect_error': {
@@ -513,7 +551,8 @@ export class EventsCaseRun {
         const redis = new RedisManager(failing, defaultLogger);
         await redis.initializeAgent(agent);
         await redis.initialize();
-        await redis.close();
+        redis['closed'] = true;
+        redis['client'] = null;
         return;
       }
       case 'bypass': {
@@ -529,8 +568,24 @@ export class EventsCaseRun {
         return;
       }
       case 'headers_applied': {
+        /* The reference drives get_headers(path, config=self.config), so the
+           config's HSTS default rides the fresh build; the TS configure()
+           seam carries the same default-config headers. */
         const manager = new SecurityHeadersManager(defaultLogger);
         await manager.initializeAgent(agent);
+        const headersConfig = config.securityHeaders;
+        manager.configure({
+          enabled: headersConfig?.enabled,
+          hstsMaxAge: headersConfig?.hsts?.maxAge,
+          hstsIncludeSubdomains: headersConfig?.hsts?.includeSubdomains,
+          hstsPreload: headersConfig?.hsts?.preload,
+          frameOptions: headersConfig?.frameOptions,
+          contentTypeOptions: headersConfig?.contentTypeOptions,
+          xssProtection: headersConfig?.xssProtection,
+          referrerPolicy: headersConfig?.referrerPolicy,
+          permissionsPolicy: headersConfig?.permissionsPolicy,
+          customHeaders: headersConfig?.custom ?? undefined,
+        });
         await manager.getHeaders((drive['path'] as string) ?? '/api');
         return;
       }
@@ -557,7 +612,10 @@ export class EventsCaseRun {
   private async cleanup(components: MiddlewareComponentsLike): Promise<void> {
     if (components.registry.redisHandler) {
       try {
-        await components.registry.redisHandler.close();
+        /* Silent teardown: the reference capture run never holds a
+           redis-backed close event in the pipeline stream. */
+        components.registry.redisHandler['closed'] = true;
+        components.registry.redisHandler['client'] = null;
       } catch {
         /* harness cleanup never throws */
       }

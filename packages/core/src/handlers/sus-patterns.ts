@@ -48,6 +48,12 @@ import {
 import { _PATH_TRAVERSAL_DECODED_SHAPE_RE } from '../detection-engine/patterns/sources.js';
 import type { AgentHandlerProtocol } from '../protocols/agent.js';
 import type { RedisManager } from './redis.js';
+import { redactBlobForDisplay } from '../redaction.js';
+import { sanitizeForLog } from '../utils.js';
+
+/* Reference _SUS_PATTERNS_HANDLER_NAME (_suspatterns_registry.py): the
+   handler name the sus_patterns agent events carry. */
+const SUS_PATTERNS_HANDLER_NAME = 'sus_patterns';
 
 const CTX_ALL: ReadonlySet<string> = new Set([
   'query_param',
@@ -258,6 +264,37 @@ export class SusPatternsManager {
 
   async initializeAgent(agentHandler: AgentHandlerProtocol): Promise<void> {
     this.agentHandler = agentHandler;
+    /* The preprocessor's decoding_error events ride the same agent handler
+       (reference ContentPreprocessor.agent_handler). */
+    this.preprocessor.setAgentHandler(agentHandler);
+  }
+
+  /* The twin of _send_pattern_event (_suspatterns_registry.py): system or IP
+     scoped SecurityEvent with the sus_patterns handler name and the pattern
+     source redacted; dispatch failures never propagate. */
+  private async sendPatternEvent(
+    eventType: string,
+    ipAddress: string,
+    actionTaken: string,
+    reason: string,
+    patternMatched: string | null,
+    metadata: Record<string, unknown> = {},
+  ): Promise<void> {
+    if (!this.agentHandler) return;
+    try {
+      await this.agentHandler.sendEvent({
+        timestamp: new Date(),
+        eventType,
+        ipAddress,
+        actionTaken,
+        reason,
+        patternMatched,
+        handlerName: SUS_PATTERNS_HANDLER_NAME,
+        metadata,
+      });
+    } catch {
+      /* never throw from event dispatch */
+    }
   }
 
   private normalizeContext(context: string): string {
@@ -722,6 +759,39 @@ export class SusPatternsManager {
       if (category !== null && !threatCategories.includes(category)) threatCategories.push(category);
     }
 
+    /* Reference _send_threat_event (suspatterns_handler.py): EVENT_PATTERN_
+       DETECTED rides every detect() verdict that concludes "threat", with the
+       redacted pattern source, the capped sanitized content preview, the
+       count breakdown and the detection telemetry. */
+    if (isThreat && this.agentHandler) {
+      const patternInfo = matchedPatterns.length > 0
+        ? matchedPatterns[0]
+        : effectiveSemanticThreats.length > 0
+          ? `semantic:${effectiveSemanticThreats[0].attack_type}`
+          : 'unknown';
+      const redactedPattern = redactBlobForDisplay(patternInfo, null, null, null);
+      const cappedPreview = content.length > 100 ? content.slice(0, 100) : content;
+      await this.sendPatternEvent(
+        'pattern_detected', ipAddress, 'threat_detected',
+        `Threat detected in ${context}`, redactedPattern,
+        {
+          pattern: redactedPattern,
+          context,
+          contentPreview: sanitizeForLog(cappedPreview),
+          threatScore,
+          threats: threats.length,
+          regexThreats: effectiveRegexThreats.length,
+          semanticThreats: effectiveSemanticThreats.length,
+          timeouts: timeouts.length,
+          detectionMethod: this.compiler !== null ? 'enhanced' : 'legacy',
+          executionTimeMs: Math.round(executionTime * 1000),
+          correlationId,
+          threatCategories,
+          category: threatCategories[0],
+        },
+      );
+    }
+
     return {
       isThreat,
       threatScore,
@@ -772,10 +842,26 @@ export class SusPatternsManager {
     if (custom && this.redisHandler) {
       await this.redisHandler.setKey('patterns', 'custom', [...this.customPatterns].join(','));
     }
+
+    /* Reference EVENT_PATTERN_ADDED after the pattern joins the scan set
+       (_suspatterns_registry.py add_pattern): the redacted source rides the
+       metadata.pattern kwarg, pattern_matched stays unset. */
+    await this.sendPatternEvent(
+      'pattern_added', 'system', 'pattern_added',
+      `${custom ? 'Custom' : 'Default'} pattern added to detection system`,
+      null,
+      {
+        pattern: redactBlobForDisplay(pattern, null, null, null),
+        patternType: custom ? 'custom' : 'default',
+        totalPatterns: custom ? this.customPatterns.size : this.getDefaultPatterns().length,
+      },
+    );
   }
 
   async removePattern(pattern: string): Promise<void> {
-    this.customPatterns.delete(pattern);
+    /* The reference remove_pattern answers false (and sends nothing) when the
+       pattern is not registered (_suspatterns_registry.py). */
+    const removed = this.customPatterns.delete(pattern);
     if (this.redisHandler) {
       await this.redisHandler.setKey('patterns', 'custom', [...this.customPatterns].join(','));
     }
@@ -783,6 +869,21 @@ export class SusPatternsManager {
       await this.compiler.clearCache();
     }
     await this.monitor.removePatternStats(pattern);
+
+    if (!removed) return;
+
+    /* Reference EVENT_PATTERN_REMOVED after the caches clear; the same
+       metadata contract as the add event. */
+    await this.sendPatternEvent(
+      'pattern_removed', 'system', 'pattern_removed',
+      'Custom pattern removed from detection system',
+      null,
+      {
+        pattern: redactBlobForDisplay(pattern, null, null, null),
+        patternType: 'custom',
+        totalPatterns: this.customPatterns.size,
+      },
+    );
   }
 
   getDefaultPatterns(): string[] {

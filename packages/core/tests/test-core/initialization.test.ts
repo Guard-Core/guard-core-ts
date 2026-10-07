@@ -154,7 +154,7 @@ describe('HandlerInitializer with agent', () => {
     const initializer = new HandlerInitializer(config, defaultLogger, agent as never, null, decorator);
     await initializer.initialize();
 
-    expect(decorator.initializeAgent).toHaveBeenCalledWith(agent);
+    expect(decorator.initializeAgent).toHaveBeenCalledWith(agent, null);
   });
 
   it('skips decorator agent when decorator has no initializeAgent', async () => {

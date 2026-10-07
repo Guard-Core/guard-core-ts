@@ -883,8 +883,11 @@ describe('CloudProviderCheck', () => {
     const cloudEvents: Array<[string, string[], boolean]> = [];
     const decoratorEvents: string[] = [];
     (middleware.eventBus as Record<string, unknown>)['sendCloudDetectionEvents'] =
-      async (_r: unknown, _ip: string, providers: string[], passiveMode: boolean) => {
-        cloudEvents.push([_ip, providers, passiveMode]);
+      async (_r: unknown, ip: string, providers: string[], rc: { blockCloudProviders: Set<string> } | null, _handler: unknown, passiveMode: boolean) => {
+        cloudEvents.push([ip, providers, passiveMode]);
+        if (rc && rc.blockCloudProviders.size > 0) {
+          decoratorEvents.push(`decorator_violation:${passiveMode ? 'logged_only' : 'request_blocked'}`);
+        }
       };
     (middleware.eventBus as Record<string, unknown>)['sendMiddlewareEvent'] =
       async (type: string, _r: unknown, action: string) => { decoratorEvents.push(`${type}:${action}`); };
@@ -925,15 +928,28 @@ describe('CloudProviderCheck', () => {
     const cloudEvents: number[] = [];
     const decoratorEvents: string[] = [];
     (middleware.eventBus as Record<string, unknown>)['sendCloudDetectionEvents'] =
-      async () => { cloudEvents.push(1); };
+      async (...args: unknown[]) => { cloudEvents.push(args.length); };
+    /* 6-arg reference signature: request, ip, providers, routeConfig,
+       cloudHandler, passiveMode. */
+    expect(cloudEvents).toEqual([]);
     (middleware.eventBus as Record<string, unknown>)['sendMiddlewareEvent'] =
       async (type: string) => { decoratorEvents.push(type); };
     cloudHandler.isCloudIp.mockReturnValue(true);
     const check = new CloudProviderCheck(middleware, cloudHandler as never);
 
+    /* The decorator event rides the real sendCloudDetectionEvents contract;
+       mirror its route-gate here. */
+    (middleware.eventBus as Record<string, unknown>)['sendCloudDetectionEvents'] =
+      async (_r: unknown, ip: string, providers: string[], rc: { blockCloudProviders: Set<string> } | null, _handler: unknown, passiveMode: boolean) => {
+        cloudEvents.push(6);
+        if (rc && rc.blockCloudProviders.size > 0) {
+          decoratorEvents.push('decorator_violation');
+        }
+      };
+
     (middleware.routeResolver as Record<string, unknown>)['getCloudProvidersToCheck'] = () => ['AWS'];
     await check.check(createMockRequest());
-    expect(cloudEvents).toEqual([1]);
+    expect(cloudEvents).toEqual([6]);
     expect(decoratorEvents).toEqual([]);
 
     cloudEvents.length = 0;
@@ -943,7 +959,7 @@ describe('CloudProviderCheck', () => {
     const routed = createMockRequest();
     (routed.state as Record<string, unknown>)['_routeConfig'] = rc;
     await check.check(routed);
-    expect(cloudEvents).toEqual([1]);
+    expect(cloudEvents).toEqual([6]);
     expect(decoratorEvents).toEqual(['decorator_violation']);
 
     cloudEvents.length = 0;
@@ -952,7 +968,7 @@ describe('CloudProviderCheck', () => {
     const globalOnlyReq = createMockRequest();
     (globalOnlyReq.state as Record<string, unknown>)['_routeConfig'] = globalOnlyRc;
     await check.check(globalOnlyReq);
-    expect(cloudEvents).toEqual([1]);
+    expect(cloudEvents).toEqual([6]);
     expect(decoratorEvents).toEqual([]);
   });
 });
@@ -1007,7 +1023,12 @@ describe('additional branch coverage', () => {
     rc.allowedContentTypes = ['application/json'];
     const req = createMockRequest({ headers: {} });
     attachRouteConfig(req, rc);
-    expect(await check.check(req)).toBeNull();
+    /* Reference parity (request_size_content.py _check_content_type_allowed):
+       a missing content-type header is not in the allowed list and blocks
+       with 415, like the reference. */
+    const result = await check.check(req);
+    expect(result).not.toBeNull();
+    expect(result!.statusCode).toBe(415);
   });
 
   it('RequiredHeadersCheck: header present but wrong value', async () => {

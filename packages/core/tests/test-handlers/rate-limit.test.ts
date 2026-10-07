@@ -156,11 +156,18 @@ describe('RateLimitManager handleRateLimitExceeded agent path', () => {
     expect(blocked!.statusCode).toBe(429);
     expect(blocked!.bodyText).toBe('Too many requests');
     expect(blocked!.headers['Retry-After']).toBe('60');
-    /* The reference emits the rate_limited agent event handler-direct, outside
-       the event-bus surface the corpus records; this port drops it entirely
-       (guard_core/handlers/ratelimit_handler.py _send_rate_limit_event has no
-       engine-side twin). */
-    expect(agent.sendEvent).not.toHaveBeenCalled();
+    /* The reference emits the rate_limited agent event handler-direct
+       (guard_core/handlers/ratelimit_handler.py _send_rate_limit_event). */
+    expect(agent.sendEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: 'rate_limited',
+        ipAddress: '10.0.0.1',
+        actionTaken: 'request_blocked',
+        reason: 'Rate limit exceeded: 11 requests in 60s window',
+        handlerName: 'rate_limit',
+        metadata: { requestCount: 11, rateLimit: 10, window: 60 },
+      }),
+    );
     expect(agent.sendEvent).not.toHaveBeenCalledWith(
       expect.objectContaining({
         eventType: 'rate_limit_exceeded',
@@ -209,7 +216,12 @@ describe('RateLimitManager with Redis', () => {
     expect(blocked).not.toBeNull();
     expect(blocked!.statusCode).toBe(429);
     expect(blocked!.headers['Retry-After']).toBe('60');
-    expect(agent.sendEvent).not.toHaveBeenCalled();
+    expect(agent.sendEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: 'rate_limited',
+        handlerName: 'rate_limit',
+      }),
+    );
   });
 
   it('reset clears Redis data', async () => {

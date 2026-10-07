@@ -39,6 +39,29 @@ export class DynamicRuleManager {
     );
   }
 
+  /* The twin of _send_rule_event (guard_core/handlers/_dynamic_rule_events.py):
+     system-scoped events with the dynamic_rules handler name; dispatch
+     failures never propagate. */
+  private async sendRuleEvent(
+    eventType: string,
+    actionTaken: string,
+    reason: string,
+    metadata: Record<string, unknown>,
+  ): Promise<void> {
+    if (!this.agentHandler) return;
+    try {
+      await this.agentHandler.sendEvent({
+        timestamp: new Date(),
+        eventType,
+        ipAddress: 'system',
+        actionTaken,
+        reason,
+        handlerName: 'dynamic_rules',
+        metadata,
+      });
+    } catch { /* never throw */ }
+  }
+
   async updateRules(): Promise<void> {
     if (!this.agentHandler) return;
 
@@ -60,21 +83,53 @@ export class DynamicRuleManager {
         return;
       }
 
+      /* Reference _send_rule_received_event: EVENT_DYNAMIC_RULE_UPDATED fires
+         when a fresh rule payload is accepted, before it applies. */
+      await this.sendRuleEvent(
+        'dynamic_rule_updated', 'rules_received',
+        `Received updated rules ${rules.ruleId} v${rules.version}`,
+        {
+          ruleId: rules.ruleId,
+          version: rules.version,
+          previousVersion: this.currentRules?.version ?? 0,
+        },
+      );
+
+      const emergencyActivated = rules.emergencyMode &&
+        this.currentRules?.emergencyMode !== true;
+
       this.currentRules = rules;
       this.lastUpdate = Date.now() / 1000;
 
       this.logger.info(`Applied dynamic rules: ${rules.ruleId} v${rules.version}`);
 
-      if (this.agentHandler) {
-        try {
-          await this.agentHandler.sendEvent({
-            eventType: 'dynamic_rule_applied',
-            ipAddress: 'system',
-            actionTaken: 'rules_updated',
-            reason: `Applied rules ${rules.ruleId} v${rules.version}`,
-          });
-        } catch { /* never throw */ }
+      /* Reference order (dynamic_rule_handler.update_rules +
+         _dynamic_rule_application._activate_emergency_mode): the emergency
+         lockdown event fires during the apply step, before the
+         EVENT_DYNAMIC_RULE_APPLIED close-out. */
+      if (emergencyActivated) {
+        await this.sendRuleEvent(
+          'emergency_mode_activated', 'emergency_lockdown',
+          '[EMERGENCY MODE] activated via dynamic rules',
+          {
+            whitelistCount: rules.emergencyWhitelist.length,
+            whitelist: rules.emergencyWhitelist.slice(0, 10),
+          },
+        );
       }
+
+      /* Reference _send_rule_applied_event. */
+      await this.sendRuleEvent(
+        'dynamic_rule_applied', 'rules_updated',
+        `Applied dynamic rules ${rules.ruleId} v${rules.version}`,
+        {
+          ruleId: rules.ruleId,
+          version: rules.version,
+          ipBans: rules.ipBlacklist.length,
+          countryBlocks: rules.blockedCountries.length,
+          emergencyMode: rules.emergencyMode,
+        },
+      );
     } catch (e) {
       this.logger.error(`Failed to fetch dynamic rules: ${e}`);
     }

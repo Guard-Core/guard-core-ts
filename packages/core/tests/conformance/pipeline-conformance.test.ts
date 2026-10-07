@@ -34,9 +34,9 @@ function recordingAgentHandler(): AgentHandlerProtocol {
          specs/fixtures/tools/pipeline_harness.py); the engine's
          handler-direct agent events (rate_limited, ip_banned,
          behavioral_violation) are outside the corpus's observable surface.
-         The event bus stamps every middleware event with a timestamp, so
-         that field separates the two channels here. */
-      if (event.timestamp === undefined) return;
+         The bus stamps every middleware envelope with the middleware handler
+         name, so that field separates the two channels here. */
+      if (event.handlerName !== 'middleware') return;
       EVENTS.push({ eventType: event.eventType, actionTaken: event.actionTaken });
     },
   } as unknown as AgentHandlerProtocol;

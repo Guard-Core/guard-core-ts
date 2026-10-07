@@ -222,11 +222,14 @@ export class BehaviorTracker {
     if (this.agentHandler) {
       try {
         await this.agentHandler.sendEvent({
+          timestamp: new Date(),
           eventType: 'behavioral_violation',
           ipAddress: clientIp,
           actionTaken,
           reason: `Behavioral rule violated: ${details}`,
-          metadata: { endpoint: endpointId, rule_type: rule.ruleType, threshold: rule.threshold, window: rule.window },
+          ruleType: rule.ruleType,
+          handlerName: 'behavior',
+          metadata: { endpoint: endpointId, ruleType: rule.ruleType, threshold: rule.threshold, window: rule.window },
         });
       } catch { /* never throw from event dispatch */ }
     }

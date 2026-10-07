@@ -142,7 +142,9 @@ export class HandlerInitializer {
     }
 
     if (this.guardDecorator && typeof (this.guardDecorator as Record<string, unknown>)['initializeAgent'] === 'function') {
-      await (this.guardDecorator as { initializeAgent(a: AgentHandlerProtocol): Promise<void> }).initializeAgent(this.agentHandler);
+      await (this.guardDecorator as {
+        initializeAgent(a: AgentHandlerProtocol, geo?: unknown): Promise<void>;
+      }).initializeAgent(this.agentHandler, this.geoIpHandler);
     }
   }
 

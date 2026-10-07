@@ -48,6 +48,26 @@ export class RateLimitManager {
     this.agentHandler = agentHandler;
   }
 
+  /* The twin of _emit_script_reloaded_event
+     (guard_core/handlers/ratelimit_handler.py): EVENT_RATE_LIMIT_SCRIPT_
+     RELOADED on NOSCRIPT recovery; dispatch failures never propagate. */
+  private async emitScriptReloadedEvent(): Promise<void> {
+    if (!this.agentHandler) return;
+    try {
+      await this.agentHandler.sendEvent({
+        timestamp: new Date(),
+        eventType: 'rate_limit_script_reloaded',
+        ipAddress: 'system',
+        actionTaken: 'script_reloaded',
+        reason: 'NOSCRIPT recovery: Lua script re-cached on Redis',
+        handlerName: 'rate_limit',
+        metadata: {},
+      });
+    } catch {
+      /* never throw from event dispatch */
+    }
+  }
+
   async checkRateLimit(
     request: GuardRequest,
     clientIp: string,
@@ -96,10 +116,25 @@ export class RateLimitManager {
 
     try {
       if (this.rateLimitScriptSha) {
-        const count = await client.evalsha(
-          this.rateLimitScriptSha, 1, fullKey, now, window, _limit,
-        );
-        return Number(count);
+        try {
+          const count = await client.evalsha(
+            this.rateLimitScriptSha, 1, fullKey, now, window, _limit,
+          );
+          return Number(count);
+        } catch (e) {
+          /* NOSCRIPT recovery (the reference _redis_request_count
+             on_script_reloaded path): a Redis failover or SCRIPT FLUSH
+             invalidates the cached SHA, so the script re-loads, the
+             EVENT_RATE_LIMIT_SCRIPT_RELOADED event fires and the eval
+             retries once before the in-memory fallback. */
+          if (!String(e).includes('NOSCRIPT')) throw e;
+          this.rateLimitScriptSha = await client.script('load', RATE_LIMIT_SCRIPT) as string;
+          await this.emitScriptReloadedEvent();
+          const count = await client.evalsha(
+            this.rateLimitScriptSha, 1, fullKey, now, window, _limit,
+          );
+          return Number(count);
+        }
       }
 
       /* v8 ignore start -- Lua script fallback pipeline; only reached when Redis evalsha fails */
@@ -141,7 +176,9 @@ export class RateLimitManager {
      reason rides the log_activity on_block dispatch (stash on the active
      path, direct passive fire with a null status_code), the 429 body is the
      family "Too many requests" contract and the tripped tier's window is
-     the Retry-After value. */
+     the Retry-After value. EVENT_RATE_LIMITED rides the same path as a
+     direct agent event (_send_rate_limit_event) reporting the manager's
+     configured limit and window. */
   private async handleRateLimitExceeded(
     request: GuardRequest,
     clientIp: string,
@@ -165,9 +202,46 @@ export class RateLimitManager {
       },
     );
 
+    if (this.agentHandler) {
+      await this.sendRateLimitEvent(request, clientIp, count, displayConfig);
+    }
+
     const response = await createErrorResponse(429, 'Too many requests');
     response.setHeader('Retry-After', String(window));
     return response;
+  }
+
+  /* The twin of _send_rate_limit_event
+     (guard_core/handlers/ratelimit_handler.py): a direct SecurityEvent with
+     the rate_limit handler name carrying the endpoint/method envelope and
+     the configured (not per-tier) limit and window; dispatch failures never
+     propagate. */
+  private async sendRateLimitEvent(
+    request: GuardRequest,
+    clientIp: string,
+    requestCount: number,
+    displayConfig?: ResolvedSecurityConfig,
+  ): Promise<void> {
+    try {
+      const config = displayConfig ?? this.config;
+      await this.agentHandler!.sendEvent({
+        timestamp: new Date(),
+        eventType: 'rate_limited',
+        ipAddress: clientIp,
+        actionTaken: 'request_blocked',
+        reason: `Rate limit exceeded: ${requestCount} requests in ${config?.rateLimitWindow ?? 60}s window`,
+        endpoint: request.urlPath,
+        method: request.method,
+        handlerName: 'rate_limit',
+        metadata: {
+          requestCount,
+          rateLimit: config?.rateLimit ?? 10,
+          window: config?.rateLimitWindow ?? 60,
+        },
+      });
+    } catch (e) {
+      this.logger.error(`Failed to send rate limit event to agent: ${e}`);
+    }
   }
 
   async reset(): Promise<void> {

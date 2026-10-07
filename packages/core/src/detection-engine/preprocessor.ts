@@ -27,6 +27,7 @@ import {
   buildResultWithAttackRegionsAndContext,
   extractAttackRegions as extractAttackRegionsTruncation,
 } from './truncation.js';
+import type { AgentHandlerProtocol } from '../protocols/agent.js';
 
 const DEFAULT_MAX_FULL_SCAN_BYTES = 262144;
 
@@ -107,6 +108,8 @@ export class ContentPreprocessor {
   readonly preserveAttackPatterns: boolean;
   readonly maxFullScanBytes: number;
   readonly compiledIndicators: RegExp[];
+  private agentHandler: AgentHandlerProtocol | null = null;
+  private correlationId: string | null = null;
 
   constructor(
     maxContentLength = 10000,
@@ -117,6 +120,43 @@ export class ContentPreprocessor {
     this.preserveAttackPatterns = preserveAttackPatterns;
     this.maxFullScanBytes = maxFullScanBytes ?? DEFAULT_MAX_FULL_SCAN_BYTES;
     this.compiledIndicators = ATTACK_INDICATOR_SOURCES.map((source) => new RegExp(source, 'i'));
+  }
+
+  /* Reference ContentPreprocessor.agent_handler (preprocessor.py): the agent
+     handler the decoding_error events ride, injected by the owning manager's
+     initializeAgent. */
+  setAgentHandler(agentHandler: AgentHandlerProtocol, correlationId: string | null = null): void {
+    this.agentHandler = agentHandler;
+    this.correlationId = correlationId;
+  }
+
+  /* The twin of _send_preprocessor_event (preprocessor.py): system-scoped
+     SecurityEvent with the ContentPreprocessor component metadata; dispatch
+     failures never propagate. */
+  private async sendPreprocessorEvent(
+    eventType: string,
+    actionTaken: string,
+    reason: string,
+    metadata: Record<string, unknown> = {},
+  ): Promise<void> {
+    if (!this.agentHandler) return;
+
+    try {
+      await this.agentHandler.sendEvent({
+        timestamp: new Date(),
+        eventType,
+        ipAddress: 'system',
+        actionTaken,
+        reason,
+        metadata: {
+          component: 'ContentPreprocessor',
+          correlationId: this.correlationId,
+          ...metadata,
+        },
+      });
+    } catch {
+      /* never throw from event dispatch */
+    }
   }
 
   normalizeUnicode(content: string): string {
@@ -199,8 +239,27 @@ export class ContentPreprocessor {
       const original = current;
 
       current = decodeOverlongUtf8PercentRuns(current);
-      current = pyUnquote(current);
-      current = htmlUnescape(current);
+      /* Reference decode_common_encodings: a URL decode failure emits
+         EVENT_DECODING_ERROR (error_type url_decode) and keeps the content
+         as-is for the remaining passes. */
+      try {
+        current = pyUnquote(current);
+      } catch (e) {
+        await this.sendPreprocessorEvent(
+          'decoding_error', 'decode_failed', 'Failed to URL decode content',
+          { error: String(e), errorType: 'url_decode' },
+        );
+      }
+      /* Reference decode_common_encodings: an HTML entity decode failure
+         emits EVENT_DECODING_ERROR (error_type html_decode). */
+      try {
+        current = htmlUnescape(current);
+      } catch (e) {
+        await this.sendPreprocessorEvent(
+          'decoding_error', 'decode_failed', 'Failed to HTML decode content',
+          { error: String(e), errorType: 'html_decode' },
+        );
+      }
       current = decodePercentUEscapes(current);
       current = decodeHexEscapes(current);
       current = decodeLdapHexEscapes(current);
