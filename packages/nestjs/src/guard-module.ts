@@ -34,11 +34,71 @@ export interface GuardModuleOptions {
 /** Upper bound on response bytes captured for behavioral return-pattern scans (spec 1.4 bounded read). */
 const RESPONSE_CAPTURE_LIMIT = 10_000;
 
+/* The adapter guard surface (fastapi-guard middleware.py), carried by the
+   middleware: reset(), mark_initialized / get_initialization_status, the
+   public refresh_cloud_ip_ranges, agent_stats and create_error_response. */
+export interface GuardSurface {
+  reset(): Promise<void>;
+  markInitialized(): void;
+  getInitializationStatus(): {
+    initialized: boolean;
+    redis: boolean;
+    agent: { enabled: boolean; degraded: boolean };
+  };
+  refreshCloudIpRanges(): Promise<void>;
+  readonly agentStats: { enabled: boolean; degraded: boolean } & Record<string, unknown>;
+  createErrorResponse(statusCode: number, message: string): Promise<GuardResponse>;
+}
+
 @Injectable()
-export class SecurityMiddlewareNest implements NestMiddleware {
+export class SecurityMiddlewareNest implements NestMiddleware, GuardSurface {
+  /* The agent bridge answer (GuardModule.forRoot stamps it on the shared
+     components object). */
+  private get agentBridge(): { agentDegraded: boolean; agentEnabled: boolean } {
+    return this.components as unknown as { agentDegraded: boolean; agentEnabled: boolean };
+  }
+
   constructor(
     @Inject(GUARD_MIDDLEWARE_TOKEN) private readonly components: SecurityMiddlewareComponents,
   ) {}
+
+  reset(): Promise<void> {
+    return this.components.registry.rateLimitHandler.reset();
+  }
+
+  markInitialized(): void {
+    /* The Nest factory boots the engine eagerly (forRoot), so readiness is
+       structural; the flag exists for the reference surface parity. */
+  }
+
+  getInitializationStatus(): {
+    initialized: boolean;
+    redis: boolean;
+    agent: { enabled: boolean; degraded: boolean };
+  } {
+    return {
+      initialized: true,
+      redis: this.components.registry.redisHandler !== null,
+      agent: { enabled: this.agentBridge.agentEnabled, degraded: this.agentBridge.agentDegraded },
+    };
+  }
+
+  refreshCloudIpRanges(): Promise<void> {
+    return this.components.middlewareProtocol.refreshCloudIpRanges();
+  }
+
+  get agentStats(): { enabled: boolean; degraded: boolean } & Record<string, unknown> {
+    const handler = this.components.middlewareProtocol.agentHandler;
+    if (!handler) {
+      return { enabled: false, degraded: this.agentBridge.agentDegraded };
+    }
+    const stats = (handler as unknown as { getStats?: () => Record<string, unknown> }).getStats?.() ?? {};
+    return { enabled: true, degraded: this.agentBridge.agentDegraded, ...stats };
+  }
+
+  createErrorResponse(statusCode: number, message: string): Promise<GuardResponse> {
+    return this.components.errorResponseFactory.createErrorResponse(statusCode, message);
+  }
 
   async use(req: Request, res: Response, next: NextFunction): Promise<void> {
     const startTime = performance.now();
@@ -113,7 +173,8 @@ export class GuardModule {
                with enableAgent and no injected handler the GuardAgent builds
                from the config's agent_* surface, degrading (or raising under
                agentStrict) on failure. */
-            const { agentHandler } = await resolveAgentHandler(resolved, options.agentHandler, logger);
+            const resolvedAgent = await resolveAgentHandler(resolved, options.agentHandler, logger);
+            const { agentHandler } = resolvedAgent;
             const components = await initializeSecurityMiddleware(
               resolved, logger, responseFactory,
               agentHandler, options.geoIpHandler, options.guardDecorator,
@@ -121,6 +182,11 @@ export class GuardModule {
             if (options.routeConfigs) {
               components.routeResolver.registerPathRouteConfigs(options.routeConfigs);
             }
+            /* The agent bridge answer rides the shared components object the
+               DI-constructed middleware reads its flags from. */
+            const bridge = components as unknown as { agentDegraded: boolean; agentEnabled: boolean };
+            bridge.agentDegraded = resolvedAgent.degraded;
+            bridge.agentEnabled = resolvedAgent.agentHandler !== null;
             logger.info('Guard security module initialized');
             return components;
           },

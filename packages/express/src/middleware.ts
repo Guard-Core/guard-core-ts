@@ -14,6 +14,30 @@ import { SecurityConfigSchema, resolveConfiguredLogger, initializeSecurityMiddle
 import { ExpressGuardRequest, ExpressResponseFactory, sendGuardResponse } from './adapters.js';
 import { resolveExpressRouteId, resolveExpressEndpointId } from './route-id.js';
 import { resolveAgentHandler } from './agent.js';
+import type { ResolvedAgentHandler } from './agent.js';
+
+/* The adapter guard surface (fastapi-guard middleware.py): reset(),
+   mark_initialized / get_initialization_status, the public
+   refresh_cloud_ip_ranges, agent_stats and create_error_response, exposed
+   as properties on the middleware function and driven by addStatusRoute. */
+export interface GuardMiddlewareSurface {
+  /** The reference reset(): clear the rate-limit tier state. */
+  reset(): Promise<void>;
+  /** The reference mark_initialized. */
+  markInitialized(): void;
+  /** The reference get_initialization_status. */
+  getInitializationStatus(): {
+    initialized: boolean;
+    redis: boolean;
+    agent: { enabled: boolean; degraded: boolean };
+  };
+  /** The reference refresh_cloud_ip_ranges. */
+  refreshCloudIpRanges(): Promise<void>;
+  /** The reference agent_stats. */
+  agentStats: { enabled: boolean; degraded: boolean } & Record<string, unknown>;
+  /** The reference create_error_response. */
+  createErrorResponse(statusCode: number, message: string): Promise<GuardResponse>;
+}
 
 export interface SecurityMiddlewareOptions {
   config: SecurityConfig;
@@ -37,6 +61,10 @@ export function createSecurityMiddleware(options: SecurityMiddlewareOptions) {
   let initPromise: Promise<void> | null = null;
   let components: SecurityMiddlewareComponents;
   let logger: Logger;
+  let resolvedAgent: ResolvedAgentHandler = { agentHandler: options.agentHandler ?? null, degraded: false };
+  /* The reference mark_initialized reports readiness without skipping the
+     lazy engine bootstrap, so it tracks its own flag. */
+  let markedInitialized = false;
 
   function initialize(): Promise<void> {
     if (initialized) return Promise.resolve();
@@ -49,7 +77,8 @@ export function createSecurityMiddleware(options: SecurityMiddlewareOptions) {
          enableAgent and no injected handler the GuardAgent builds from the
          config's agent_* surface, degrading (or raising under agentStrict)
          on failure. */
-      const { agentHandler } = await resolveAgentHandler(resolved, options.agentHandler, logger);
+      resolvedAgent = await resolveAgentHandler(resolved, options.agentHandler, logger);
+      const { agentHandler } = resolvedAgent;
       const initializedComponents = await initializeSecurityMiddleware(
         resolved, logger, responseFactory,
         agentHandler, options.geoIpHandler, options.guardDecorator,
@@ -69,7 +98,7 @@ export function createSecurityMiddleware(options: SecurityMiddlewareOptions) {
     return initPromise;
   }
 
-  return async function guardMiddleware(req: Request, res: Response, next: NextFunction): Promise<void> {
+  const middleware = async function guardMiddleware(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       await initialize();
 
@@ -127,6 +156,39 @@ export function createSecurityMiddleware(options: SecurityMiddlewareOptions) {
       next(error instanceof Error ? error : new Error(String(error)));
     }
   };
+
+  /* The adapter guard surface, attached to the middleware function (the
+     fastapi-guard middleware carries the same members). */
+  const surface = middleware as typeof middleware & GuardMiddlewareSurface;
+  surface.reset = async (): Promise<void> => {
+    await initialize();
+    await components.registry.rateLimitHandler.reset();
+  };
+  surface.markInitialized = (): void => { markedInitialized = true; };
+  surface.getInitializationStatus = () => ({
+    initialized: initialized || markedInitialized,
+    redis: components ? components.registry.redisHandler !== null : false,
+    agent: { enabled: resolvedAgent.agentHandler !== null, degraded: resolvedAgent.degraded },
+  });
+  surface.refreshCloudIpRanges = async (): Promise<void> => {
+    await initialize();
+    await components.middlewareProtocol.refreshCloudIpRanges();
+  };
+  Object.defineProperty(surface, 'agentStats', {
+    get(): { enabled: boolean; degraded: boolean } & Record<string, unknown> {
+      if (!resolvedAgent.agentHandler) {
+        return { enabled: false, degraded: resolvedAgent.degraded };
+      }
+      const stats = (resolvedAgent.agentHandler as unknown as { getStats?: () => Record<string, unknown> }).getStats?.() ?? {};
+      return { enabled: true, degraded: resolvedAgent.degraded, ...stats };
+    },
+  });
+  surface.createErrorResponse = async (statusCode: number, message: string) => {
+    await initialize();
+    return components.errorResponseFactory.createErrorResponse(statusCode, message);
+  };
+
+  return middleware;
 }
 
 function interceptResponse(

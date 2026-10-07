@@ -2,6 +2,8 @@ export { createSecurityMiddleware } from './middleware.js';
 export { resolveAgentHandler } from './agent.js';
 export type { ResolvedAgentHandler } from './agent.js';
 export type { SecurityMiddlewareOptions } from './middleware.js';
+export type { GuardMiddlewareSurface } from './middleware.js';
+export { addStatusRoute, DEFAULT_STATUS_PATH } from './status.js';
 export { configureCors } from './cors.js';
 export { guardBodyParser, guardUrlEncodedParser } from './body-parser.js';
 export { ExpressGuardRequest, ExpressGuardResponse, ExpressResponseFactory, sendGuardResponse } from './adapters.js';

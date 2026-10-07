@@ -1,5 +1,5 @@
 export { guardPlugin } from './plugin.js';
-export type { GuardPluginOptions } from './plugin.js';
+export type { GuardPluginOptions, GuardSurface } from './plugin.js';
 export { configureCors } from './cors.js';
 export { FastifyGuardRequest, FastifyGuardResponse, FastifyResponseFactory } from './adapters.js';
 export { attachWebSocketGuard, NodeUpgradeGuardRequest } from './websocket.js';

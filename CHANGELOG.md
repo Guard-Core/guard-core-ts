@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- The adapter guard surface across all four adapters (guard-core-ts #106, matrix gaps 34, 35, 36, 39): the fastapi-guard middleware members land on every adapter - `reset()` (the rate-limit tier reset), `markInitialized()` / `getInitializationStatus()`, the public `refreshCloudIpRanges()`, `agentStats` (enabled plus degraded plus the agent handler's own stats) and `createErrorResponse`. Express attaches the surface to the middleware function with `addStatusRoute(app, guard, path)` mounting the `/_guard/status` JSON endpoint; Fastify decorates the instance as `fastify.guard` with `addStatusRoute()`; Hono attaches the surface to the middleware handler; NestJS carries the members on `SecurityMiddlewareNest` with the agent bridge answer (enabled/degraded) flowing from `GuardModule.forRoot`.
+
+
+
+### Added
+
 - NestJS decorator route adoption (guard-core-ts #105, matrix gap 40): the module's middleware stamps the decorated handler's `_guardRouteId` onto the guard request state through the same lazy host-router scan the express adapter uses (Nest registers its routes through the host express router), so core `SecurityDecorator` route configs apply to decorated controller methods at request time. Routes without a decorator stamp keep falling through to the module's path-keyed `routeConfigs` surface. `resolveNestRouteId` / `resolveNestEndpointId` ship from the package root.
 
 
