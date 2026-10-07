@@ -3,12 +3,22 @@
    redis_fail_open policy (skip the failing check) instead of the generic
    fail_secure path. */
 
-export class GuardRedisError extends Error {
+/* The TS twin of guard_core.exceptions.GuardCoreError: the base class for
+   every engine-raised error, carrying the HTTP status the fail-secure and
+   fail-open policies map to. */
+export class GuardCoreError extends Error {
   readonly status: number;
 
   constructor(status: number, message: string) {
     super(message);
-    this.name = 'GuardRedisError';
+    this.name = 'GuardCoreError';
     this.status = status;
+  }
+}
+
+export class GuardRedisError extends GuardCoreError {
+  constructor(status: number, message: string) {
+    super(status, message);
+    this.name = 'GuardRedisError';
   }
 }

@@ -229,6 +229,7 @@ export class SusPatternsManager {
       config.detectionSlowPatternThreshold,
       config.detectionMonitorHistorySize,
       config.detectionMaxTrackedPatterns,
+      config.detectionAnomalyEmissionCooldown,
     );
     this.scanPool = scanPool ?? new ScanPoolSupervisor(config.detectionCompilerTimeout * 1000);
     this.scanPool.onPoolEvent((event) => {

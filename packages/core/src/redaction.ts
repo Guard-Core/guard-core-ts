@@ -344,6 +344,17 @@ export function redactUrlForDisplay(
   return result;
 }
 
+/* The twin of redact_endpoint_for_display: the reference is a straight
+   delegation to redact_url_for_display. */
+export function redactEndpointForDisplay(
+  value: string,
+  sensitiveParams: Iterable<string> | null | undefined,
+  sensitiveBodyFields: Iterable<string> | null | undefined,
+  sensitiveHeaders: Iterable<string> | null | undefined,
+): string {
+  return redactUrlForDisplay(value, sensitiveParams, sensitiveBodyFields, sensitiveHeaders);
+}
+
 /* The twin of redact_header_value_for_display. */
 export function redactHeaderValueForDisplay(
   value: string,

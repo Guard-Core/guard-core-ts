@@ -182,6 +182,9 @@ export const SecurityConfigSchema = z.object({
   detectionMaxContentLength: z.number().int().min(1000).max(100000).default(10000),
   detectionPreserveAttackPatterns: z.boolean().default(true),
   detectionSemanticThreshold: z.number().min(0).max(1).default(0.7),
+  /* The reference detection_anomaly_emission_cooldown: minimum seconds
+     between anomaly events for the same pattern (noise control). */
+  detectionAnomalyEmissionCooldown: z.number().min(1).max(3600).default(60),
   detectionAnomalyThreshold: z.number().min(1).max(10).default(3.0),
   detectionSlowPatternThreshold: z.number().min(0.01).max(1).default(0.1),
   detectionMonitorHistorySize: z.number().int().min(100).max(10000).default(1000),
@@ -297,6 +300,10 @@ export const SecurityConfigSchema = z.object({
   /* The reference muting surfaces: muted_event_types / muted_metric_types
      drop matching envelopes at the telemetry seam, muted_check_logs gates a
      check's on_block dispatch by check name. */
+  /* The reference log_country_check_level: the level for per-request country
+     verdicts that are not blocks (whitelisted / not-affected). null silences
+     them. */
+  logCountryCheckLevel: z.enum(['INFO', 'DEBUG', 'WARNING', 'ERROR', 'CRITICAL']).nullable().default('INFO'),
   mutedEventTypes: z.array(z.string()).default([]),
   mutedMetricTypes: z.array(z.string()).default([]),
   mutedCheckLogs: z.array(z.string()).default([]),
