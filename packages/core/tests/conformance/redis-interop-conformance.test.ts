@@ -51,7 +51,7 @@ function redisBaselineReason(corpusCase: RedisCase): string {
     case 'ipinfo_database':
       return 'IPInfoManager.initializeRedis (geoip.ts) is an empty stub: no ipinfo:database cache write and no injectable download';
     case 'cloud_ranges':
-      return 'CloudHandler (cloud.ts) writes the legacy cloud_ranges namespace (ranges only, no regions), not cloud_ranges_v2';
+      return 'CloudHandler (cloud.ts) refresh runs the store flow (the Redis store persists cloud_ip_v2 JSON); the redis-handler cloud_ranges_v2 write path (ranges|regions joined string) only runs with the store opted out, and the drive provider fetches no ranges to record';
     case 'cloud_ip_store':
       return 'no RedisCloudIpStore port: the cloud_ip_v2 namespace does not exist in the TS engine';
     case 'dynamic_rules':

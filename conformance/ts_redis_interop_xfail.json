@@ -10,7 +10,6 @@
     "redis_interop/rio_security_headers_hsts_config": "SecurityHeadersManager.cacheConfiguration (security-headers.ts) persists JSON.stringify bytes (camelCase hsts keys, no json.dumps spacing), diverging from the reference canonical JSON",
     "redis_interop/rio_security_headers_custom_headers": "SecurityHeadersManager.cacheConfiguration (security-headers.ts) persists JSON.stringify bytes (camelCase hsts keys, no json.dumps spacing), diverging from the reference canonical JSON",
     "redis_interop/rio_ipinfo_database_cache_write": "IPInfoManager.initializeRedis (geoip.ts) is an empty stub: no ipinfo:database cache write and no injectable download",
-    "redis_interop/rio_cloud_ranges_v2_write": "CloudHandler (cloud.ts) writes the legacy cloud_ranges namespace (ranges only, no regions), not cloud_ranges_v2",
-    "redis_interop/rio_cloud_ip_v2_write": "no RedisCloudIpStore port: the cloud_ip_v2 namespace does not exist in the TS engine"
+    "redis_interop/rio_cloud_ranges_v2_write": "CloudHandler (cloud.ts) refresh runs the store flow (the Redis store persists cloud_ip_v2 JSON); the redis-handler cloud_ranges_v2 write path (ranges|regions joined string) only runs with the store opted out, and the drive provider fetches no ranges to record"
   }
 }

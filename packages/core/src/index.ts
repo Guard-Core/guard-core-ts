@@ -1,5 +1,7 @@
 export type {
   AgentHandlerProtocol,
+  CloudIpStoreFactory,
+  CloudIpStoreProtocol,
   GeoIPHandler,
   GuardMiddlewareProtocol,
   GuardRequest,
@@ -128,4 +130,9 @@ export {
 } from './core/websocket-guard.js';
 export type { WebSocketCloseReason, WebSocketGuardVerdict } from './core/websocket-guard.js';
 export { attachNodeWebSocketGuard, NodeUpgradeGuardRequest } from './core/node-websocket-guard.js';
+
+/* Injectable cloud-IP store seam (the reference cloud_ip_stores.py): the
+   process-local default and the shared Redis store behind
+   CloudIpStoreProtocol. */
+export { InMemoryCloudIpStore, RedisCloudIpStore } from './handlers/cloud-ip-stores.js';
 export type { NodeWebSocketGuardOptions } from './core/node-websocket-guard.js';

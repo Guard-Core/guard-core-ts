@@ -1,5 +1,6 @@
 export { BehaviorTracker } from './behavior.js';
 export { CloudHandler } from './cloud.js';
+export { InMemoryCloudIpStore, RedisCloudIpStore } from './cloud-ip-stores.js';
 export { DynamicRuleManager } from './dynamic-rules.js';
 export { IPInfoManager } from './geoip.js';
 export { IPBanManager } from './ip-ban.js';
