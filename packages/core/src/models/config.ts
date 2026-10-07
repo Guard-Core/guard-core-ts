@@ -267,6 +267,17 @@ export const SecurityConfigSchema = z.object({
 
   enableDynamicRules: z.boolean().default(false),
   dynamicRuleInterval: z.number().int().min(60).default(300),
+  /* The reference dynamic_rules_cache_path (a Path | None, so a non-empty
+     filesystem path string here): the opt-in local JSON file persisting the
+     last-known dynamic rules snapshot so a restart during a SaaS outage
+     restores the last applied rules. Redis holds the primary snapshot
+     whenever a redis handler is present; the file is the additional
+     fallback, written and read only when this path is set. */
+  dynamicRulesCachePath: z.string().nullable().default(null)
+    .refine(
+      (v) => v === null || v.trim().length > 0,
+      'dynamicRulesCachePath must be a non-empty filesystem path or null',
+    ),
 
   /* Enrichment surface (enricher.py + event_types.py ENRICHMENT_KEY_*):
      enableEnrichment stamps the guard.* keys (project identity, threat
