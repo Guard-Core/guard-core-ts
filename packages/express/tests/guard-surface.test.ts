@@ -74,6 +74,19 @@ describe('guard middleware surface (express)', () => {
     expect(guard.agentStats).toMatchObject({ enabled: true, degraded: false, events: 5 });
   });
 
+  it('reports agentStats with the handler stats when an agent rides the options', async () => {
+    const guard = createSecurityMiddleware({ config, agentHandler: stubAgent }) as ReturnType<typeof createSecurityMiddleware> & GuardMiddlewareSurface;
+    await guard.refreshCloudIpRanges();
+    expect(guard.agentStats).toMatchObject({ enabled: true, degraded: false, events: 5 });
+
+    // A handler without getStats coalesces to the empty stats bag.
+    const bareAgent = { ...stubAgent } as unknown as AgentHandlerProtocol;
+    delete (bareAgent as { getStats?: unknown }).getStats;
+    const bareGuard = createSecurityMiddleware({ config, agentHandler: bareAgent }) as ReturnType<typeof createSecurityMiddleware> & GuardMiddlewareSurface;
+    await bareGuard.refreshCloudIpRanges();
+    expect(bareGuard.agentStats).toEqual({ enabled: true, degraded: false });
+  });
+
   it('createErrorResponse builds the family error contract', async () => {
     const guard = createSecurityMiddleware({ config }) as ReturnType<typeof createSecurityMiddleware> & GuardMiddlewareSurface;
     const response = await guard.createErrorResponse(403, 'Forbidden');
