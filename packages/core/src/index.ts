@@ -139,4 +139,25 @@ export { InMemoryCloudIpStore, RedisCloudIpStore } from './handlers/cloud-ip-sto
 /* The request-free rate-limit primitive (parity with the reference
    guard_core.utils check_rate_limit_by_ip export). */
 export { checkRateLimitByIp } from './handlers/rate-limit-by-ip.js';
+
+/* The standalone detailed IP-access verdict (parity with the reference
+   guard_core.utils check_ip_access export). */
+export { checkIpAccess } from './core/checks/ip-access.js';
+export type { IpAccessResult } from './core/checks/ip-access.js';
+
+/* Handler manager classes on the package root (parity with the reference
+   guard_core/__init__ exports; the adapters and application code compose
+   them directly). */
+export {
+  BehaviorTracker,
+  CloudHandler,
+  DynamicRuleManager,
+  IPBanManager,
+  IPInfoManager,
+  RateLimitManager,
+  RedisManager,
+  SecurityHeadersManager,
+  SusPatternsManager,
+} from './handlers/index.js';
+export { canonicalizeIp } from './handlers/ip-ban.js';
 export type { NodeWebSocketGuardOptions } from './core/node-websocket-guard.js';

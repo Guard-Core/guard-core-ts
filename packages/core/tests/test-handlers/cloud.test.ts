@@ -375,6 +375,54 @@ describe('CloudIpStoreProtocol seam (reference cloud_ip_stores.py)', () => {
     expect(manager.isCloudIp('52.1.2.3', new Set(['AWS']))).toBe(false);
   });
 
+  it('sync refresh with an unknown provider fetches empty and updates nothing', async () => {
+    const manager = new CloudHandler(defaultLogger);
+    await manager.refresh(new Set(['Unknown' as 'AWS']));
+    expect(manager.isCloudIp('1.2.3.4', new Set(['Unknown' as 'AWS']))).toBe(false);
+  });
+
+  it('the legacy redis-handler path with an empty cache entry falls to a silent empty fetch', async () => {
+    const manager = new CloudHandler(defaultLogger);
+    manager.setStore(null);
+    const redis = mockRedis();
+    vi.mocked(redis.getKey).mockResolvedValue('');
+    (manager as unknown as { redisHandler: unknown }).redisHandler = redis;
+
+    await manager.refreshAsync(new Set(['Unknown' as 'AWS']), 600);
+
+    expect(redis.setKey).not.toHaveBeenCalled();
+  });
+
+  it('the legacy redis-handler path preserves an existing provider on a fetch failure', async () => {
+    const manager = new CloudHandler(defaultLogger);
+    manager.setStore(null);
+    const redis = mockRedis();
+    vi.mocked(redis.getKey)
+      .mockResolvedValueOnce('52.0.0.0/8')
+      .mockResolvedValue(null);
+    (manager as unknown as { redisHandler: unknown }).redisHandler = redis;
+    mockFetch.mockRejectedValue(new Error('network'));
+
+    await manager.refreshAsync(new Set(['AWS']), 600);
+    expect(manager.isCloudIp('52.1.2.3', new Set(['AWS']))).toBe(true);
+
+    await manager.refreshAsync(new Set(['AWS']), 600);
+    expect(manager.isCloudIp('52.1.2.3', new Set(['AWS']))).toBe(true);
+  });
+
+  it('reset clears state with the store opted out', async () => {
+    const manager = new CloudHandler(defaultLogger);
+    manager.setStore(null);
+    mockFetch.mockResolvedValueOnce({
+      json: async () => ({ prefixes: [{ ip_prefix: '52.0.0.0/8', service: 'AMAZON' }] }),
+    });
+    await manager.refreshAsync(new Set(['AWS']));
+    expect(manager.isCloudIp('52.1.2.3', new Set(['AWS']))).toBe(true);
+
+    await manager.reset();
+    expect(manager.isCloudIp('52.1.2.3', new Set(['AWS']))).toBe(false);
+  });
+
   it('getStatus answers ready/lastRefreshed/entries per built-in provider', async () => {
     const before = handler.getStatus();
     expect(before['AWS']).toEqual({ ready: false, lastRefreshed: null, entries: 0 });

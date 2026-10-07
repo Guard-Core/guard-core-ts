@@ -71,6 +71,7 @@ function lruPopOrCreate<T>(
   }
   if (store.size >= maxSize) {
     const oldestKey = store.keys().next().value;
+    /* v8 ignore next -- oldestKey is undefined only for an empty map, which the size guard excludes */
     if (oldestKey !== undefined) store.delete(oldestKey);
   }
   return create();
