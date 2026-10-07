@@ -2,6 +2,7 @@ export { GuardModule, SecurityMiddlewareNest, GUARD_MIDDLEWARE_TOKEN } from './g
 export type { GuardModuleOptions } from './guard-module.js';
 export { NestGuardRequest, NestGuardResponse, NestResponseFactory } from './adapters.js';
 export { attachWebSocketGuard, NodeUpgradeGuardRequest } from './websocket.js';
+export { resolveNestRouteId, resolveNestEndpointId } from './route-id.js';
 export type { WebSocketGuardOptions } from './websocket.js';
 
 export {

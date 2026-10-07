@@ -14,6 +14,7 @@ import type {
 import { SecurityConfigSchema, resolveConfiguredLogger, initializeSecurityMiddleware } from '@guardcore/core';
 import { resolveAgentHandler } from './agent.js';
 import { NestGuardRequest, NestResponseFactory } from './adapters.js';
+import { resolveNestRouteId, resolveNestEndpointId } from './route-id.js';
 
 export const GUARD_MIDDLEWARE_TOKEN = Symbol('GUARD_MIDDLEWARE_COMPONENTS');
 
@@ -42,6 +43,17 @@ export class SecurityMiddlewareNest implements NestMiddleware {
   async use(req: Request, res: Response, next: NextFunction): Promise<void> {
     const startTime = performance.now();
     const guardReq = new NestGuardRequest(req);
+
+    /* W3 wiring: copy the decorated handler's `_guardRouteId` onto the guard
+       request state so the core RouteConfigResolver resolves decorator route
+       configs at request time. Nest registers its routes through the host
+       express router, so the same lazy stack scan as the express adapter
+       applies; routes without a stamp fall through to the module's
+       path-keyed routeConfigs surface. */
+    const routeId = resolveNestRouteId(req);
+    if (routeId !== null) guardReq.state.guardRouteId = routeId;
+    const endpointId = resolveNestEndpointId(req);
+    if (endpointId !== null) guardReq.state.guardEndpointId = endpointId;
 
     const passthrough = await this.components.bypassHandler.handlePassthrough(
       guardReq, async () => createPassthroughResponse(),
