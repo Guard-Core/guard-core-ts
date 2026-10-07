@@ -1,6 +1,6 @@
 {
   "name": "@guardcore/hono",
-  "version": "4.3.0",
+  "version": "4.3.1",
   "description": "Hono adapter for @guardcore/core security middleware (edge-safe)",
   "type": "module",
   "main": "./dist/index.cjs",

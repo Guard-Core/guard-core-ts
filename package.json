@@ -1,6 +1,6 @@
 {
   "name": "guardcore-ts",
-  "version": "4.3.0",
+  "version": "4.3.1",
   "private": true,
   "description": "TypeScript port of guard-core \u2014 framework-agnostic security middleware engine",
   "scripts": {
