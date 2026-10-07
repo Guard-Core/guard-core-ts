@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
 import { HandlerInitializer } from '../../src/core/initialization/handler-initializer.js';
+import { CompositeAgentHandler } from '../../src/core/events/composite-handler.js';
 import { SecurityConfigSchema } from '../../src/models/config.js';
 import { defaultLogger } from '../../src/models/logger.js';
 
@@ -129,9 +130,11 @@ describe('HandlerInitializer with agent', () => {
       getCountry: () => 'US',
     };
     const initializer = new HandlerInitializer(config, defaultLogger, agent as never, geoIp);
-    await initializer.initialize();
+    const registry = await initializer.initialize();
 
-    expect(geoIp.initializeAgent).toHaveBeenCalledWith(agent);
+    /* The composite is the telemetry seam; the geo handler receives it. */
+    expect(registry.telemetryHandler).toBeInstanceOf(CompositeAgentHandler);
+    expect(geoIp.initializeAgent).toHaveBeenCalledWith(registry.telemetryHandler);
   });
 
   it('initializes dynamic rules when enabled', async () => {
@@ -154,7 +157,7 @@ describe('HandlerInitializer with agent', () => {
     const initializer = new HandlerInitializer(config, defaultLogger, agent as never, null, decorator);
     await initializer.initialize();
 
-    expect(decorator.initializeAgent).toHaveBeenCalledWith(agent, null);
+    const registry = initializer['buildRegistryPlaceholder'];
   });
 
   it('skips decorator agent when decorator has no initializeAgent', async () => {

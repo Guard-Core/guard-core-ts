@@ -195,7 +195,7 @@ export class RateLimitManager {
       {
         checkName: 'rate_limit',
         onBlock: displayConfig?.onBlock ?? null,
-        mutedCheckLogs: null,
+        mutedCheckLogs: displayConfig ? new Set(displayConfig.mutedCheckLogs) : null,
         sensitiveParams: displayConfig?.logSensitiveParams,
         sensitiveBodyFields: displayConfig?.logSensitiveBodyFields,
         sensitiveHeaders: displayConfig?.logSensitiveHeaders,

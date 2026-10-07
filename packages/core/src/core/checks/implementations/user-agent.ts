@@ -27,11 +27,18 @@ export class UserAgentCheck extends SecurityCheck {
     return {
       checkName: this.checkName,
       onBlock: this.config.onBlock ?? null,
-      mutedCheckLogs: null,
+      mutedCheckLogs: this.mutedCheckLogs(),
       sensitiveParams: this.config.logSensitiveParams,
       sensitiveBodyFields: this.config.logSensitiveBodyFields,
       sensitiveHeaders: this.config.logSensitiveHeaders,
     };
+  }
+
+  /* The reference muted_check_logs surface (a frozenset of check names in
+     SecurityConfig): a check whose name is listed skips its on_block
+     dispatch. */
+  private mutedCheckLogs(): ReadonlySet<string> {
+    return new Set(this.config.mutedCheckLogs);
   }
 
   async check(request: GuardRequest): Promise<GuardResponse | null> {
