@@ -53,6 +53,17 @@ describe('guard surface (fastify)', () => {
     const agentGuard = (agentApp as unknown as { guard: GuardSurface }).guard;
     expect(agentGuard.agentStats).toMatchObject({ enabled: true, degraded: false, events: 5 });
 
+    // A handler without getStats coalesces to the empty stats bag.
+    const bareAgent = { ...stubAgent } as unknown as AgentHandlerProtocol;
+    delete (bareAgent as { getStats?: unknown }).getStats;
+    const bareApp = fastify();
+    await bareApp.register(guardPlugin, {
+      config: { enableRedis: false, enableAgent: true, agentApiKey: 'test-api-key-123' },
+      agentHandler: bareAgent,
+    });
+    const bareGuard = (bareApp as unknown as { guard: GuardSurface }).guard;
+    expect(bareGuard.agentStats).toEqual({ enabled: true, degraded: false });
+
     const res = await app.inject({ method: 'GET', url: '/_guard/status' });
     expect(res.statusCode).toBe(200);
     expect(res.json()).toMatchObject({ initialized: true });
