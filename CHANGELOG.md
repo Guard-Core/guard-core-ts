@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Fastify WebSocket guard (guard-core-ts #104, matrix gap 37): `attachWebSocketGuard` re-exports the core node upgrade guard for the fastify adapter, closing the last adapter without the B13 seam. Untrusted handshakes answer HTTP 403 before any ws/socket.io upgrade listener runs; clean peers pass through unchanged, and the guard composes with the plugin's components like every other adapter.
+
+
+
+### Added
+
 - The GeoIP manager is complete (guard-core-ts #103, matrix gaps 2, 3, 26 and 32): `IPInfoManager` gains the config surface (`ipinfoToken`, `ipinfoDbPath`, `geoIpDbMaxAge` with the 86400-second default), the token-authed ipinfo.io download pipeline (three attempts with exponential backoff, the atomic tmp-plus-rename write, the latin-1 Redis snapshot with a max-age TTL, and the mtime freshness gate), `refresh` (download, reopen, swap; failures keep the current reader), `close`, the `entryCount` getter and `getStatus`, and a real `initializeRedis` that holds the handler and runs the snapshot-first initialize flow. `initialize` mirrors the reference cache short-circuit, the corrupted-file removal (`_open_database_or_none`), and the post-failure `get_country` warning that points at `refresh()`. The `GeoIPHandler` protocol picks up the missing `refresh` and `close` members, and `checkCountryAccess` plus the geo telemetry (`geo_lookup_failed`, `country_blocked`) land in the same seam.
 
 
