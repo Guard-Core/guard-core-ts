@@ -280,9 +280,9 @@ export class IPInfoManager implements GeoIPHandler {
     }
   }
 
-  private sleep(seconds: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
-  }
+  /* Injectable so tests can zero the backoff without fake timers. */
+  private sleep = (seconds: number): Promise<void> =>
+    new Promise((resolve) => setTimeout(resolve, seconds * 1000));
 
   /* The twin of _write_database_atomically: tmp file plus rename. */
   private writeDatabaseAtomically(content: Buffer): void {

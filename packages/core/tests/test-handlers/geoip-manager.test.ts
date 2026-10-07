@@ -92,8 +92,9 @@ describe('IPInfoManager lifecycle (reference ipinfo_handler.py)', () => {
   });
 
   it('downloads with retries and backoff, writes atomically and caches in Redis', async () => {
-    vi.useFakeTimers();
     const { manager, dbPath, dir } = makeManager({ token: 'tok', maxAge: 3600 });
+    // Zero the backoff: real timers, no waiting.
+    manager['sleep'] = async () => {};
     const redis = fakeRedis();
     // Hold the handler without running initialize (the explicit initialize
     // below drives the download path).
@@ -106,11 +107,7 @@ describe('IPInfoManager lifecycle (reference ipinfo_handler.py)', () => {
       return { ok: true, arrayBuffer: async () => REAL_MMDB.buffer.slice(REAL_MMDB.byteOffset, REAL_MMDB.byteOffset + REAL_MMDB.byteLength) };
     });
 
-    const init = manager.initialize();
-    while (calls < 3) {
-      await vi.advanceTimersByTimeAsync(1100);
-    }
-    await init;
+    await manager.initialize();
 
     expect(calls).toBe(3);
     // The snapshot landed in Redis with the max-age TTL.
