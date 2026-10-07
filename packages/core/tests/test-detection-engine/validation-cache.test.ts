@@ -234,13 +234,16 @@ describe('PatternCompiler validation-cache integration', () => {
 
   it('the deterministic layers always re-run, even on a warm cache', () => {
     const path = join(tempDir, 'cache.json');
+    // An over-length pattern exercises the deterministic layer without
+    // synthesizing a catastrophic regex (CodeQL js/regular-expressions).
+    const oversized = 'a'.repeat(2000);
     const warm = new PatternValidationCache(path);
-    warm.put('(x+x+)+y', 'gi', true, 'stale certification');
+    warm.put(oversized, 'gi', true, 'stale certification');
 
     const compiler = new PatternCompiler(2000, 1000, warm);
-    const [safe, reason] = compiler.validatePatternSafety('(x+x+)+y');
+    const [safe, reason] = compiler.validatePatternSafety(oversized);
     expect(safe).toBe(false);
-    expect(reason).toContain('dangerous construct');
+    expect(reason).toContain('exceeds maximum validated length');
   });
 
   it('caller-supplied probes run live and bypass the cache', () => {
