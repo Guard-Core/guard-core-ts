@@ -13,6 +13,25 @@ import type {
 import { RouteConfig as RouteConfigClass } from '@guardcore/core';
 import { SecurityConfigSchema, resolveConfiguredLogger, initializeSecurityMiddleware } from '@guardcore/core';
 import { resolveAgentHandler } from './agent.js';
+import type { ResolvedAgentHandler } from './agent.js';
+
+/* The adapter guard surface (fastapi-guard middleware.py), decorated onto
+   the fastify instance as `fastify.guard`: reset(), mark_initialized /
+   get_initialization_status, the public refresh_cloud_ip_ranges,
+   agent_stats, create_error_response and the status route. */
+export interface GuardSurface {
+  reset(): Promise<void>;
+  markInitialized(): void;
+  getInitializationStatus(): {
+    initialized: boolean;
+    redis: boolean;
+    agent: { enabled: boolean; degraded: boolean };
+  };
+  refreshCloudIpRanges(): Promise<void>;
+  readonly agentStats: { enabled: boolean; degraded: boolean } & Record<string, unknown>;
+  createErrorResponse(statusCode: number, message: string): Promise<GuardResponse>;
+  addStatusRoute(path?: string): void;
+}
 import fp from 'fastify-plugin';
 import { FastifyGuardRequest, FastifyResponseFactory } from './adapters.js';
 
@@ -63,7 +82,8 @@ export const guardPlugin = fp(async function guardPlugin(fastify: FastifyInstanc
      enableAgent and no injected handler the GuardAgent builds from the
      config's agent_* surface, degrading (or raising under agentStrict) on
      failure. */
-  const { agentHandler } = await resolveAgentHandler(resolved, options.agentHandler, logger);
+  const resolvedAgent: ResolvedAgentHandler = await resolveAgentHandler(resolved, options.agentHandler, logger);
+  const { agentHandler } = resolvedAgent;
   const components: SecurityMiddlewareComponents = await initializeSecurityMiddleware(
     resolved, logger, responseFactory,
     agentHandler, options.geoIpHandler, options.guardDecorator,
@@ -88,6 +108,40 @@ export const guardPlugin = fp(async function guardPlugin(fastify: FastifyInstanc
       routeMeta.set(`${String(method).toUpperCase()}|${routeOptions.url}`, { routeId, endpointId });
     }
   });
+
+  /* The adapter guard surface, decorated as fastify.guard. */
+  const surface: GuardSurface = {
+    reset: async (): Promise<void> => {
+      await components.registry.rateLimitHandler.reset();
+    },
+    markInitialized: (): void => {},
+    getInitializationStatus: () => ({
+      initialized: true,
+      redis: components.registry.redisHandler !== null,
+      agent: { enabled: resolvedAgent.agentHandler !== null, degraded: resolvedAgent.degraded },
+    }),
+    refreshCloudIpRanges: async (): Promise<void> => {
+      await components.middlewareProtocol.refreshCloudIpRanges();
+    },
+    get agentStats(): { enabled: boolean; degraded: boolean } & Record<string, unknown> {
+      if (!resolvedAgent.agentHandler) {
+        return { enabled: false, degraded: resolvedAgent.degraded };
+      }
+      const stats = (resolvedAgent.agentHandler as unknown as { getStats?: () => Record<string, unknown> }).getStats?.() ?? {};
+      return { enabled: true, degraded: resolvedAgent.degraded, ...stats };
+    },
+    createErrorResponse: async (statusCode: number, message: string) =>
+      components.errorResponseFactory.createErrorResponse(statusCode, message),
+    addStatusRoute: (path = '/_guard/status'): void => {
+      void (fastify as unknown as {
+        get: (path: string, handler: () => Record<string, unknown>) => void;
+      }).get(path, () => surface.getInitializationStatus());
+    },
+  };
+  /* Mock instances (tests without a real fastify) skip the decoration. */
+  if (typeof (fastify as unknown as { decorate?: unknown }).decorate === 'function') {
+    (fastify as unknown as { decorate: (name: string, value: unknown) => void }).decorate('guard', surface);
+  }
 
   logger.info('Guard security plugin initialized');
 
