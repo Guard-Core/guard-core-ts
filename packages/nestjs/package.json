@@ -28,15 +28,16 @@
     "guardagent": "^3.2.1"
   },
   "devDependencies": {
-    "tsup": "^8",
-    "@vitest/coverage-v8": "^5.0.2",
-    "vitest": "^5",
-    "typescript": "~5.9",
     "@nestjs/common": "^12",
     "@nestjs/core": "^12",
     "@types/express": "^5",
+    "@vitest/coverage-v8": "^5.0.2",
+    "express": "^4.21.2",
     "reflect-metadata": "^0.2",
-    "rxjs": "^7"
+    "rxjs": "^7",
+    "tsup": "^8",
+    "typescript": "~5.9",
+    "vitest": "^5"
   },
   "peerDependencies": {
     "@nestjs/common": "^12",

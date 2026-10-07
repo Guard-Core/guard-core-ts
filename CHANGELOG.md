@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- NestJS decorator route adoption (guard-core-ts #105, matrix gap 40): the module's middleware stamps the decorated handler's `_guardRouteId` onto the guard request state through the same lazy host-router scan the express adapter uses (Nest registers its routes through the host express router), so core `SecurityDecorator` route configs apply to decorated controller methods at request time. Routes without a decorator stamp keep falling through to the module's path-keyed `routeConfigs` surface. `resolveNestRouteId` / `resolveNestEndpointId` ship from the package root.
+
+
+
+### Added
+
 - Fastify WebSocket guard (guard-core-ts #104, matrix gap 37): `attachWebSocketGuard` re-exports the core node upgrade guard for the fastify adapter, closing the last adapter without the B13 seam. Untrusted handshakes answer HTTP 403 before any ws/socket.io upgrade listener runs; clean peers pass through unchanged, and the guard composes with the plugin's components like every other adapter.
 
 
