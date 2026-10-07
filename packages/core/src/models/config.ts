@@ -277,6 +277,24 @@ export const SecurityConfigSchema = z.object({
      otel_service_name (default 'guard-core') and otelResourceAttributes the
      reference otel_resource_attributes (the deployment.environment entry
      feeds the deployment-environment key). */
+  /* The Redis tuning surface (reference redis_socket_connect_timeout /
+     redis_socket_timeout / redis_health_check_interval / redis_max_connections /
+     redis_retries): bounded timeouts keep a partitioned Redis from blocking
+     every touching request; null lets ioredis defaults apply. */
+  redisSocketConnectTimeout: z.number().positive().nullable().default(null),
+  redisSocketTimeout: z.number().positive().nullable().default(null),
+  redisHealthCheckInterval: z.number().int().positive().default(30),
+  redisMaxConnections: z.number().int().positive().nullable().default(null),
+  redisRetries: z.number().int().nonnegative().default(0),
+  /* The reference lazy_init knob: when false the adapters bootstrap the
+     engine at registration instead of on first request. */
+  lazyInit: z.boolean().default(true),
+  /* The detection scan-budget tunables (reference detection_max_scan_values /
+     detection_max_scan_chars / detection_max_json_depth). */
+  detectionMaxScanValues: z.number().int().positive().default(512),
+  detectionMaxScanChars: z.number().int().positive().default(65536),
+  detectionMaxJsonDepth: z.number().int().positive().default(32),
+  detectionMinSamplesForAnomaly: z.number().int().positive().default(10),
   /* The GeoIP manager surface (reference ipinfo_token / ipinfo_db_path /
      geo_ip_db_max_age): the token authenticates the ipinfo.io download, the
      path is the local MMDB file and the max age is the mtime freshness gate

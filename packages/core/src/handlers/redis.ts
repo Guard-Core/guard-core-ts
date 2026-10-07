@@ -14,6 +14,12 @@ const REDIS_HANDLER_NAME = 'redis';
  * the userinfo from the authority so a password in redis_url never reaches an
  * agent event payload. Scheme, host, port, path, query and fragment survive.
  */
+/* The redis_retries retry strategy: exponential-ish capped backoff
+   (mirrors the reference Retry(ExponentialBackoff(), retries) pacing). */
+export function redisRetryStrategy(retries: number): number {
+  return Math.min(retries * 200, 2000);
+}
+
 export function redactRedisUrl(url: string): string {
   try {
     const parsed = new URL(url);
@@ -52,6 +58,9 @@ export class RedisManager implements RedisHandlerProtocol {
   private closed = false;
   private agentHandler: AgentHandlerProtocol | null = null;
   private readonly prefix: string;
+  /* Typed keys of the shared in-flight safe_operation wrappers (the
+     reference safe_operation error events carry the function name). */
+  safeOperationDepth = 0;
 
   constructor(
     private readonly config: ResolvedSecurityConfig,
@@ -65,7 +74,28 @@ export class RedisManager implements RedisHandlerProtocol {
 
     try {
       const { default: Redis } = await import('ioredis');
-      const client = new Redis(this.config.redisUrl) as unknown as RedisClient;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const options: any = {};
+      if (this.config.redisSocketConnectTimeout !== null) {
+        options.connectTimeout = this.config.redisSocketConnectTimeout * 1000;
+      }
+      if (this.config.redisSocketTimeout !== null) {
+        options.commandTimeout = this.config.redisSocketTimeout * 1000;
+      }
+      // The schema default (30) is non-null, so this always applies.
+      options.healthCheckInterval = this.config.redisHealthCheckInterval * 1000;
+      /* redis_max_connections maps to the pool capacity; the reference
+         passes it only when set. */
+      if (this.config.redisMaxConnections !== null) {
+        options.maxConnections = this.config.redisMaxConnections;
+      }
+      if (this.config.redisRetries > 0) {
+        options.retryStrategy = redisRetryStrategy;
+      }
+      const client = new Redis(
+        this.config.redisUrl,
+        options,
+      ) as unknown as RedisClient;
       /* A connection failure must not surface as an unhandled 'error' event
          (ioredis retries in the background); initialize() reports the
          failure and the client below is torn down so no retrying orphan is
@@ -155,6 +185,28 @@ export class RedisManager implements RedisHandlerProtocol {
 
   private formatKey(namespace: string, key: string): string {
     return `${this.prefix}${namespace}:${key}`;
+  }
+
+  /* The twin of safe_operation (guard_core/handlers/redis_handler.py): run
+     the function with a connection, reporting EVENT_REDIS_ERROR
+     (safe_operation_failed) with the function name on failure. */
+  async safeOperation<T>(
+    func: (client: RedisClient) => Promise<T>,
+    ...args: unknown[]
+  ): Promise<T | null> {
+    if (!this.config.enableRedis) return null;
+    try {
+      const client = this.client;
+      if (!client) return null;
+      return await func(client);
+    } catch (e) {
+      await this.sendRedisEvent(
+        'redis_error', 'safe_operation_failed',
+        `Redis safe operation failed: ${e}`,
+        { errorType: 'safe_operation_error', functionName: func.name || 'unknown' },
+      );
+      throw new GuardRedisError(503, 'Redis operation failed');
+    }
   }
 
   /* Shared operation-failure reporting (the reference get_connection /

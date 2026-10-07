@@ -87,6 +87,16 @@ describe('guard middleware surface (express)', () => {
     expect(bareGuard.agentStats).toEqual({ enabled: true, degraded: false });
   });
 
+  it('bootstraps the engine eagerly when lazyInit is off', async () => {
+    const eager = createSecurityMiddleware({
+      config: { ...config, lazyInit: false },
+    }) as ReturnType<typeof createSecurityMiddleware> & GuardMiddlewareSurface;
+    // Give the fire-and-forget bootstrap a tick, then the status reports
+    // initialized without any request.
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    expect(eager.getInitializationStatus().initialized).toBe(true);
+  });
+
   it('createErrorResponse builds the family error contract', async () => {
     const guard = createSecurityMiddleware({ config }) as ReturnType<typeof createSecurityMiddleware> & GuardMiddlewareSurface;
     const response = await guard.createErrorResponse(403, 'Forbidden');
