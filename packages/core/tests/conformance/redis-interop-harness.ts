@@ -8,6 +8,7 @@ import { BehaviorTracker } from '../../src/handlers/behavior.js';
 import { SecurityHeadersManager } from '../../src/handlers/security-headers.js';
 import { SusPatternsManager } from '../../src/handlers/sus-patterns.js';
 import { CloudHandler } from '../../src/handlers/cloud.js';
+import { DynamicRuleManager } from '../../src/handlers/dynamic-rules.js';
 import { IPInfoManager } from '../../src/handlers/geoip.js';
 import { BehaviorRule } from '../../src/models/behavior-rule.js';
 import type { GuardRequest } from '../../src/protocols/request.js';
@@ -33,10 +34,10 @@ import { createMockResponseFactory } from '../helpers.js';
      TTL. This keeps TTL semantics deterministic without wall-clock luck.
    - zset scores: floats at 6-decimal precision.
 
-   Operations the TS engine cannot express (behavior zsets, cloud v2 stores,
-   dynamic-rules snapshots, ipinfo database cache) are honest driver gaps:
-   the drive runs the closest real TS seam and the missing keys are the
-   recorded divergence, feeding conformance/ts_redis_interop_xfail.json. */
+   Operations the TS engine cannot express (behavior zsets, cloud v2
+   stores, ipinfo database cache) are honest driver gaps: the drive runs
+   the closest real TS seam and the missing keys are the recorded
+   divergence, feeding conformance/ts_redis_interop_xfail.json. */
 
 export interface RedisExpectedTtl {
   set: boolean;
@@ -414,8 +415,19 @@ async function executeOperation(corpusCase: RedisCase): Promise<void> {
       return;
     }
     case 'dynamic_rules': {
-      /* No TS seam: DynamicRuleManager (dynamic-rules.ts) does not persist
-         a last_known snapshot. */
+      /* The real write seam: DynamicRuleManager.persistLastKnownRules
+         (dynamic-rules.ts) is the _persist_last_known_rules twin; the
+         snapshot lands in Redis in the reference snake_case wire bytes. */
+      const redis = await redisManager(corpusCase.prefix);
+      const manager = new DynamicRuleManager(rioConfig(corpusCase.prefix), defaultLogger);
+      await manager.initializeRedis(redis);
+      const rulesArgs = args['rules'] as Record<string, unknown>;
+      await manager.persistLastKnownRules({
+        ruleId: rulesArgs['rule_id'],
+        version: rulesArgs['version'],
+        timestamp: rulesArgs['timestamp'],
+      } as never);
+      await redis.close();
       return;
     }
     default:
