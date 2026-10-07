@@ -76,6 +76,10 @@ export class PerformanceMonitor {
   private readonly slowPatternThreshold: number;
   private readonly historySize: number;
   private readonly maxTrackedPatterns: number;
+  /* The reference detection_anomaly_emission_cooldown: minimum seconds
+     between anomaly events for the same pattern. */
+  private readonly emissionCooldownSeconds: number;
+  private lastEmitAt = new Map<string, number>();
 
   private patternStats = new Map<string, PatternStats>();
   private recentMetrics: PerformanceMetric[] = [];
@@ -86,11 +90,13 @@ export class PerformanceMonitor {
     slowPatternThreshold = 0.1,
     historySize = 1000,
     maxTrackedPatterns = 1000,
+    emissionCooldownSeconds = 60,
   ) {
     this.anomalyThreshold = Math.max(1.0, Math.min(10.0, anomalyThreshold));
     this.slowPatternThreshold = Math.max(0.01, Math.min(10.0, slowPatternThreshold));
     this.historySize = Math.max(100, Math.min(10000, historySize));
     this.maxTrackedPatterns = Math.max(100, Math.min(5000, maxTrackedPatterns));
+    this.emissionCooldownSeconds = Math.max(1.0, Math.min(3600.0, emissionCooldownSeconds));
   }
 
   async recordMetric(
@@ -206,7 +212,15 @@ export class PerformanceMonitor {
       }
     }
 
-    if (agentHandler) {
+    if (agentHandler && anomalies.length > 0) {
+      /* The reference emission cooldown: at most one anomaly event batch per
+         pattern within detection_anomaly_emission_cooldown seconds. */
+      const now = Date.now() / 1000;
+      const last = this.lastEmitAt.get(metric.pattern);
+      if (last !== undefined && now - last < this.emissionCooldownSeconds) {
+        return;
+      }
+      this.lastEmitAt.set(metric.pattern, now);
       for (const anomaly of anomalies) {
         try {
           await agentHandler.sendEvent({

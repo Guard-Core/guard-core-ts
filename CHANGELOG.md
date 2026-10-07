@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- The remaining small parity gaps close (guard-core-ts #107, matrix gaps 5, 8, 9 and 31): `GuardCoreError` is the engine error base (`GuardRedisError` extends it); `redactEndpointForDisplay` ships from the redaction module (the reference's delegation to the URL redactor); `logCountryCheckLevel` gates the non-block country verdict logs (whitelisted / not-affected, null silences, DEBUG for the no-rules / no-geolocation / loopback-exempt arms exactly like `_log_country_check_result`); and `detectionAnomalyEmissionCooldown` rides the config into the performance monitor - at most one anomaly event batch per pattern per cooldown window, stamped only when an anomaly was actually emitted, with the reference 60s default and 1-3600s clamp.
+
+
+
+### Added
+
 - The adapter guard surface across all four adapters (guard-core-ts #106, matrix gaps 34, 35, 36, 39): the fastapi-guard middleware members land on every adapter - `reset()` (the rate-limit tier reset), `markInitialized()` / `getInitializationStatus()`, the public `refreshCloudIpRanges()`, `agentStats` (enabled plus degraded plus the agent handler's own stats) and `createErrorResponse`. Express attaches the surface to the middleware function with `addStatusRoute(app, guard, path)` mounting the `/_guard/status` JSON endpoint; Fastify decorates the instance as `fastify.guard` with `addStatusRoute()`; Hono attaches the surface to the middleware handler; NestJS carries the members on `SecurityMiddlewareNest` with the agent bridge answer (enabled/degraded) flowing from `GuardModule.forRoot`.
 
 

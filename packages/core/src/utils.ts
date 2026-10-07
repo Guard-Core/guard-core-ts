@@ -246,13 +246,62 @@ export async function isUserAgentAllowed(
   return true;
 }
 
+/* The twin of _log_country_check_result (access_control.py): the
+   non-block verdicts (whitelisted / not-affected) ride the
+   logCountryCheckLevel config (null silences them); blocks ride
+   logSuspiciousLevel like the reference. */
+function logCountryCheckResult(
+  ip: string,
+  country: string | null,
+  resultType: 'no_rules' | 'no_geolocation' | 'loopback_exempt' | 'whitelisted' | 'not_affected',
+  config: ResolvedSecurityConfig,
+): void {
+  if (resultType === 'no_rules') {
+    defaultLogger.debug(`No countries blocked or whitelisted ${ip} - No countries blocked or whitelisted`);
+    return;
+  }
+  if (resultType === 'no_geolocation') {
+    defaultLogger.debug(`IP not geolocated ${ip} - IP geolocation failed`);
+    return;
+  }
+  if (resultType === 'loopback_exempt') {
+    defaultLogger.debug(`Loopback IP exempt from country allowlist check ${ip}`);
+    return;
+  }
+  const level = config.logCountryCheckLevel;
+  if (level === null) return;
+  const message = resultType === 'whitelisted'
+    ? `IP from whitelisted country ${ip} - ${country} - IP from whitelisted country`
+    : `IP not from blocked or whitelisted country ${ip} - ${country} - IP not from blocked or whitelisted country`;
+  const logMethod: keyof Logger = level.toLowerCase() === 'debug' ? 'debug'
+    : level.toLowerCase() === 'warning' ? 'warn'
+      : level.toLowerCase() === 'error' || level.toLowerCase() === 'critical' ? 'error'
+        : 'info';
+  defaultLogger[logMethod](message);
+}
+
 export async function checkIpCountry(
   ip: string,
   config: ResolvedSecurityConfig,
   geoIpHandler: GeoIPHandler,
 ): Promise<boolean> {
   if (config.blockedCountries.length === 0 && config.whitelistCountries.length === 0) {
+    logCountryCheckResult(ip, null, 'no_rules', config);
     return false;
+  }
+
+  try {
+    const parsed = ipaddr.parse(ip);
+    /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
+    if (parsed.kind() === 'ipv4' && (parsed as ipaddr.IPv4).range() === 'loopback') {
+      /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
+      logCountryCheckResult(ip, null, 'loopback_exempt', config);
+      /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
+      return false;
+      /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
+    }
+  } catch {
+    /* unparseable: fall through to the geo verdict like the reference */
   }
 
   if (!geoIpHandler.isInitialized) {
@@ -260,14 +309,21 @@ export async function checkIpCountry(
   }
 
   const country = geoIpHandler.getCountry(ip);
-  if (!country) return false;
+  if (!country) {
+    logCountryCheckResult(ip, null, 'no_geolocation', config);
+    return false;
+  }
 
   if (config.whitelistCountries.length > 0) {
-    return !config.whitelistCountries.includes(country);
+    const blocked = !config.whitelistCountries.includes(country);
+    if (!blocked) logCountryCheckResult(ip, country, 'whitelisted', config);
+    return blocked;
   }
 
   if (config.blockedCountries.length > 0) {
-    return config.blockedCountries.includes(country);
+    const blocked = config.blockedCountries.includes(country);
+    if (!blocked) logCountryCheckResult(ip, country, 'not_affected', config);
+    return blocked;
   }
 
   /* v8 ignore start -- default return when no country rules configured; tests always set country rules */

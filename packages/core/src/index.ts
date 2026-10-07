@@ -53,12 +53,12 @@ export { extractClientIp, isIpAllowed, isUserAgentAllowed, checkIpCountry,
   detectPenetrationAttempt, sanitizeForLog, logActivity, sendAgentEvent,
 } from './utils.js';
 
-export { GuardRedisError } from './errors.js';
+export { GuardCoreError, GuardRedisError } from './errors.js';
 
 export {
   DEFAULT_SENSITIVE_LOG_HEADERS, DEFAULT_SENSITIVE_LOG_FIELDS,
   mergeSensitiveNames, redactPairsInText, redactBlobForDisplay,
-  redactUrlForDisplay, redactHeaderValueForDisplay,
+  redactUrlForDisplay, redactHeaderValueForDisplay, redactEndpointForDisplay,
 } from './redaction.js';
 
 export {
