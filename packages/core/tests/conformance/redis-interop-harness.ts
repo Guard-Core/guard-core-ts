@@ -8,6 +8,7 @@ import { BehaviorTracker } from '../../src/handlers/behavior.js';
 import { SecurityHeadersManager } from '../../src/handlers/security-headers.js';
 import { SusPatternsManager } from '../../src/handlers/sus-patterns.js';
 import { CloudHandler } from '../../src/handlers/cloud.js';
+import { RedisCloudIpStore } from '../../src/handlers/cloud-ip-stores.js';
 import { DynamicRuleManager } from '../../src/handlers/dynamic-rules.js';
 import { IPInfoManager } from '../../src/handlers/geoip.js';
 import { BehaviorRule } from '../../src/models/behavior-rule.js';
@@ -411,7 +412,15 @@ async function executeOperation(corpusCase: RedisCase): Promise<void> {
       return;
     }
     case 'cloud_ip_store': {
-      /* No TS seam: no RedisCloudIpStore port, no cloud_ip_v2 namespace. */
+      /* The real store seam (cloud-ip-stores.ts): the corpus drives
+         RedisCloudIpStore.set directly (the reference cloud_ip_stores
+         call). */
+      const redis = await redisManager(corpusCase.prefix);
+      const store = new RedisCloudIpStore(redis);
+      const ranges = args['ranges'] as string[];
+      const ttl = (args['ttl'] as number | null) ?? null;
+      await store.set(args['provider'] as string, new Set(ranges), ttl);
+      await redis.close();
       return;
     }
     case 'dynamic_rules': {

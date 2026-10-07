@@ -1,6 +1,7 @@
 import type { ResolvedSecurityConfig } from '../../models/config.js';
 import type { Logger } from '../../models/logger.js';
 import type { AgentHandlerProtocol } from '../../protocols/agent.js';
+import type { CloudIpStoreProtocol } from '../../protocols/cloud-ip-store.js';
 import type { GeoIPHandler } from '../../protocols/geo-ip.js';
 import { BehaviorTracker } from '../../handlers/behavior.js';
 import { CloudHandler } from '../../handlers/cloud.js';
@@ -43,12 +44,15 @@ export class HandlerInitializer {
     private readonly agentHandler: AgentHandlerProtocol | null = null,
     private readonly geoIpHandler: GeoIPHandler | null = null,
     private readonly guardDecorator: unknown = null,
+    /* The injectable cloud-IP store seam (the reference cloud_ip_stores
+       DI): null keeps the process-local default store. */
+    private readonly cloudIpStore: CloudIpStoreProtocol | null = null,
   ) {}
 
   async initialize(): Promise<HandlerRegistry> {
     const ipBanHandler = new IPBanManager(this.logger);
     const rateLimitHandler = new RateLimitManager(this.logger, this.config);
-    const cloudHandler = new CloudHandler(this.logger);
+    const cloudHandler = new CloudHandler(this.logger, this.cloudIpStore ?? undefined);
     const susPatternsHandler = new SusPatternsManager(this.config, this.logger);
     const securityHeadersHandler = new SecurityHeadersManager(this.logger);
     const behaviorTracker = new BehaviorTracker(this.config, this.logger);
