@@ -24,7 +24,8 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@guardcore/core": "workspace:^"
+    "@guardcore/core": "workspace:^",
+    "guardagent": "^3.2.1"
   },
   "devDependencies": {
     "tsup": "^8",

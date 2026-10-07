@@ -20,3 +20,6 @@ export type {
   Logger,
   PathRouteConfigEntry,
 } from '@guardcore/core';
+
+export { resolveAgentHandler } from './agent.js';
+export type { ResolvedAgentHandler } from './agent.js';
