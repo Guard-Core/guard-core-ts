@@ -135,4 +135,8 @@ export { attachNodeWebSocketGuard, NodeUpgradeGuardRequest } from './core/node-w
    process-local default and the shared Redis store behind
    CloudIpStoreProtocol. */
 export { InMemoryCloudIpStore, RedisCloudIpStore } from './handlers/cloud-ip-stores.js';
+
+/* The request-free rate-limit primitive (parity with the reference
+   guard_core.utils check_rate_limit_by_ip export). */
+export { checkRateLimitByIp } from './handlers/rate-limit-by-ip.js';
 export type { NodeWebSocketGuardOptions } from './core/node-websocket-guard.js';

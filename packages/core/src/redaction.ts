@@ -289,24 +289,46 @@ export function redactUrlForDisplay(
     ].map((n) => n.toLowerCase()),
   );
 
-  const schemeMatch = /^([A-Za-z][A-Za-z0-9+.-]*:\/\/)/.exec(url);
+  /* The urlsplit twin: a scheme is "name:" - with "//" the authority
+     follows, without it the remainder is path-only (Python urlsplit gives
+     'a:password=x' scheme 'a' and path 'password=x', no netloc), which is
+     what lets the endpoint redactor mask pair values after a scheme
+     colon. */
+  const schemeMatch = /^([A-Za-z][A-Za-z0-9+.-]*:)(\/\/)?/.exec(url);
   let rest = url;
   let scheme = '';
+  let hasAuthority = false;
   if (schemeMatch) {
-    scheme = schemeMatch[1];
+    hasAuthority = schemeMatch[2] === '//';
+    scheme = url.slice(0, schemeMatch[0].length);
     rest = url.slice(scheme.length);
   }
 
   let authority = '';
-  const slashIndex = rest.indexOf('/');
-  const questionIndex = rest.indexOf('?');
-  const hashIndex = rest.indexOf('#');
-  let authorityEnd = rest.length;
-  for (const idx of [slashIndex, questionIndex, hashIndex]) {
-    if (idx !== -1 && idx < authorityEnd) authorityEnd = idx;
+  if (hasAuthority) {
+    const slashIndex = rest.indexOf('/');
+    const questionIndex = rest.indexOf('?');
+    const hashIndex = rest.indexOf('#');
+    let authorityEnd = rest.length;
+    for (const idx of [slashIndex, questionIndex, hashIndex]) {
+      if (idx !== -1 && idx < authorityEnd) authorityEnd = idx;
+    }
+    authority = rest.slice(0, authorityEnd);
+    rest = rest.slice(authorityEnd);
+  } else if (!scheme) {
+    /* No scheme: the pre-separator run is the authority only until the
+       first path/query/fragment character, exactly like the legacy
+       relative-URL handling. */
+    const slashIndex = rest.indexOf('/');
+    const questionIndex = rest.indexOf('?');
+    const hashIndex = rest.indexOf('#');
+    let authorityEnd = rest.length;
+    for (const idx of [slashIndex, questionIndex, hashIndex]) {
+      if (idx !== -1 && idx < authorityEnd) authorityEnd = idx;
+    }
+    authority = rest.slice(0, authorityEnd);
+    rest = rest.slice(authorityEnd);
   }
-  authority = rest.slice(0, authorityEnd);
-  rest = rest.slice(authorityEnd);
 
   // netloc password masking, the twin of _redact_netloc_password.
   const atSign = authority.lastIndexOf('@');
@@ -338,7 +360,14 @@ export function redactUrlForDisplay(
     fragment = rest.slice(hIdx + 1);
   }
 
-  let result = scheme + authority + path;
+  /* Path pair redaction (the twin of _redact_sensitive_path): a
+     sensitive name=value pair inside the path is masked like one in the
+     query - the reference endpoint redactor relies on this for
+     scheme-colon inputs ('a:password=x' parses scheme 'a', path
+     'password=x'). */
+  const redactedPath = redactPairsSegment(path, sensitive);
+
+  let result = scheme + authority + redactedPath;
   if (query !== null) result += '?' + redactPairsSegment(query, sensitive);
   if (fragment !== null) result += '#' + redactPairsSegment(fragment, sensitive);
   return result;
