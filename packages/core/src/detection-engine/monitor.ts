@@ -230,7 +230,35 @@ export class PerformanceMonitor {
         safe['patternHash'] = patternHash(anomaly['pattern'] as string);
       }
       for (const callback of this.anomalyCallbacks) {
-        try { callback(safe); } catch { /* ignore */ }
+        try {
+          callback(safe);
+        } catch (e) {
+          /* Reference build_callback_error_event_data
+             (monitor_anomalies.py): a failing anomaly callback is reported as
+             EVENT_DETECTION_ENGINE_CALLBACK_ERROR and swallowed, so one bad
+             listener never breaks the scan loop. */
+          if (agentHandler) {
+            const message = e instanceof Error ? e.message : String(e);
+            try {
+              await agentHandler.sendEvent({
+                timestamp: new Date(),
+                eventType: 'detection_engine_callback_error',
+                ipAddress: 'system',
+                actionTaken: 'logged',
+                reason: `Anomaly callback failed: ${message}`,
+                handlerName: 'performance_monitor',
+                metadata: {
+                  component: 'PerformanceMonitor',
+                  correlationId: correlationId ?? null,
+                  callbackError: message,
+                  anomalyType: (safe['type'] as string | undefined) ?? 'unknown',
+                },
+              });
+            } catch {
+              // never throw from callback-error reporting
+            }
+          }
+        }
       }
     }
   }

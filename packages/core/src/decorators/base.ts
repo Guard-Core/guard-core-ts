@@ -18,6 +18,7 @@ export class BaseSecurityDecorator {
   routeConfigs = new Map<string, RouteConfig>();
   behaviorTracker: BehaviorTracker;
   agentHandler: AgentHandlerProtocol | null = null;
+  geoIpHandler: unknown = null;
   readonly config: ResolvedSecurityConfig;
   readonly logger: Logger;
 
@@ -57,30 +58,41 @@ export class BaseSecurityDecorator {
     if (redisHandler) await this.behaviorTracker.initializeRedis(redisHandler as unknown as import('../handlers/redis.js').RedisManager);
   }
 
-  async initializeAgent(agentHandler: AgentHandlerProtocol): Promise<void> {
+  async initializeAgent(agentHandler: AgentHandlerProtocol, geoIpHandler?: unknown): Promise<void> {
     this.agentHandler = agentHandler;
+    this.geoIpHandler = geoIpHandler ?? null;
     await this.behaviorTracker.initializeAgent(agentHandler);
   }
 
+  /* The twin of send_decorator_event (guard_core/decorators/base.py): the
+     decorator events ride a SecurityEventBus built over the decorator's
+     agent handler, so the envelopes carry the full middleware field set
+     (ipAddress, country, userAgent, endpoint, method) with decorator_type
+     promoted to a top-level field and retained in the metadata. */
   async sendDecoratorEvent(
     eventType: string,
-    _request: GuardRequest,
+    request: GuardRequest,
     actionTaken: string,
     reason: string,
     decoratorType: string,
     meta?: Record<string, unknown>,
   ): Promise<void> {
     if (!this.agentHandler) return;
-    try {
-      await this.agentHandler.sendEvent({
-        timestamp: new Date(),
-        eventType,
-        actionTaken,
-        reason,
-        decoratorType,
-        metadata: meta ?? {},
-      });
-    } catch { /* never throw */ }
+
+    const { SecurityEventBus } = await import('../core/events/event-bus.js');
+    const eventBus = new SecurityEventBus(
+      this.agentHandler,
+      this.config,
+      this.logger,
+      (this.geoIpHandler ?? null) as ConstructorParameters<typeof SecurityEventBus>[3],
+    );
+    await eventBus.sendMiddlewareEvent(
+      eventType,
+      request,
+      actionTaken,
+      reason,
+      { decoratorType, ...meta },
+    );
   }
 
   async sendAccessDeniedEvent(
@@ -89,7 +101,7 @@ export class BaseSecurityDecorator {
     decoratorType: string,
     meta?: Record<string, unknown>,
   ): Promise<void> {
-    await this.sendDecoratorEvent('access_denied', request, 'request_blocked', reason, decoratorType, meta);
+    await this.sendDecoratorEvent('access_denied', request, 'blocked', reason, decoratorType, meta);
   }
 
   async sendAuthenticationFailedEvent(
@@ -98,7 +110,7 @@ export class BaseSecurityDecorator {
     authType: string,
     meta?: Record<string, unknown>,
   ): Promise<void> {
-    await this.sendDecoratorEvent('authentication_failed', request, 'request_blocked', reason, 'authentication', { authType, ...meta });
+    await this.sendDecoratorEvent('authentication_failed', request, 'blocked', reason, 'authentication', { authType, ...meta });
   }
 
   async sendRateLimitEvent(
@@ -107,7 +119,7 @@ export class BaseSecurityDecorator {
     window: number,
     meta?: Record<string, unknown>,
   ): Promise<void> {
-    await this.sendDecoratorEvent('rate_limit_exceeded', request, 'request_blocked', `Rate limit ${limit}/${window}s exceeded`, 'rate_limit', { limit, window, ...meta });
+    await this.sendDecoratorEvent('rate_limited', request, 'blocked', `Rate limit exceeded: ${limit} requests per ${window}s`, 'rate_limiting', { limit, window, ...meta });
   }
 
   async sendDecoratorViolationEvent(
@@ -116,7 +128,7 @@ export class BaseSecurityDecorator {
     reason: string,
     meta?: Record<string, unknown>,
   ): Promise<void> {
-    await this.sendDecoratorEvent('decorator_violation', request, 'request_blocked', reason, violationType, meta);
+    await this.sendDecoratorEvent('decorator_violation', request, 'blocked', reason, violationType, meta);
   }
 }
 

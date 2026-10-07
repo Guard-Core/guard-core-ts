@@ -6,7 +6,7 @@ import type { GeoIPHandler } from '../../../protocols/geo-ip.js';
 import type { IPBanManager } from '../../../handlers/ip-ban.js';
 import type { RouteConfigResolver } from '../../routing/resolver.js';
 import { logActivity } from '../../../utils.js';
-import { checkRouteIpAccess, isIpInWhitelist } from '../helpers.js';
+import { checkRouteIpAccess, escalateIdentityViolation, isIpInWhitelist } from '../helpers.js';
 import { SecurityCheck } from '../base.js';
 import ipaddr from 'ipaddr.js';
 
@@ -72,7 +72,8 @@ export class IpSecurityCheck extends SecurityCheck {
 
     await this.sendEvent('ip_blocked', request,
       this.config.passiveMode ? 'logged_only' : 'request_blocked',
-      `Banned IP attempted access: ${clientIp}`);
+      `Banned IP attempted access: ${clientIp}`,
+      { ipAddress: clientIp, filterType: 'banned' });
 
     if (!this.config.passiveMode) {
       return this.createErrorResponse(403, 'IP address banned');
@@ -93,12 +94,19 @@ export class IpSecurityCheck extends SecurityCheck {
       this.config.passiveMode, '', this.config.logSuspiciousLevel, this.blockHooks());
 
     /* Reference route-denial path: decorator_violation with the
-       emit_access_denied_event shape before the 403. */
+       emit_access_denied_event shape before the 403, then the identity
+       violation escalation (guard_core ip_security _check_route_ip_
+       restrictions). */
     await this.sendEvent('decorator_violation', request,
       this.config.passiveMode ? 'logged_only' : 'request_blocked',
       `IP ${clientIp} blocked`);
 
     if (!this.config.passiveMode) {
+      await escalateIdentityViolation(
+        this.middleware, this.config, this.ipBanManager,
+        request, clientIp, this.logger,
+        'ip_restriction', `IP not allowed by route config: ${clientIp}`,
+      );
       return this.createErrorResponse(403, 'Forbidden');
     }
     return null;
@@ -107,7 +115,9 @@ export class IpSecurityCheck extends SecurityCheck {
   /* The twin of _resolve_country_verdict (guard_core/_utils/access_control.py):
      an unresolved country blocks only in whitelist-country mode, and the
      resolved country name rides along for the block reason. Loopback
-     addresses are exempt from the country verdict. */
+     addresses are exempt from the country verdict. The pipeline verdict
+     emits nothing: the reference country_blocked agent event belongs to the
+     geo manager's check_country_access seam (handlers/ipinfo_handler.py). */
   private async resolveCountryVerdict(
     ip: string,
     geoIpHandler: GeoIPHandler | null,
@@ -119,7 +129,7 @@ export class IpSecurityCheck extends SecurityCheck {
       const parsed = ipaddr.parse(ip);
       /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
       if (parsed.kind() === 'ipv4' && (parsed as ipaddr.IPv4).range() === 'loopback') {
-      /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
+        /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
         /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
         return [false, null];
         /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
@@ -134,7 +144,7 @@ export class IpSecurityCheck extends SecurityCheck {
     /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
     /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
     if (!geoIpHandler.isInitialized) {
-    /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
+      /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
       /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
       await geoIpHandler.initialize();
       /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
@@ -259,17 +269,24 @@ export class IpSecurityCheck extends SecurityCheck {
 
     if (!access.allowed) {
       /* Reference _check_global_ip_restrictions: the log-format reason
-         "IP not allowed: {ip} - {reason}" feeds on_block, and the
-         ip_blocked event carries the bare access reason. */
+         "IP not allowed: {ip} - {reason}" feeds on_block, the ip_blocked
+         event carries the bare access reason, and the active path runs the
+         identity violation escalation before the 403. */
       logActivity(request, this.logger, 'suspicious',
         `IP not allowed: ${clientIp} - ${access.reason}`,
         this.config.passiveMode, '', this.config.logSuspiciousLevel, this.blockHooks());
 
       await this.sendEvent('ip_blocked', request,
         this.config.passiveMode ? 'logged_only' : 'request_blocked',
-        access.reason);
+        access.reason,
+        { ipAddress: clientIp, filterType: 'global' });
 
       if (!this.config.passiveMode) {
+        await escalateIdentityViolation(
+          this.middleware, this.config, this.ipBanManager,
+          request, clientIp, this.logger,
+          'ip_blocked', access.reason,
+        );
         return this.createErrorResponse(403, 'Forbidden');
       }
       return null;

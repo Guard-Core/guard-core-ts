@@ -4,6 +4,27 @@ import type { AgentHandlerProtocol } from '../protocols/agent.js';
 import { GuardRedisError } from '../errors.js';
 import type { RedisHandlerProtocol } from '../protocols/redis.js';
 
+/* Reference EVENT_REDIS_CONNECTION / EVENT_REDIS_ERROR
+   (guard_core/core/events/event_types.py) and the _REDIS_HANDLER_NAME the
+   reference events carry. */
+const REDIS_HANDLER_NAME = 'redis';
+
+/**
+ * The twin of _redact_redis_url (guard_core/handlers/redis_handler.py): drop
+ * the userinfo from the authority so a password in redis_url never reaches an
+ * agent event payload. Scheme, host, port, path, query and fragment survive.
+ */
+export function redactRedisUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    parsed.username = '';
+    parsed.password = '';
+    return parsed.toString();
+  } catch {
+    return 'unparseable_redis_url';
+  }
+}
+
 type RedisClient = {
   get(key: string): Promise<string | null>;
   set(key: string, value: string, ...args: unknown[]): Promise<unknown>;
@@ -58,9 +79,24 @@ export class RedisManager implements RedisHandlerProtocol {
       }
       this.client = client;
       this.logger.info('Redis connection established');
+
+      /* Reference EVENT_REDIS_CONNECTION on a successful initialize
+         (guard_core/handlers/redis_handler.py). */
+      await this.sendRedisEvent(
+        'redis_connection', 'connection_established',
+        'Redis connection successfully established',
+        { redisUrl: redactRedisUrl(this.config.redisUrl) },
+      );
     } catch (e) {
       this.logger.error(`Redis connection failed: ${e}`);
       this.client = null;
+
+      /* Reference EVENT_REDIS_ERROR on a failed initialize. */
+      await this.sendRedisEvent(
+        'redis_error', 'connection_failed',
+        `Redis connection failed: ${e}`,
+        { redisUrl: redactRedisUrl(this.config.redisUrl), errorType: 'connection_error' },
+      );
     }
   }
 
@@ -69,11 +105,42 @@ export class RedisManager implements RedisHandlerProtocol {
     if (this.client) {
       try { await this.client.quit(); } catch { /* ignore */ }
       this.client = null;
+      /* Reference EVENT_REDIS_CONNECTION on a graceful close. */
+      await this.sendRedisEvent(
+        'redis_connection', 'connection_closed',
+        'Redis connection closed gracefully',
+      );
     }
   }
 
   async initializeAgent(agentHandler: AgentHandlerProtocol): Promise<void> {
     this.agentHandler = agentHandler;
+  }
+
+  /* The twin of _send_redis_event (guard_core/handlers/redis_handler.py):
+     system-scoped SecurityEvent with the handler name in the metadata;
+     event dispatch failures never propagate. */
+  private async sendRedisEvent(
+    eventType: string,
+    actionTaken: string,
+    reason: string,
+    metadata: Record<string, unknown> = {},
+  ): Promise<void> {
+    if (!this.agentHandler) return;
+
+    try {
+      await this.agentHandler.sendEvent({
+        timestamp: new Date(),
+        eventType,
+        ipAddress: 'system',
+        actionTaken,
+        reason,
+        handlerName: REDIS_HANDLER_NAME,
+        metadata,
+      });
+    } catch {
+      /* never throw from event dispatch */
+    }
   }
 
   /* v8 ignore start -- getConnection returns pooled disposable; V8 cannot track inline Symbol.asyncDispose */
@@ -90,13 +157,25 @@ export class RedisManager implements RedisHandlerProtocol {
     return `${this.prefix}${namespace}:${key}`;
   }
 
+  /* Shared operation-failure reporting (the reference get_connection /
+     safe_operation catch paths): log, emit EVENT_REDIS_ERROR, then surface
+     the GuardRedisError contract. */
+  private async reportOperationError(operation: string, e: unknown): Promise<never> {
+    this.logger.error(`Redis ${operation} failed: ${e}`);
+    await this.sendRedisEvent(
+      'redis_error', 'operation_failed',
+      `Redis operation failed: ${e}`,
+      { errorType: 'operation_error', operation },
+    );
+    throw new GuardRedisError(503, 'Redis operation failed');
+  }
+
   async getKey(namespace: string, key: string): Promise<unknown> {
     if (!this.client) return null;
     try {
       return await this.client.get(this.formatKey(namespace, key));
     } catch (e) {
-      this.logger.error(`Redis get failed: ${e}`);
-      throw new GuardRedisError(503, 'Redis operation failed');
+      throw await this.reportOperationError('get', e);
     }
   }
 
@@ -112,8 +191,7 @@ export class RedisManager implements RedisHandlerProtocol {
       }
       return true;
     } catch (e) {
-      this.logger.error(`Redis set failed: ${e}`);
-      throw new GuardRedisError(503, 'Redis operation failed');
+      throw await this.reportOperationError('set', e);
     }
   }
 
@@ -127,8 +205,7 @@ export class RedisManager implements RedisHandlerProtocol {
       }
       return count;
     } catch (e) {
-      this.logger.error(`Redis incr failed: ${e}`);
-      throw new GuardRedisError(503, 'Redis operation failed');
+      throw await this.reportOperationError('incr', e);
     }
   }
 
@@ -138,8 +215,7 @@ export class RedisManager implements RedisHandlerProtocol {
       const result = await this.client.exists(this.formatKey(namespace, key));
       return result > 0;
     } catch (e) {
-      this.logger.error(`Redis exists failed: ${e}`);
-      throw new GuardRedisError(503, 'Redis operation failed');
+      throw await this.reportOperationError('exists', e);
     }
   }
 
@@ -148,8 +224,7 @@ export class RedisManager implements RedisHandlerProtocol {
     try {
       return await this.client.del(this.formatKey(namespace, key));
     } catch (e) {
-      this.logger.error(`Redis delete failed: ${e}`);
-      throw new GuardRedisError(503, 'Redis operation failed');
+      throw await this.reportOperationError('delete', e);
     }
   }
 
@@ -158,8 +233,7 @@ export class RedisManager implements RedisHandlerProtocol {
     try {
       return await this.client.keys(`${this.prefix}${pattern}`);
     } catch (e) {
-      this.logger.error(`Redis keys failed: ${e}`);
-      throw new GuardRedisError(503, 'Redis operation failed');
+      throw await this.reportOperationError('keys', e);
     }
   }
 
@@ -170,8 +244,7 @@ export class RedisManager implements RedisHandlerProtocol {
       if (matchedKeys.length === 0) return 0;
       return await this.client.del(...matchedKeys);
     } catch (e) {
-      this.logger.error(`Redis deletePattern failed: ${e}`);
-      throw new GuardRedisError(503, 'Redis operation failed');
+      throw await this.reportOperationError('deletePattern', e);
     }
   }
 

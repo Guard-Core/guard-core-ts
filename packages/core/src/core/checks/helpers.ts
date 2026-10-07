@@ -327,3 +327,105 @@ export async function tryThresholdBan(
   logActivity(request, logger, 'suspicious', logReason, config.passiveMode, '', config.logSuspiciousLevel);
   return true;
 }
+
+/**
+ * The twin of _emit_ban_escalation_failed
+ * (guard_core/core/checks/helpers.py): when a threshold-ban escalation
+ * raises (Redis-backed ban write failure and friends), the failure is
+ * reported as EVENT_IP_BAN_FAILED instead of taking the request pipeline
+ * down; callers swallow after reporting, like the reference.
+ */
+export async function emitBanEscalationFailed(
+  middleware: GuardMiddlewareProtocol,
+  request: GuardRequest,
+  clientIp: string,
+  error: unknown,
+): Promise<void> {
+  const eventBus = middleware.eventBus as {
+    sendMiddlewareEvent(
+      eventType: string,
+      request: GuardRequest,
+      actionTaken: string,
+      reason: string,
+      metadata?: Record<string, unknown>,
+    ): Promise<void>;
+  };
+  const message = error instanceof Error ? error.message : String(error);
+  await eventBus.sendMiddlewareEvent(
+    'ip_ban_failed', request, 'ban_not_applied',
+    `Escalation ban failed for ${clientIp}: ${message}`,
+    { ipAddress: clientIp },
+  );
+}
+
+/**
+ * The twin of escalate_identity_violation
+ * (guard_core/core/checks/helpers.py): re-runs the request's detection
+ * verdict, counts the violation categories toward the shared suspicious
+ * counters, applies the threshold ban, and reports the escalation as
+ * EVENT_PENETRATION_ATTEMPT (banned/tracked). Any failure along the way is
+ * reported as EVENT_IP_BAN_FAILED and swallowed, so a Redis-backed ban
+ * write outage never takes the request pipeline down.
+ */
+export async function escalateIdentityViolation(
+  middleware: GuardMiddlewareProtocol,
+  config: ResolvedSecurityConfig,
+  ipBanManager: IPBanManager | null,
+  request: GuardRequest,
+  clientIp: string,
+  logger: Logger,
+  violationCategory: string,
+  triggerInfo: string,
+): Promise<void> {
+  if (!clientIp) return;
+
+  if (request.state.isWhitelisted === true) return;
+
+  try {
+    const routeConfig = (request.state as Record<string, unknown>)['_routeConfig'] as RouteConfig | undefined;
+    const resolver = middleware.routeResolver as {
+      shouldBypassCheck(check: string, rc: RouteConfig | null): boolean;
+    };
+    const [isThreat, scanTrigger, threatCategories] = await detectPenetrationPatterns(
+      request,
+      routeConfig ?? null,
+      config,
+      (check, rc) => resolver.shouldBypassCheck(check, rc),
+    );
+    if (!isThreat || scanTrigger === 'disabled_by_decorator') return;
+
+    const categories = threatCategories.length > 0 ? threatCategories : ['uncategorized'];
+    incrementSuspiciousCounts(middleware, clientIp, categories);
+
+    const banned = await tryThresholdBan(
+      request, config, ipBanManager, middleware,
+      clientIp, triggerInfo, logger, categories,
+    );
+
+    const eventBus = middleware.eventBus as {
+      sendMiddlewareEvent(
+        eventType: string,
+        request: GuardRequest,
+        actionTaken: string,
+        reason: string,
+        metadata?: Record<string, unknown>,
+      ): Promise<void>;
+    };
+    await eventBus.sendMiddlewareEvent(
+      'penetration_attempt', request, banned ? 'banned' : 'tracked',
+      `Identity violation escalated: ${triggerInfo}`,
+      {
+        requestCount: totalSuspiciousCount(middleware, clientIp),
+        triggerInfo,
+        violationCategory,
+      },
+    );
+  } catch (e) {
+    logger.error(`escalateIdentityViolation failed for ${clientIp}: ${e}`);
+    try {
+      await emitBanEscalationFailed(middleware, request, clientIp, e);
+    } catch (reportError) {
+      logger.error(`Failed to report ban escalation failure for ${clientIp}: ${reportError}`);
+    }
+  }
+}

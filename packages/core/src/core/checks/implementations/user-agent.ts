@@ -1,12 +1,24 @@
+import type { GuardMiddlewareProtocol } from '../../../protocols/middleware.js';
 import type { GuardRequest } from '../../../protocols/request.js';
 import type { GuardResponse } from '../../../protocols/response.js';
 import type { RouteConfig } from '../../../models/route-config.js';
-import { checkUserAgentAllowed } from '../helpers.js';
+import type { IPBanManager } from '../../../handlers/ip-ban.js';
+import { checkUserAgentAllowed, escalateIdentityViolation } from '../helpers.js';
 import { logActivity } from '../../../utils.js';
 import { redactHeaderValueForDisplay } from '../../../redaction.js';
 import { SecurityCheck } from '../base.js';
 
 export class UserAgentCheck extends SecurityCheck {
+  private readonly ipBanManager: IPBanManager | null;
+
+  constructor(middleware: GuardMiddlewareProtocol, ipBanManager?: IPBanManager | null) {
+    super(middleware);
+    /* The manager from the handler initializer is shared across requests;
+       when absent (direct construction in tests or standalone pipelines) the
+       check leaves it null and the escalation stage skips instead of
+       building one per request. */
+    this.ipBanManager = ipBanManager ?? null;
+  }
   get checkName(): string { return 'user_agent'; }
 
   /* The log_activity on_block hooks of this check (reference log_activity
@@ -50,14 +62,33 @@ export class UserAgentCheck extends SecurityCheck {
 
     const actionTaken = this.config.passiveMode ? 'logged_only' : 'request_blocked';
     if (routeConfig && routeConfig.blockedUserAgents.length > 0) {
+      /* Reference decorator branch (user_agent.py): emit_decorator_event
+         with the content_filtering decorator metadata. */
       await this.sendEvent('decorator_violation', request, actionTaken,
-        `User agent '${redactedUserAgent}' blocked`);
+        `User agent '${redactedUserAgent}' blocked`,
+        {
+          decoratorType: 'content_filtering',
+          violationType: 'user_agent',
+          blockedUserAgent: redactedUserAgent,
+        });
     } else {
       await this.sendEvent('user_agent_blocked', request, actionTaken,
-        `User agent '${redactedUserAgent}' in global blocklist`);
+        `User agent '${redactedUserAgent}' in global blocklist`,
+        { userAgent: redactedUserAgent, filterType: 'global' });
     }
 
     if (!this.config.passiveMode) {
+      /* Reference UserAgentCheck: the active deny escalates the identity
+         violation (re-detect + counter + threshold ban) before the 403. */
+      const clientIp = ((request.state as Record<string, unknown>)['clientIp'] as string | undefined)
+        ?? request.clientHost;
+      if (clientIp) {
+        await escalateIdentityViolation(
+          this.middleware, this.config, this.ipBanManager,
+          request, clientIp, this.logger,
+          'user_agent', `Blocked user agent: ${redactedUserAgent}`,
+        );
+      }
       return this.createErrorResponse(403, 'User-Agent not allowed');
     }
     return null;

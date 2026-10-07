@@ -444,7 +444,7 @@ describe('BaseSecurityDecorator event methods', () => {
     const agent = { sendEvent: vi.fn() };
     await decorator.initializeAgent(agent as never);
     await decorator.sendRateLimitEvent(createMockRequest(), 10, 60);
-    expect(agent.sendEvent.mock.calls[0][0].eventType).toBe('rate_limit_exceeded');
+    expect(agent.sendEvent.mock.calls[0][0].eventType).toBe('rate_limited');
   });
 
   it('sendDecoratorViolationEvent delegates', async () => {

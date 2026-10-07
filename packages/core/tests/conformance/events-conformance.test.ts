@@ -26,29 +26,11 @@ const EVENT_TYPE_GAPS: Readonly<Record<string, string>> = {
   access_denied: 'the TS decorator senders (decorators/base.ts) carry no ipAddress/endpoint/method envelope fields',
   authentication_failed: 'the TS decorator senders (decorators/base.ts) carry no ipAddress/endpoint/method envelope fields',
   cloud_blocked: 'the TS cloud_blocked envelope (core/events/event-bus.ts sendCloudDetectionEvents) carries a different reason and metadata contract',
-  content_filtered: 'RequestSizeContentCheck (core/checks/implementations/request-size-content.ts) emits no event',
-  country_blocked: 'the TS country verdict (core/checks/implementations/ip-security.ts) emits ip_blocked, not country_blocked',
-  csp_violation: 'SecurityHeadersManager (handlers/security-headers.ts) has no CSP report validation and no csp_violation event',
-  custom_request_check: 'CustomRequestCheck (core/checks/implementations/custom-request.ts) emits no event',
-  detection_engine_callback_error: 'PerformanceMonitor.checkAnomalies (detection-engine/monitor.ts) swallows callback errors',
-  dynamic_rule_updated: 'DynamicRuleManager.updateRules (handlers/dynamic-rules.ts) emits only dynamic_rule_applied',
-  emergency_mode_activated: 'DynamicRuleManager.updateRules (handlers/dynamic-rules.ts) has no emergency-lockdown event',
-  geo_lookup_failed: 'IPInfoManager.initialize (handlers/geoip.ts) has no injectable download and emits no event',
+  geo_lookup_failed: 'IPInfoManager.initialize (handlers/geoip.ts) has no injectable download seam; the failure reason carries the JS error class name instead of the reference exception type',
   https_enforced: 'no https_enforced emission path: HttpsEnforcementCheck (core/checks/implementations/https-enforcement.ts) redirects via ErrorResponseFactory.createHttpsRedirect without emitting, and SecurityEventBus.sendHttpsViolationEvent (core/events/event-bus.ts) has no call site',
-  ip_ban_failed: 'no ip_ban_failed escalation telemetry in the TS engine (handlers/ip-ban.ts, core/checks/helpers.ts resolveThresholdBan)',
-  pattern_added: 'SusPatternsManager.addPattern (handlers/sus-patterns.ts) emits no event',
-  pattern_detected: 'SusPatternsManager.detect (handlers/sus-patterns.ts) emits no event',
-  pattern_removed: 'SusPatternsManager.removePattern (handlers/sus-patterns.ts) emits no event',
   rate_limited: 'the TS rate-limit tiers (core/checks/implementations/rate-limit.ts) emit no rate_limited middleware event: the global tier is silent and the endpoint tier emits dynamic_rule_violation',
-  rate_limit_script_reloaded: 'RateLimitManager (handlers/rate-limit.ts) has no NOSCRIPT recovery telemetry',
-  redis_connection: 'RedisManager.initialize (handlers/redis.ts) only logs',
-  redis_error: 'RedisManager.initialize (handlers/redis.ts) only logs',
-  security_headers_applied: 'SecurityHeadersManager.getHeaders (handlers/security-headers.ts) emits no event',
   suspicious_request: 'extractClientIp (utils.ts) emits suspicious_request only when trustedProxies is empty; the untrusted-proxy XFF path is silent',
 };
-
-const HANDLER_NAME_NOTE =
-  'envelope field handler_name is not observable: SecurityEventBus.sendMiddlewareEvent (core/events/event-bus.ts) carries no handler_name';
 
 function baselineReason(diffs: string[]): string {
   const notes: string[] = [];
@@ -62,10 +44,6 @@ function baselineReason(diffs: string[]): string {
       for (const type of missing) {
         notes.push(EVENT_TYPE_GAPS[type] ?? `no TS emitter for event type ${type}`);
       }
-      continue;
-    }
-    if (diff.includes('field handler_name')) {
-      if (!notes.includes(HANDLER_NAME_NOTE)) notes.push(HANDLER_NAME_NOTE);
       continue;
     }
     notes.push(diff);

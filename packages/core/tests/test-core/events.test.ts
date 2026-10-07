@@ -58,8 +58,14 @@ describe('SecurityEventBus', () => {
     const config = createTestConfig({ enableAgent: true, agentApiKey: 'key', agentEnableEvents: true });
     const agent = { sendEvent: vi.fn() };
     const bus = new SecurityEventBus(agent as never, config, defaultLogger);
-    await bus.sendCloudDetectionEvents(createMockRequest(), '1.2.3.4', ['AWS'], false);
-    expect(agent.sendEvent).toHaveBeenCalled();
+    const sendCloudDetectionEvent = vi.fn();
+    const cloudHandler = {
+      agentHandler: agent,
+      getCloudProviderDetails: () => ['AWS', '203.0.113.0/24'] as [string, string],
+      sendCloudDetectionEvent,
+    };
+    await bus.sendCloudDetectionEvents(createMockRequest(), '1.2.3.4', ['AWS'], null, cloudHandler as never, false);
+    expect(sendCloudDetectionEvent).toHaveBeenCalledWith('1.2.3.4', 'AWS', '203.0.113.0/24', 'request_blocked');
   });
 
   it('uses GeoIP handler for country if available', async () => {
@@ -106,11 +112,26 @@ describe('SecurityEventBus', () => {
 
   it('cloud detection with passiveMode=false', async () => {
     const config = createTestConfig({ enableAgent: true, agentApiKey: 'key', agentEnableEvents: true });
-    const agent = { sendEvent: vi.fn() };
+    const events: Array<Record<string, unknown>> = [];
+    const agent = { sendEvent: async (e: Record<string, unknown>) => { events.push(e); } };
     const bus = new SecurityEventBus(agent as never, config, defaultLogger);
-    await bus.sendCloudDetectionEvents(createMockRequest(), '1.2.3.4', ['AWS'], false);
-    const event = agent.sendEvent.mock.calls[0][0];
-    expect(event.actionTaken).toBe('request_blocked');
+    const cloudHandler = {
+      agentHandler: agent,
+      getCloudProviderDetails: () => ['AWS', '203.0.113.0/24'],
+      async sendCloudDetectionEvent(_ip: string, provider: string, network: string, actionTaken?: string) {
+        await agent.sendEvent({
+          eventType: 'cloud_blocked',
+          ipAddress: '1.2.3.4',
+          actionTaken,
+          reason: `IP belongs to blocked cloud provider: ${provider}`,
+          handlerName: 'cloud',
+          metadata: { cloudProvider: provider, network },
+        });
+      },
+    };
+    await bus.sendCloudDetectionEvents(createMockRequest(), '1.2.3.4', ['AWS'], null, cloudHandler as never, false);
+    expect(events[0]?.['actionTaken']).toBe('request_blocked');
+    expect(events[0]?.['reason']).toBe('IP belongs to blocked cloud provider: AWS');
   });
 });
 

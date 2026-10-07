@@ -64,6 +64,7 @@ export class RateLimitCheck extends SecurityCheck {
         'decorator_violation',
         `Route-specific rate limit exceeded: ${routeConfig.rateLimit} requests per ${window}s`,
         request.urlPath,
+        { decoratorType: 'rate_limiting', violationType: 'rate_limit', rateLimit: routeConfig.rateLimit, window },
       );
       if (routeResponse !== null) return routeResponse;
     }
@@ -79,6 +80,7 @@ export class RateLimitCheck extends SecurityCheck {
         'dynamic_rule_violation',
         `Endpoint-specific rate limit exceeded: ${limit} requests per ${window}s for ${request.urlPath}`,
         request.urlPath,
+        { ruleType: 'endpoint_rate_limit', endpoint: request.urlPath, rateLimit: limit, window },
       );
       if (endpointResponse !== null) return endpointResponse;
     }
@@ -107,6 +109,7 @@ export class RateLimitCheck extends SecurityCheck {
     eventType: string,
     eventReason: string,
     endpointPath: string | null,
+    eventMetadata?: Record<string, unknown>,
   ): Promise<GuardResponse | null> {
     const rateLimitHandler = this.middleware.rateLimitHandler as RateLimitManager;
     const response = await rateLimitHandler.checkRateLimit(
@@ -117,7 +120,7 @@ export class RateLimitCheck extends SecurityCheck {
 
     if (eventType !== '') {
       await this.sendEvent(eventType, request,
-        this.config.passiveMode ? 'logged_only' : 'request_blocked', eventReason);
+        this.config.passiveMode ? 'logged_only' : 'request_blocked', eventReason, eventMetadata);
     }
 
     if (this.isPassiveMode()) return null;
@@ -166,6 +169,7 @@ export class RateLimitCheck extends SecurityCheck {
         'decorator_violation',
         `Session rate limit exceeded for header '${headerName}': ${limit} requests per ${window}s per session`,
         sessionEndpoint,
+        { decoratorType: 'rate_limiting', violationType: 'session_rate_limit', rateLimit: limit, window },
       );
       if (sessionResponse !== null) return sessionResponse;
     }
@@ -207,6 +211,7 @@ export class RateLimitCheck extends SecurityCheck {
       'decorator_violation',
       `Geo rate limit exceeded for ${country ?? 'unknown'}: ${limit} requests per ${window}s`,
       request.urlPath,
+      { decoratorType: 'geo_rate_limiting', violationType: 'geo_rate_limit', rateLimit: limit, window },
     );
   }
 }

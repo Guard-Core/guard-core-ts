@@ -49,8 +49,8 @@ export class CloudProviderCheck extends SecurityCheck {
     return this.createErrorResponse(403, 'Cloud provider IP not allowed');
   }
 
-  /* Reference _emit_cloud_block_events: the middleware-level cloud_blocked
-     event always fires; the decorator_violation event fires only when the
+  /* Reference _emit_cloud_block_events: the direct cloud_blocked event rides
+     the cloud handler; the decorator_violation event fires only when the
      per-route blockCloudProviders selector (not the global list) triggered
      the block. */
   private async emitCloudBlockEvents(
@@ -64,20 +64,17 @@ export class CloudProviderCheck extends SecurityCheck {
         request: GuardRequest,
         clientIp: string,
         providers: string[],
+        routeConfig: { blockCloudProviders: Set<string> } | null,
+        cloudHandler: {
+          agentHandler: unknown;
+          getCloudProviderDetails(ip: string, providers: Set<string>): [string, string] | null;
+          sendCloudDetectionEvent(ip: string, provider: string, network: string, actionTaken?: string): Promise<void>;
+        } | null,
         passiveMode: boolean,
       ): Promise<void>;
     };
-    await eventBus.sendCloudDetectionEvents(request, clientIp, providers, this.config.passiveMode);
-
-    if (!routeConfig || routeConfig.blockCloudProviders.size === 0) return;
-
-    await this.sendEvent('decorator_violation', request,
-      this.isPassiveMode() ? 'logged_only' : 'request_blocked',
-      `Cloud provider IP ${clientIp} blocked`,
-      {
-        decoratorType: 'block_clouds',
-        violationType: 'cloud_provider',
-        blockedProviders: providers,
-      });
+    await eventBus.sendCloudDetectionEvents(
+      request, clientIp, providers, routeConfig, this.cloudHandler, this.config.passiveMode,
+    );
   }
 }

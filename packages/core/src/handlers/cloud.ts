@@ -13,7 +13,9 @@ export class CloudHandler {
   private ipRanges = new Map<string, string[]>();
   private lastUpdated = new Map<string, Date | null>();
   private redisHandler: RedisManager | null = null;
-  private agentHandler: AgentHandlerProtocol | null = null;
+  /* Public like the reference CloudManager.agent_handler: the event bus
+     checks it before dispatching the direct cloud_blocked event. */
+  agentHandler: AgentHandlerProtocol | null = null;
 
   constructor(private readonly logger: Logger) {}
 
@@ -133,6 +135,32 @@ export class CloudHandler {
     } catch { /* invalid IP */ }
     /* v8 ignore stop */
     return null;
+  }
+
+  /* The twin of send_cloud_detection_event (guard_core/handlers/
+     cloud_handler.py): the direct EVENT_CLOUD_BLOCKED SecurityEvent with the
+     cloud handler name and the provider/network metadata. */
+  async sendCloudDetectionEvent(
+    ip: string,
+    provider: string,
+    network: string,
+    actionTaken = 'request_blocked',
+  ): Promise<void> {
+    if (!this.agentHandler) return;
+
+    try {
+      await this.agentHandler.sendEvent({
+        timestamp: new Date(),
+        eventType: 'cloud_blocked',
+        ipAddress: ip,
+        actionTaken,
+        reason: `IP belongs to blocked cloud provider: ${provider}`,
+        handlerName: 'cloud',
+        metadata: { cloudProvider: provider, network },
+      });
+    } catch {
+      /* never throw from event dispatch */
+    }
   }
 
   async reset(): Promise<void> {

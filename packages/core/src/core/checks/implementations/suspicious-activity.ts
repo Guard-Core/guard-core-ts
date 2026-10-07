@@ -80,7 +80,7 @@ export class SuspiciousActivityCheck extends SecurityCheck {
         true, triggerInfo, this.config.logSuspiciousLevel, this.blockHooks());
       await this.sendEvent('penetration_attempt', request, 'logged_only',
         `Suspicious pattern detected (passive mode): ${triggerInfo}`,
-        { triggerInfo, requestCount });
+        { triggerInfo, requestCount, passiveMode: true });
       return null;
     }
 

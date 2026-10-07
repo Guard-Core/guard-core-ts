@@ -135,7 +135,7 @@ export async function initializeSecurityMiddleware(
     new CloudIpRefreshCheck(middlewareProtocol),
     new IpSecurityCheck(middlewareProtocol, registry.ipBanHandler),
     new CloudProviderCheck(middlewareProtocol, registry.cloudHandler),
-    new UserAgentCheck(middlewareProtocol),
+    new UserAgentCheck(middlewareProtocol, registry.ipBanHandler),
     new RateLimitCheck(middlewareProtocol, registry.ipBanHandler),
     new SuspiciousActivityCheck(middlewareProtocol, registry.susPatternsHandler, registry.ipBanHandler),
     new CustomRequestCheck(middlewareProtocol),

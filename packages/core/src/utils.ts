@@ -127,6 +127,10 @@ export function sanitizeForLog(value: string): string {
   return out;
 }
 
+/* Reference _IP_EXTRACTION_HANDLER_NAME (agent_events.py): the shared
+   send_agent_event helper carries the ip_extraction handler name. */
+const AGENT_EVENT_HANDLER_NAME = 'ip_extraction';
+
 export async function sendAgentEvent(
   agentHandler: AgentHandlerProtocol | null,
   eventType: string,
@@ -149,6 +153,7 @@ export async function sendAgentEvent(
       endpoint: request?.urlPath ?? null,
       method: request?.method ?? null,
       userAgent: request?.headers['user-agent'] ?? null,
+      handlerName: AGENT_EVENT_HANDLER_NAME,
       metadata: metadata ?? {},
     });
   } catch {
@@ -202,10 +207,18 @@ export async function extractClientIp(
 
   const forwardedFor = request.headers['x-forwarded-for'] ?? null;
 
-  if (forwardedFor && config.trustedProxies.length === 0) {
+  /* Reference _handle_untrusted_proxy (ip_extraction.py): an X-Forwarded-For
+     header from a source that is not a trusted proxy (including when no
+     proxies are configured) never resolves to the forwarded value, and the
+     preempted header reports EVENT_SUSPICIOUS_REQUEST through the direct
+     send_agent_event path (the ip_extraction handler contract). */
+  if (
+    forwardedFor &&
+    !(config.trustedProxies.length > 0 && isTrustedProxy(connectingIp, config.trustedProxies))
+  ) {
     await sendAgentEvent(
       agentHandler ?? null, 'suspicious_request', connectingIp,
-      'spoofing_detected', 'X-Forwarded-For received from untrusted source',
+      'spoofing_detected', `Potential IP spoof attempt: X-Forwarded-For header ${forwardedFor}`,
       request,
     );
     return connectingIp;
