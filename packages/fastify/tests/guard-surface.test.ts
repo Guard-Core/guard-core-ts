@@ -1,6 +1,20 @@
 import { describe, it, expect } from 'vitest';
 import fastify from 'fastify';
 import { guardPlugin, type GuardSurface } from '../src/index.js';
+import type { AgentHandlerProtocol } from '@guardcore/core';
+
+const stubAgent = {
+  async sendEvent() {},
+  async sendMetric() {},
+  async start() {},
+  async stop() {},
+  async flushBuffer() {},
+  async getDynamicRules() { return null; },
+  async healthCheck() { return true; },
+  async initializeRedis() {},
+  getStats() { return { events: 5 }; },
+} as unknown as AgentHandlerProtocol;
+
 
 /* B4/B5/B6/B9/B16: the adapter guard surface, decorated as fastify.guard. */
 
@@ -29,6 +43,15 @@ describe('guard surface (fastify)', () => {
     await expect(guard.refreshCloudIpRanges()).resolves.toBeUndefined();
     const errorResponse = await guard.createErrorResponse(403, 'Forbidden');
     expect(errorResponse.statusCode).toBe(403);
+
+    // An injected agent flips the enabled arm with its own stats.
+    const agentApp = fastify();
+    await agentApp.register(guardPlugin, {
+      config: { enableRedis: false, enableAgent: true, agentApiKey: 'test-api-key-123' },
+      agentHandler: stubAgent,
+    });
+    const agentGuard = (agentApp as unknown as { guard: GuardSurface }).guard;
+    expect(agentGuard.agentStats).toMatchObject({ enabled: true, degraded: false, events: 5 });
 
     const res = await app.inject({ method: 'GET', url: '/_guard/status' });
     expect(res.statusCode).toBe(200);

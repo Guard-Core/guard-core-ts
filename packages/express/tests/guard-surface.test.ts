@@ -5,6 +5,20 @@ import {
   addStatusRoute,
   type GuardMiddlewareSurface,
 } from '../src/index.js';
+import type { AgentHandlerProtocol } from '@guardcore/core';
+
+const stubAgent = {
+  async sendEvent() {},
+  async sendMetric() {},
+  async start() {},
+  async stop() {},
+  async flushBuffer() {},
+  async getDynamicRules() { return null; },
+  async healthCheck() { return true; },
+  async initializeRedis() {},
+  getStats() { return { events: 5 }; },
+} as unknown as AgentHandlerProtocol;
+
 
 /* B4/B5/B6/B9/B16: the adapter guard surface. The middleware function
    carries reset(), mark_initialized / get_initialization_status, the public
@@ -52,6 +66,12 @@ describe('guard middleware surface (express)', () => {
     const guard = createSecurityMiddleware({ config }) as ReturnType<typeof createSecurityMiddleware> & GuardMiddlewareSurface;
     await expect(guard.reset()).resolves.toBeUndefined();
     await expect(guard.refreshCloudIpRanges()).resolves.toBeUndefined();
+  });
+
+  it('reports agentStats with the handler stats when an agent rides the options', async () => {
+    const guard = createSecurityMiddleware({ config, agentHandler: stubAgent }) as ReturnType<typeof createSecurityMiddleware> & GuardMiddlewareSurface;
+    await guard.refreshCloudIpRanges();
+    expect(guard.agentStats).toMatchObject({ enabled: true, degraded: false, events: 5 });
   });
 
   it('createErrorResponse builds the family error contract', async () => {

@@ -91,3 +91,18 @@ describe('hono decorator route config wiring (W3)', () => {
     expect(resolveHonoEndpointId(ctx)).toBeNull();
   });
 });
+
+describe('resolveHonoEndpointId arm completion (node-version-stable coverage)', () => {
+  it('skips unnamed handlers and answers null when no handler has a name', async () => {
+    const { resolveHonoEndpointId } = await import('../src/route-id.js');
+    // An inference-named function still carries 'handler'; strip the name so
+    // the loop's skip arm runs.
+    const unnamed = Object.defineProperty(function () {}, 'name', { value: '' });
+    const ctx = {
+      req: { matchedRoutes: [{ handler: unnamed }] },
+    } as never;
+    // The single matched handler has no name: the loop falls through to the
+    // null answer.
+    expect(resolveHonoEndpointId(ctx)).toBeNull();
+  });
+});
