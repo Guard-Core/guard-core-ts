@@ -377,9 +377,10 @@ export async function isIpAllowed(
 }
 
 /**
- * Scan budgets mirroring the reference defaults (_DEFAULT_MAX_SCAN_VALUES,
- * _DEFAULT_MAX_SCAN_CHARS, _DEFAULT_MAX_JSON_DEPTH in
- * guard_core/_utils/detection_scan.py + detection_config.py).
+ * Scan budgets: the config-tunable surface mirrors the reference
+ * detection_max_scan_values / detection_max_scan_chars / detection_max_json_depth
+ * (guard_core/_utils/detection_scan.py + detection_config.py); the constants
+ * are the schema defaults.
  */
 const MAX_SCAN_VALUES = 512;
 const MAX_SCAN_CHARS = 65536;

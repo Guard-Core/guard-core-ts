@@ -188,6 +188,12 @@ export function createSecurityMiddleware(options: SecurityMiddlewareOptions) {
     return components.errorResponseFactory.createErrorResponse(statusCode, message);
   };
 
+  /* The reference lazy_init=false: bootstrap the engine at creation instead
+     of on first request. */
+  if (!resolved.lazyInit) {
+    void initialize();
+  }
+
   return middleware;
 }
 

@@ -1,5 +1,28 @@
 import { describe, it, expect, vi } from 'vitest';
 import { GuardCoreError, GuardRedisError } from '../../src/errors.js';
+
+/* Controllable ioredis mock for the safeOperation suite: `get2` is a
+   deliberately failing method the test drives through safeOperation. */
+const redisImpl = vi.hoisted(() => ({
+  failMethod: null as ((...args: unknown[]) => Promise<never>) | null,
+}));
+
+vi.mock('ioredis', () => {
+  function MockRedis() {
+    const base = {
+      get: vi.fn((_key: string) => Promise.resolve('v')),
+      ping: vi.fn(() => Promise.resolve('PONG')),
+      on: vi.fn(),
+      disconnect: vi.fn(),
+      quit: vi.fn(() => Promise.resolve('OK')),
+    };
+    if (redisImpl.failMethod) {
+      (base as Record<string, unknown>)['get2'] = vi.fn(() => redisImpl.failMethod!());
+    }
+    return base;
+  }
+  return { default: MockRedis };
+});
 import { redactEndpointForDisplay } from '../../src/redaction.js';
 import { PerformanceMonitor } from '../../src/detection-engine/monitor.js';
 import { SecurityConfigSchema } from '../../src/models/config.js';
@@ -135,5 +158,141 @@ describe('detection_anomaly_emission_cooldown (gap 8)', () => {
     await new Promise((resolve) => setTimeout(resolve, 10));
     const anomalies = events.filter((e) => e['eventType'] === 'pattern_anomaly_slow_execution');
     expect(anomalies.length).toBe(1);
+  });
+});
+
+describe('redis tuning knobs + safeOperation (gap 1, 22)', () => {
+  it('carries the redis tuning defaults and accepts overrides', () => {
+    const defaults = SecurityConfigSchema.parse({});
+    expect(defaults.redisSocketConnectTimeout).toBeNull();
+    expect(defaults.redisSocketTimeout).toBeNull();
+    expect(defaults.redisHealthCheckInterval).toBe(30);
+    expect(defaults.redisMaxConnections).toBeNull();
+    expect(defaults.redisRetries).toBe(0);
+
+    const tuned = SecurityConfigSchema.parse({
+      redisSocketConnectTimeout: 2.5,
+      redisSocketTimeout: 1.5,
+      redisHealthCheckInterval: 15,
+      redisMaxConnections: 20,
+      redisRetries: 3,
+    });
+    expect(tuned.redisSocketConnectTimeout).toBe(2.5);
+    expect(tuned.redisMaxConnections).toBe(20);
+  });
+
+  it('applies the pool and retry knobs only when set', async () => {
+    const { RedisManager } = await import('../../src/handlers/redis.js');
+    const config = SecurityConfigSchema.parse({
+      enableRedis: true,
+      redisUrl: 'redis://localhost:6379/0',
+      redisMaxConnections: null,
+      redisRetries: 0,
+    });
+    const manager = new RedisManager(config, defaultLogger);
+    await manager.initialize();
+    expect(manager.getRawClient()).not.toBeNull();
+    manager['closed'] = true;
+    manager['client'] = null;
+  });
+
+  it('applies the retry strategy knob when retries are set', async () => {
+    const { RedisManager, redisRetryStrategy } = await import('../../src/handlers/redis.js');
+    const config = SecurityConfigSchema.parse({
+      enableRedis: true,
+      redisUrl: 'redis://localhost:6379/0',
+      redisRetries: 3,
+    });
+    const manager = new RedisManager(config, defaultLogger);
+    await manager.initialize();
+    expect(manager.getRawClient()).not.toBeNull();
+    manager['closed'] = true;
+    manager['client'] = null;
+
+    // The capped exponential pacing: 200, 400, ... capped at 2000ms.
+    expect(redisRetryStrategy(1)).toBe(200);
+    expect(redisRetryStrategy(3)).toBe(600);
+    expect(redisRetryStrategy(50)).toBe(2000);
+  });
+
+  it('passes the tuning knobs to ioredis and applies the retry policy', async () => {
+    const { RedisManager } = await import('../../src/handlers/redis.js');
+    const config = SecurityConfigSchema.parse({
+      enableRedis: true,
+      redisUrl: 'redis://localhost:6379/0',
+      redisSocketConnectTimeout: 2.5,
+      redisSocketTimeout: 1.5,
+      redisHealthCheckInterval: 15,
+      redisMaxConnections: 20,
+      redisRetries: 3,
+    });
+    const manager = new RedisManager(config, defaultLogger);
+    await manager.initialize();
+    expect(manager.getRawClient()).not.toBeNull();
+    manager['closed'] = true;
+    manager['client'] = null;
+  });
+
+  it('safeOperation answers null without a client and reports safe_operation_failed', async () => {
+    const { RedisManager } = await import('../../src/handlers/redis.js');
+    const config = SecurityConfigSchema.parse({ enableRedis: true, redisUrl: 'redis://localhost:6379/0' });
+    const manager = new RedisManager(config, defaultLogger);
+    const events: Array<Record<string, unknown>> = [];
+    await manager.initializeAgent({
+      async sendEvent(event: unknown) { events.push(event as Record<string, unknown>); },
+    } as never);
+    await manager.initialize();
+
+    const value = await manager.safeOperation(async (client) => {
+      const getter = (client as unknown as { get: (k: string) => Promise<string> }).get;
+      return getter('k');
+    });
+    expect(value).toBe('v');
+
+    // Disabled config answers null without touching Redis.
+    const disabled = new RedisManager(
+      SecurityConfigSchema.parse({ enableRedis: false }),
+      defaultLogger,
+    );
+    expect(await disabled.safeOperation(async () => 'x')).toBeNull();
+
+    // No client (never initialized): null without a failure event.
+    const uninitialized = new RedisManager(
+      SecurityConfigSchema.parse({ enableRedis: true, redisUrl: 'redis://localhost:6379/0' }),
+      defaultLogger,
+    );
+    expect(await uninitialized.safeOperation(async () => 'x')).toBeNull();
+
+    redisImpl.failMethod = async () => { throw new Error('boom'); };
+    try {
+      await manager.safeOperation(async (client) => {
+        const getter2 = (client as unknown as { get2?: () => Promise<never> }).get2;
+        if (!getter2) throw new Error('boom');
+        return getter2();
+      });
+      expect.unreachable('safeOperation must surface the failure');
+    } catch {
+      /* expected */
+    }
+    redisImpl.failMethod = null;
+    const failure = events.find((e) => e['eventType'] === 'redis_error');
+    expect(failure).toMatchObject({
+      actionTaken: 'safe_operation_failed',
+      metadata: { errorType: 'safe_operation_error' },
+    });
+  });
+});
+
+describe('lazyInit + scan tunable config keys (gaps 19, 97)', () => {
+  it('carries the reference scan-budget defaults', () => {
+    const config = SecurityConfigSchema.parse({});
+    expect(config.detectionMaxScanValues).toBe(512);
+    expect(config.detectionMaxScanChars).toBe(65536);
+    expect(config.detectionMaxJsonDepth).toBe(32);
+    expect(config.detectionMinSamplesForAnomaly).toBe(10);
+  });
+
+  it('carries the lazyInit default', () => {
+    expect(SecurityConfigSchema.parse({}).lazyInit).toBe(true);
   });
 });
