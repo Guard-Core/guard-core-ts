@@ -5,6 +5,7 @@ export { DynamicRuleManager } from './dynamic-rules.js';
 export { IPInfoManager } from './geoip.js';
 export { IPBanManager } from './ip-ban.js';
 export { RateLimitManager } from './rate-limit.js';
+export { checkRateLimitByIp } from './rate-limit-by-ip.js';
 export { RedisManager } from './redis.js';
 export { SecurityHeadersManager } from './security-headers.js';
 export { SusPatternsManager } from './sus-patterns.js';
