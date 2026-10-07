@@ -67,5 +67,22 @@ describe('guard surface (nestjs)', () => {
     }).components.middlewareProtocol.agentHandler;
     telemetry!.getStats = () => ({ events: 5 });
     expect(middleware.agentStats).toMatchObject({ enabled: true, degraded: false, events: 5 });
+
+    // A handler without getStats coalesces to the empty stats bag.
+    const bareMiddleware = await buildMiddleware(true, { ...stubAgent, getStats: undefined } as unknown as AgentHandlerProtocol);
+    expect(bareMiddleware.agentStats).toEqual({ enabled: true, degraded: false });
+  });
+
+  it('degrades the agent answer when the bridge flagged a failure', async () => {
+    const middleware = await buildMiddleware(true, stubAgent);
+    const bridge = (middleware as unknown as {
+      components: { agentDegraded: boolean; agentEnabled: boolean };
+      agentDegraded: boolean;
+    });
+    // Simulate a resolvedAgent degradation stamped by the forRoot factory.
+    const components = bridge.components as unknown as { agentDegraded: boolean };
+    components.agentDegraded = true;
+    expect(middleware.agentStats).toMatchObject({ degraded: true });
+    expect(middleware.getInitializationStatus().agent).toMatchObject({ degraded: true });
   });
 });
