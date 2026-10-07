@@ -63,11 +63,15 @@ export async function initializeSecurityMiddleware(
   );
   const registry = await initializer.initialize();
 
+  /* The telemetry seam (reference build_event_bus / build_metrics_collector):
+     every consumer holds the composite (agent + OTEL/Logfire sinks behind
+     the muting filter and enrichment tier), not the raw agent. */
+  const telemetry = registry.telemetryHandler;
   const eventBus = new SecurityEventBus(
-    agentHandler ?? null, config, logger, registry.geoIpHandler,
+    telemetry, config, logger, registry.geoIpHandler,
   );
   const metricsCollector = new MetricsCollector(
-    agentHandler ?? null, config, logger,
+    telemetry, config, logger,
   );
   const validator = new RequestValidator(config, logger, eventBus);
   const routeResolver = new RouteConfigResolver(config);
@@ -75,7 +79,7 @@ export async function initializeSecurityMiddleware(
 
   const errorResponseFactory = new ErrorResponseFactory(
     config, logger, metricsCollector, guardResponseFactory,
-    registry.securityHeadersHandler, agentHandler ?? null,
+    registry.securityHeadersHandler, telemetry,
   );
   const bypassHandler = new BypassHandler(
     config, eventBus, routeResolver, errorResponseFactory, validator,
@@ -89,7 +93,7 @@ export async function initializeSecurityMiddleware(
   /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
   if (registry.redisHandler) await behaviorTracker.initializeRedis(registry.redisHandler);
   /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
-  if (agentHandler) await behaviorTracker.initializeAgent(agentHandler);
+  if (telemetry) await behaviorTracker.initializeAgent(telemetry);
   behavioralProcessor.setDefaultTracker(behaviorTracker);
   errorResponseFactory.setBehavioralProcessor(behavioralProcessor);
   behavioralProcessor.setSuspiciousCountsReader(() => middlewareProtocol.suspiciousRequestCounts);
@@ -108,7 +112,7 @@ export async function initializeSecurityMiddleware(
     get routeResolver() { return routeResolver; },
     get responseFactory() { return errorResponseFactory; },
     get rateLimitHandler() { return registry.rateLimitHandler; },
-    get agentHandler() { return agentHandler ?? null; },
+    get agentHandler() { return telemetry; },
     get geoIpHandler() { return registry.geoIpHandler ?? null; },
     get guardResponseFactory() { return guardResponseFactory; },
     async createErrorResponse(statusCode: number, message: string) {

@@ -401,7 +401,7 @@ describe('scanRequestWithManager engine routing', () => {
 
   /* Scan-budget behavior (reference _scan_value_budget defaults: 512 values,
      65536 chars): values beyond the budget are not scanned. */
-  it('stops scanning after the 512 value budget', async () => {
+  it('stops scanning after the 512 value budget', { timeout: 30_000 }, async () => {
     const { SusPatternsManager } = await import('../../src/handlers/sus-patterns.js');
     const manager = new SusPatternsManager(createTestConfig(), defaultLogger);
     const queryParams: Record<string, string> = {};

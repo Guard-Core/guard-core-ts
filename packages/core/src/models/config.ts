@@ -277,6 +277,21 @@ export const SecurityConfigSchema = z.object({
   enableEnrichment: z.boolean().default(false),
   otelServiceName: z.string().default('guard-core'),
   otelResourceAttributes: z.record(z.string(), z.string()).default({}),
+  /* The reference telemetry sink switches (enable_otel / enable_logfire,
+     _security_config_fields.py 1008-1040): the OTEL exporter endpoint the
+     application mirrors into its SDK setup, and the Logfire service name.
+     The handlers stay dependency-free: the SDK/logfire client injection is
+     the app's seam, exactly like the reference's [otel]/[logfire] extras. */
+  enableOtel: z.boolean().default(false),
+  otelExporterEndpoint: z.string().url().nullable().default(null),
+  enableLogfire: z.boolean().default(false),
+  logfireServiceName: z.string().default('guard-core'),
+  /* The reference muting surfaces: muted_event_types / muted_metric_types
+     drop matching envelopes at the telemetry seam, muted_check_logs gates a
+     check's on_block dispatch by check name. */
+  mutedEventTypes: z.array(z.string()).default([]),
+  mutedMetricTypes: z.array(z.string()).default([]),
+  mutedCheckLogs: z.array(z.string()).default([]),
 
   /* Failure-policy knobs, the TS port of the reference's fail_secure,
      redis_fail_open and route_resolution_strict (guard_core/_security_config_fields.py).
