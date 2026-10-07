@@ -12,6 +12,7 @@ import type {
   PathRouteConfigEntry,
 } from '@guardcore/core';
 import { SecurityConfigSchema, resolveConfiguredLogger, initializeSecurityMiddleware } from '@guardcore/core';
+import { resolveAgentHandler } from './agent.js';
 import { NestGuardRequest, NestResponseFactory } from './adapters.js';
 
 export const GUARD_MIDDLEWARE_TOKEN = Symbol('GUARD_MIDDLEWARE_COMPONENTS');
@@ -96,9 +97,14 @@ export class GuardModule {
                builds the logger. */
             const logger: Logger = await resolveConfiguredLogger(resolved);
             const responseFactory = new NestResponseFactory();
+            /* Agent enablement bridge (fastapi-guard initialize block):
+               with enableAgent and no injected handler the GuardAgent builds
+               from the config's agent_* surface, degrading (or raising under
+               agentStrict) on failure. */
+            const { agentHandler } = await resolveAgentHandler(resolved, options.agentHandler, logger);
             const components = await initializeSecurityMiddleware(
               resolved, logger, responseFactory,
-              options.agentHandler, options.geoIpHandler, options.guardDecorator,
+              agentHandler, options.geoIpHandler, options.guardDecorator,
             );
             if (options.routeConfigs) {
               components.routeResolver.registerPathRouteConfigs(options.routeConfigs);

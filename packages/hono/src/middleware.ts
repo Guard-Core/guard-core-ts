@@ -12,6 +12,7 @@ import type {
   PathRouteConfigEntry,
 } from '@guardcore/core';
 import { SecurityConfigSchema, resolveConfiguredLogger, initializeSecurityMiddleware } from '@guardcore/core';
+import { resolveAgentHandler } from './agent.js';
 import { HonoGuardRequest, HonoResponseFactory } from './adapters.js';
 import { resolveHonoRouteId, resolveHonoEndpointId } from './route-id.js';
 
@@ -49,9 +50,14 @@ export function createGuardMiddleware(options: GuardMiddlewareOptions): Middlewa
       /* D5: logFormat / customLogFile are live - an injected config.logger
          wins, otherwise a json format or custom log file builds the logger. */
       logger = await resolveConfiguredLogger(resolved);
+      /* Agent enablement bridge (fastapi-guard initialize block): with
+         enableAgent and no injected handler the GuardAgent builds from the
+         config's agent_* surface, degrading (or raising under agentStrict)
+         on failure. */
+      const { agentHandler } = await resolveAgentHandler(resolved, options.agentHandler, logger);
       const initializedComponents = await initializeSecurityMiddleware(
         resolved, logger, responseFactory,
-        options.agentHandler, options.geoIpHandler, options.guardDecorator,
+        agentHandler, options.geoIpHandler, options.guardDecorator,
       );
       components = initializedComponents;
       if (options.routeConfigs) {

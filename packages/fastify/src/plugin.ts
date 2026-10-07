@@ -12,6 +12,7 @@ import type {
 } from '@guardcore/core';
 import { RouteConfig as RouteConfigClass } from '@guardcore/core';
 import { SecurityConfigSchema, resolveConfiguredLogger, initializeSecurityMiddleware } from '@guardcore/core';
+import { resolveAgentHandler } from './agent.js';
 import fp from 'fastify-plugin';
 import { FastifyGuardRequest, FastifyResponseFactory } from './adapters.js';
 
@@ -58,9 +59,14 @@ export const guardPlugin = fp(async function guardPlugin(fastify: FastifyInstanc
   const logger: Logger = await resolveConfiguredLogger(resolved);
   const responseFactory = new FastifyResponseFactory();
 
+  /* Agent enablement bridge (fastapi-guard initialize block): with
+     enableAgent and no injected handler the GuardAgent builds from the
+     config's agent_* surface, degrading (or raising under agentStrict) on
+     failure. */
+  const { agentHandler } = await resolveAgentHandler(resolved, options.agentHandler, logger);
   const components: SecurityMiddlewareComponents = await initializeSecurityMiddleware(
     resolved, logger, responseFactory,
-    options.agentHandler, options.geoIpHandler, options.guardDecorator,
+    agentHandler, options.geoIpHandler, options.guardDecorator,
   );
 
   if (options.routeConfigs) {

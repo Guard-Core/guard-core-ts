@@ -2,6 +2,8 @@ export { BehaviorRule } from './behavior-rule.js';
 export type { BehaviorAction, BehaviorRuleType } from './behavior-rule.js';
 export { SecurityConfigSchema } from './config.js';
 export type { ResolvedSecurityConfig, SecurityConfig, ThreatBanEntry } from './config.js';
+export { toAgentConfig } from './agent-config.js';
+export type { SecurityAgentConfigInput, SecurityBufferOverflowPolicy, SecurityErrorHook, ToAgentConfigOptions } from './agent-config.js';
 export { DynamicRulesSchema } from './dynamic-rules.js';
 export type { DynamicRules } from './dynamic-rules.js';
 export { defaultLogger } from './logger.js';

@@ -13,6 +13,7 @@ import type {
 import { SecurityConfigSchema, resolveConfiguredLogger, initializeSecurityMiddleware } from '@guardcore/core';
 import { ExpressGuardRequest, ExpressResponseFactory, sendGuardResponse } from './adapters.js';
 import { resolveExpressRouteId, resolveExpressEndpointId } from './route-id.js';
+import { resolveAgentHandler } from './agent.js';
 
 export interface SecurityMiddlewareOptions {
   config: SecurityConfig;
@@ -44,9 +45,14 @@ export function createSecurityMiddleware(options: SecurityMiddlewareOptions) {
       /* D5: logFormat / customLogFile are live - an injected config.logger
          wins, otherwise a json format or custom log file builds the logger. */
       logger = await resolveConfiguredLogger(resolved);
+      /* Agent enablement bridge (fastapi-guard initialize block): with
+         enableAgent and no injected handler the GuardAgent builds from the
+         config's agent_* surface, degrading (or raising under agentStrict)
+         on failure. */
+      const { agentHandler } = await resolveAgentHandler(resolved, options.agentHandler, logger);
       const initializedComponents = await initializeSecurityMiddleware(
         resolved, logger, responseFactory,
-        options.agentHandler, options.geoIpHandler, options.guardDecorator,
+        agentHandler, options.geoIpHandler, options.guardDecorator,
       );
       components = initializedComponents;
       if (options.routeConfigs) {

@@ -230,7 +230,10 @@ export const SecurityConfigSchema = z.object({
 
   enableAgent: z.boolean().default(false),
   agentApiKey: z.string().nullable().default(null),
-  agentEndpoint: z.string().url().default('https://api.fastapi-guard.com'),
+  /* Reference default https://api.guard-core.com (_security_config_fields.py
+     agent_endpoint); the agent's own endpoint normalization still applies on
+     top (strip trailing slashes, legacy /api/v1 suffix). */
+  agentEndpoint: z.string().url().default('https://api.guard-core.com'),
   agentProjectId: z.string().nullable().default(null),
   agentBufferSize: z.number().int().positive().default(100),
   agentFlushInterval: z.number().int().positive().default(30),
@@ -238,9 +241,29 @@ export const SecurityConfigSchema = z.object({
   agentEnableMetrics: z.boolean().default(true),
   agentTimeout: z.number().int().positive().default(30),
   agentRetryAttempts: z.number().int().nonnegative().default(3),
+  /* Fail-closed switch (reference agent_strict, consumed by the framework
+     adapters): an enabled agent that cannot be constructed raises at
+     middleware init instead of degrading to agent-off. */
+  agentStrict: z.boolean().default(false),
+  /* The agent tuning surface (reference agent_project_encryption_key through
+     agent_payload_signing_secret): null defers to the agent's own default,
+     exactly like the reference's None-filtered to_agent_config kwargs. */
+  agentProjectEncryptionKey: z.string().nullable().default(null),
+  agentGuardVersion: z.string().nullable().default(null),
+  agentHighWatermarkRatio: z.number().gt(0).max(1).nullable().default(null),
+  agentMaxConcurrentFlushes: z.number().int().min(1).nullable().default(null),
+  agentBufferOverflowPolicy: z.enum(['drop', 'block', 'raise']).nullable().default(null),
+  agentBackoffFactor: z.number().positive().nullable().default(null),
+  agentSensitiveHeaders: z.array(z.string()).nullable().default(null),
+  agentMaxPayloadSize: z.number().int().positive().nullable().default(null),
+  agentCompressionEnabled: z.boolean().nullable().default(null),
+  agentCompressionThreshold: z.number().int().nonnegative().nullable().default(null),
+  agentInstallId: z.string().nullable().default(null),
+  agentPayloadSigningSecret: z.string().nullable().default(null),
+  agentStatusInterval: z.number().int().min(60).max(86400).default(300),
 
   enableDynamicRules: z.boolean().default(false),
-  dynamicRuleInterval: z.number().int().positive().default(300),
+  dynamicRuleInterval: z.number().int().min(60).default(300),
 
   /* Enrichment surface (enricher.py + event_types.py ENRICHMENT_KEY_*):
      enableEnrichment stamps the guard.* keys (project identity, threat

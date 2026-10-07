@@ -177,6 +177,9 @@ importers:
       express:
         specifier: ^4 || ^5
         version: 5.2.1
+      guardagent:
+        specifier: ^3.2.1
+        version: 3.2.1(ioredis@5.10.1)
     devDependencies:
       '@types/express':
         specifier: ^5
@@ -205,6 +208,9 @@ importers:
       fastify-plugin:
         specifier: ^6.0.0
         version: 6.0.0
+      guardagent:
+        specifier: ^3.2.1
+        version: 3.2.1(ioredis@5.10.1)
     devDependencies:
       '@fastify/cors':
         specifier: ^11.0.0
@@ -233,6 +239,9 @@ importers:
       '@guardcore/core':
         specifier: workspace:^
         version: link:../core
+      guardagent:
+        specifier: ^3.2.1
+        version: 3.2.1(ioredis@5.10.1)
     devDependencies:
       '@vitest/coverage-v8':
         specifier: ^5.0.2
@@ -255,6 +264,9 @@ importers:
       '@guardcore/core':
         specifier: workspace:^
         version: link:../core
+      guardagent:
+        specifier: ^3.2.1
+        version: 3.2.1(ioredis@5.10.1)
     devDependencies:
       '@nestjs/common':
         specifier: ^12
@@ -1515,6 +1527,15 @@ packages:
   gopd@1.2.0:
     resolution: {integrity: sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==}
     engines: {node: '>= 0.4'}
+
+  guardagent@3.2.1:
+    resolution: {integrity: sha512-KfDWSIRWPi8On0T2Hj9fDsmbtIBO/oEp3Mi48g77lpcsQciYON5seElVfJUzVaacMYkZxPCv5bcVKFW8DKQMNQ==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      ioredis: ^5.0.0
+    peerDependenciesMeta:
+      ioredis:
+        optional: true
 
   has-symbols@1.1.0:
     resolution: {integrity: sha512-1cDNdwJ2Jaohmb3sg4OmKaMBwuC48sYni5HUw2DvsC8LjGTLK9h+eb1X6RyuOHe4hT0ULCW68iomhjUoKUqlPQ==}
@@ -3130,6 +3151,10 @@ snapshots:
       es-object-atoms: 1.1.1
 
   gopd@1.2.0: {}
+
+  guardagent@3.2.1(ioredis@5.10.1):
+    optionalDependencies:
+      ioredis: 5.10.1
 
   has-symbols@1.1.0: {}
 
