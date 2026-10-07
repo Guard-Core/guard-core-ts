@@ -7,4 +7,8 @@ export interface GeoIPHandler {
   initializeRedis(redisHandler: RedisHandlerProtocol): Promise<void>;
   initializeAgent(agentHandler: AgentHandlerProtocol): Promise<void>;
   getCountry(ip: string): string | null;
+  /** The reference refresh: re-download and swap the reader. */
+  refresh(): Promise<void>;
+  /** The reference close: release the reader. */
+  close(): void;
 }

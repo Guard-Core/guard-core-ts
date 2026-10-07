@@ -274,6 +274,14 @@ export const SecurityConfigSchema = z.object({
      otel_service_name (default 'guard-core') and otelResourceAttributes the
      reference otel_resource_attributes (the deployment.environment entry
      feeds the deployment-environment key). */
+  /* The GeoIP manager surface (reference ipinfo_token / ipinfo_db_path /
+     geo_ip_db_max_age): the token authenticates the ipinfo.io download, the
+     path is the local MMDB file and the max age is the mtime freshness gate
+     in seconds (default 86400). */
+  ipinfoToken: z.string().nullable().default(null),
+  ipinfoDbPath: z.string().default('data/ipinfo/country_asn.mmdb'),
+  geoIpDbMaxAge: z.number().int().positive().default(86400),
+
   enableEnrichment: z.boolean().default(false),
   otelServiceName: z.string().default('guard-core'),
   otelResourceAttributes: z.record(z.string(), z.string()).default({}),
