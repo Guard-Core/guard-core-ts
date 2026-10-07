@@ -1,3 +1,5 @@
+import { PatternValidationCache } from './validation-cache.js';
+
 export interface MatchResult {
   [index: number]: string | undefined;
   index: number;
@@ -61,12 +63,18 @@ export class PatternCompiler {
   private cache = new Map<string, RE2Instance | RegExp>();
   private cacheOrder: string[] = [];
   private re2Available: boolean | null = null;
+  /* The optional disk-backed cost-verdict cache (the reference
+     _validation_cache constructor seam): consulted by validatePatternSafety
+     on the default empirical layer, never on caller-supplied probes. */
+  private readonly validationCache: PatternValidationCache | null;
 
   constructor(
     private readonly defaultTimeoutMs = 2000,
     private readonly maxCacheSize = 1000,
+    validationCache: PatternValidationCache | null = null,
   ) {
     this.maxCacheSize = Math.min(maxCacheSize, 5000);
+    this.validationCache = validationCache;
   }
 
   private async ensureRE2(): Promise<boolean> {
@@ -184,7 +192,11 @@ export class PatternCompiler {
   validatePatternSafety(
     pattern: string,
     testStrings?: string[],
+    flags = 'gi',
   ): [boolean, string] {
+    /* The deterministic layers (the reference dangerous-construct + compile
+       checks) are pure syntax analysis and always re-run, cache or no
+       cache. */
     if (pattern.length > MAX_VALIDATED_PATTERN_LENGTH) {
       return [false, `Pattern exceeds maximum validated length of ${MAX_VALIDATED_PATTERN_LENGTH}`];
     }
@@ -195,10 +207,41 @@ export class PatternCompiler {
       }
     }
 
-    const strings = testStrings ?? DEFAULT_TEST_STRINGS;
-
     try {
-      const compiled = this.compileSync(pattern);
+      this.compileSync(pattern, flags);
+    } catch (e) {
+      return [false, `Pattern validation failed: ${String(e)}`];
+    }
+
+    /* Caller-supplied probes run live and bypass the cache (the reference
+       test_strings arm); the default empirical cost verdict consults the
+       disk cache first so a boot reuses prior certifications. */
+    if (testStrings !== undefined) {
+      return this.probeCostVerdict(pattern, flags, testStrings);
+    }
+
+    if (this.validationCache !== null) {
+      const cached = this.validationCache.get(pattern, flags);
+      if (cached !== null) return cached;
+    }
+
+    const verdict = this.probeCostVerdict(pattern, flags, DEFAULT_TEST_STRINGS);
+    if (this.validationCache !== null) {
+      this.validationCache.put(pattern, flags, verdict[0], verdict[1]);
+    }
+    return verdict;
+  }
+
+  /* The empirical cost-verdict layer (the reference probe synthesis + timed
+     probes): the timed exec loop over the probe strings. Kept a private
+     seam so tests can prove the cache short-circuits it. */
+  private probeCostVerdict(
+    pattern: string,
+    flags: string,
+    strings: string[],
+  ): [boolean, string] {
+    try {
+      const compiled = this.compileSync(pattern, flags);
       for (const testStr of strings) {
         if (testStr.length > MAX_PROBE_STRING_LENGTH) {
           return [false, `Probe test string exceeds maximum length of ${MAX_PROBE_STRING_LENGTH}`];
@@ -210,9 +253,14 @@ export class PatternCompiler {
           return [false, `Pattern timed out on test string of length ${testStr.length}`];
         }
       }
+    /* v8 ignore start -- defensive arm: validatePatternSafety gates compile
+       success before the probe, and a compiled RegExp exec answers null
+       rather than throwing, so this catch is measured-unreachable (kept for
+       the reference's probe-failure contract). */
     } catch (e) {
       return [false, `Pattern validation failed: ${String(e)}`];
     }
+    /* v8 ignore stop */
 
     return [true, 'Pattern appears safe'];
   }
