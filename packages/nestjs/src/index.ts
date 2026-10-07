@@ -3,6 +3,7 @@ export type { GuardModuleOptions, GuardSurface } from './guard-module.js';
 export { NestGuardRequest, NestGuardResponse, NestResponseFactory } from './adapters.js';
 export { attachWebSocketGuard, NodeUpgradeGuardRequest } from './websocket.js';
 export { resolveNestRouteId, resolveNestEndpointId } from './route-id.js';
+export { configureCors, buildOriginAllowlist } from './cors.js';
 export type { WebSocketGuardOptions } from './websocket.js';
 
 export {

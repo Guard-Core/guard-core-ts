@@ -31,18 +31,21 @@
     "@nestjs/common": "^12",
     "@nestjs/core": "^12",
     "@types/express": "^5",
+    "@types/cors": "^2",
     "@vitest/coverage-v8": "^5.0.2",
     "express": "^4.21.2",
     "reflect-metadata": "^0.2",
     "rxjs": "^7",
     "tsup": "^8",
     "typescript": "~5.9",
-    "vitest": "^5"
+    "vitest": "^5",
+    "cors": "^2.8.5"
   },
   "peerDependencies": {
     "@nestjs/common": "^12",
     "@nestjs/core": "^12",
-    "reflect-metadata": "^0.1 || ^0.2"
+    "reflect-metadata": "^0.1 || ^0.2",
+    "cors": "^2"
   },
   "license": "MIT",
   "engines": {
@@ -55,5 +58,10 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "peerDependenciesMeta": {
+    "cors": {
+      "optional": true
+    }
   }
 }

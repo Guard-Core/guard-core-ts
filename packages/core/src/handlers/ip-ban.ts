@@ -1,3 +1,5 @@
+import ipaddr from 'ipaddr.js';
+
 import type { Logger } from '../models/logger.js';
 import type { AgentHandlerProtocol } from '../protocols/agent.js';
 import type { RedisManager } from './redis.js';
@@ -6,6 +8,26 @@ interface BanEntry {
   expiresAt: number;
   reason: string;
   bannedAt: number;
+}
+
+/* The twin of _canonicalize_ip (guard_core/_utils/ip_extraction.py): strip
+   brackets, parse, map an IPv4-mapped IPv6 to its IPv4 text, otherwise the
+   normalized compressed text; unparseable input answers unchanged (the
+   legacy key survives migration untouched). */
+export function canonicalizeIp(value: string): string {
+  const stripped = value.startsWith('[') && value.endsWith(']')
+    ? value.slice(1, -1)
+    : value;
+  try {
+    const addr = ipaddr.parse(stripped);
+    if (addr.kind() === 'ipv6') {
+      const v6 = addr as ipaddr.IPv6;
+      if (v6.isIPv4MappedAddress()) return v6.toIPv4Address().toString();
+    }
+    return addr.toString();
+  } catch {
+    return value;
+  }
 }
 
 export class IPBanManager {
@@ -18,6 +40,57 @@ export class IPBanManager {
 
   async initializeRedis(redisHandler: RedisManager): Promise<void> {
     this.redisHandler = redisHandler;
+    await this.migrateLegacyBanKeys(redisHandler);
+  }
+
+  /* The twin of _migrate_legacy_ban_keys
+     (guard_core/handlers/_ipban_migration.py): bans stored under a
+     non-canonical IP key (bracketed IPv6, non-compressed text, an
+     IPv4-mapped form) move to the canonical key with the greater remaining
+     TTL preserved, the legacy key is deleted, and every failure mode is a
+     warning that leaves the store untouched. */
+  private async migrateLegacyBanKeys(redisHandler: RedisManager): Promise<void> {
+    try {
+      const prefix = `${(redisHandler as unknown as { prefix: string }).prefix}banned_ips:`;
+      const client = redisHandler.getRawClient();
+      if (!client) return;
+      const keys = await client.keys(`${prefix}*`);
+      for (const key of keys ?? []) {
+        await this.migrateOneBanKey(client, key as string, prefix);
+      }
+    } catch (e) {
+      this.logger.warn(`Legacy ban-key migration skipped: ${String(e)}`);
+    }
+  }
+
+  /* The twin of _migrate_one_ban_key: a key whose raw IP already is
+     canonical stays; an expired legacy key is deleted; the canonical key
+     keeps the longer of the two TTLs; the legacy key always goes. */
+  private async migrateOneBanKey(
+    client: NonNullable<ReturnType<RedisManager['getRawClient']>>,
+    key: string,
+    prefix: string,
+  ): Promise<void> {
+    const rawIp = key.slice(prefix.length);
+    const canonicalIp = canonicalizeIp(rawIp);
+    if (canonicalIp === rawIp) return;
+
+    const value = await client.get(key);
+    const oldPttl = await (client as unknown as { pttl(k: string): Promise<number> }).pttl(key);
+    if (oldPttl <= 0) {
+      await client.del(key);
+      return;
+    }
+
+    const canonicalKey = `${prefix}${canonicalIp}`;
+    const newPttl = await (client as unknown as { pttl(k: string): Promise<number> }).pttl(canonicalKey);
+    if (newPttl < oldPttl) {
+      await client.set(canonicalKey, value ?? '', 'PX', oldPttl);
+    }
+    await client.del(key);
+    this.logger.info(
+      `Migrated legacy ban key ${rawIp} to canonical ${canonicalIp}`,
+    );
   }
 
   async initializeAgent(agentHandler: AgentHandlerProtocol): Promise<void> {
@@ -35,6 +108,7 @@ export class IPBanManager {
 
     if (this.bannedIps.size >= this.maxSize) {
       const oldestKey = this.bannedIps.keys().next().value;
+      /* v8 ignore next -- oldestKey is undefined only for an empty map, which the size guard excludes */
       if (oldestKey) this.bannedIps.delete(oldestKey);
     }
 

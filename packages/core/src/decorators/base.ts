@@ -14,6 +14,14 @@ type Constructor<T = object> = new (...args: unknown[]) => T;
 const routeIdMap = new WeakMap<Function, string>();
 let routeIdCounter = 0;
 
+/* The revision counters live in a module WeakMap so the private state never
+   appears on the mixin-composed anonymous class types' declaration emit. */
+const revisionCounters = new WeakMap<object, number>();
+
+function bumpRouteConfigRevision(self: object): void {
+  revisionCounters.set(self, (revisionCounters.get(self) ?? 0) + 1);
+}
+
 export class BaseSecurityDecorator {
   routeConfigs = new Map<string, RouteConfig>();
   behaviorTracker: BehaviorTracker;
@@ -21,11 +29,18 @@ export class BaseSecurityDecorator {
   geoIpHandler: unknown = null;
   readonly config: ResolvedSecurityConfig;
   readonly logger: Logger;
-
   constructor(config: ResolvedSecurityConfig, logger?: Logger) {
     this.config = config;
     this.logger = logger ?? defaultLogger;
     this.behaviorTracker = new BehaviorTracker(config, this.logger);
+  }
+
+  /* The twin of the route_config_revision property (the reference
+     RouteConfigRevision + _route_config_revision, decorators/base.py):
+     every route-config mutation seam bumps it, so callers can detect that
+     the config surface changed without diffing the map. */
+  get routeConfigRevision(): number {
+    return revisionCounters.get(this) ?? 0;
   }
 
   getRouteConfig(routeId: string): RouteConfig | undefined {
@@ -38,6 +53,7 @@ export class BaseSecurityDecorator {
       const rc = new RouteConfig();
       rc.enableSuspiciousDetection = this.config.enablePenetrationDetection;
       this.routeConfigs.set(id, rc);
+      bumpRouteConfigRevision(this);
     }
     return this.routeConfigs.get(id)!;
   }
