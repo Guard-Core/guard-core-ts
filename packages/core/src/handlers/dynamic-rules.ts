@@ -6,6 +6,7 @@ import {
   loadLastKnownRulesSnapshot,
 } from '../models/dynamic-rule-snapshot.js';
 import type { Logger } from '../models/logger.js';
+import { randomUUID } from 'node:crypto';
 import type { AgentHandlerProtocol } from '../protocols/agent.js';
 import type { RedisManager } from './redis.js';
 
@@ -29,7 +30,7 @@ export async function writeLastKnownRulesFile(
   const path = await import('node:path');
   const directory = path.dirname(cachePath);
   const name = path.basename(cachePath);
-  const tempPath = path.join(directory, `${name}.${crypto.randomUUID()}.tmp`);
+  const tempPath = path.join(directory, `${name}.${randomUUID()}.tmp`);
   try {
     await fs.writeFile(tempPath, payload, 'utf-8');
     await fs.rename(tempPath, cachePath);
