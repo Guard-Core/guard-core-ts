@@ -44,7 +44,7 @@ an individual is officially representing the community in public spaces.
 ## Enforcement
 
 Instances of unacceptable behavior may be reported to the community leaders
-responsible for enforcement at [@rennf93](https://github.com/rennf93).
+responsible for enforcement at contact@guard-core.com.
 
 All complaints will be reviewed and investigated promptly and fairly.
 

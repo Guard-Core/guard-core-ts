@@ -5,7 +5,7 @@ prev: false
 title: "PatternCompiler"
 ---
 
-Defined in: [core/src/detection-engine/compiler.ts:48](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/compiler.ts#L48)
+Defined in: [core/src/detection-engine/compiler.ts:48](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/compiler.ts#L48)
 
 ## Constructors
 
@@ -13,7 +13,7 @@ Defined in: [core/src/detection-engine/compiler.ts:48](https://github.com/rennf9
 
 > **new PatternCompiler**(`defaultTimeoutMs?`, `maxCacheSize?`): `PatternCompiler`
 
-Defined in: [core/src/detection-engine/compiler.ts:53](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/compiler.ts#L53)
+Defined in: [core/src/detection-engine/compiler.ts:53](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/compiler.ts#L53)
 
 #### Parameters
 
@@ -35,7 +35,7 @@ Defined in: [core/src/detection-engine/compiler.ts:53](https://github.com/rennf9
 
 > **batchCompile**(`patterns`, `validate?`): `Promise`\<`Map`\<`string`, `RegExp` \| `RE2Instance`\>\>
 
-Defined in: [core/src/detection-engine/compiler.ts:201](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/compiler.ts#L201)
+Defined in: [core/src/detection-engine/compiler.ts:201](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/compiler.ts#L201)
 
 #### Parameters
 
@@ -57,7 +57,7 @@ Defined in: [core/src/detection-engine/compiler.ts:201](https://github.com/rennf
 
 > **clearCache**(): `Promise`\<`void`\>
 
-Defined in: [core/src/detection-engine/compiler.ts:220](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/compiler.ts#L220)
+Defined in: [core/src/detection-engine/compiler.ts:220](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/compiler.ts#L220)
 
 #### Returns
 
@@ -69,7 +69,7 @@ Defined in: [core/src/detection-engine/compiler.ts:220](https://github.com/rennf
 
 > **compile**(`pattern`, `flags?`): `Promise`\<`RegExp` \| `RE2Instance`\>
 
-Defined in: [core/src/detection-engine/compiler.ts:67](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/compiler.ts#L67)
+Defined in: [core/src/detection-engine/compiler.ts:67](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/compiler.ts#L67)
 
 #### Parameters
 
@@ -91,7 +91,7 @@ Defined in: [core/src/detection-engine/compiler.ts:67](https://github.com/rennf9
 
 > **compileSync**(`pattern`, `flags?`): `RegExp`
 
-Defined in: [core/src/detection-engine/compiler.ts:101](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/compiler.ts#L101)
+Defined in: [core/src/detection-engine/compiler.ts:101](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/compiler.ts#L101)
 
 #### Parameters
 
@@ -113,7 +113,7 @@ Defined in: [core/src/detection-engine/compiler.ts:101](https://github.com/rennf
 
 > **safeMatch**(`pattern`, `content`, `timeoutMs?`): `Promise`\<`MatchResult` \| `null`\>
 
-Defined in: [core/src/detection-engine/compiler.ts:105](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/compiler.ts#L105)
+Defined in: [core/src/detection-engine/compiler.ts:105](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/compiler.ts#L105)
 
 #### Parameters
 
@@ -139,7 +139,7 @@ Defined in: [core/src/detection-engine/compiler.ts:105](https://github.com/rennf
 
 > **validatePatternSafety**(`pattern`, `testStrings?`): \[`boolean`, `string`\]
 
-Defined in: [core/src/detection-engine/compiler.ts:172](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/compiler.ts#L172)
+Defined in: [core/src/detection-engine/compiler.ts:172](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/compiler.ts#L172)
 
 #### Parameters
 

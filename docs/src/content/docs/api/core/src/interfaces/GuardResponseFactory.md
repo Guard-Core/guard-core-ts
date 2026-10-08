@@ -5,7 +5,7 @@ prev: false
 title: "GuardResponseFactory"
 ---
 
-Defined in: [core/src/protocols/response.ts:9](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/response.ts#L9)
+Defined in: [core/src/protocols/response.ts:9](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/response.ts#L9)
 
 ## Methods
 
@@ -13,7 +13,7 @@ Defined in: [core/src/protocols/response.ts:9](https://github.com/rennf93/guard-
 
 > **createRedirectResponse**(`url`, `statusCode`): [`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/)
 
-Defined in: [core/src/protocols/response.ts:11](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/response.ts#L11)
+Defined in: [core/src/protocols/response.ts:11](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/response.ts#L11)
 
 #### Parameters
 
@@ -35,7 +35,7 @@ Defined in: [core/src/protocols/response.ts:11](https://github.com/rennf93/guard
 
 > **createResponse**(`content`, `statusCode`): [`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/)
 
-Defined in: [core/src/protocols/response.ts:10](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/response.ts#L10)
+Defined in: [core/src/protocols/response.ts:10](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/response.ts#L10)
 
 #### Parameters
 

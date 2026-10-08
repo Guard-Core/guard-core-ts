@@ -5,7 +5,7 @@ prev: false
 title: "SecurityCheckPipeline"
 ---
 
-Defined in: [core/src/core/checks/pipeline.ts:6](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/checks/pipeline.ts#L6)
+Defined in: [core/src/core/checks/pipeline.ts:6](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/checks/pipeline.ts#L6)
 
 ## Constructors
 
@@ -13,7 +13,7 @@ Defined in: [core/src/core/checks/pipeline.ts:6](https://github.com/rennf93/guar
 
 > **new SecurityCheckPipeline**(`checks`, `logger`): `SecurityCheckPipeline`
 
-Defined in: [core/src/core/checks/pipeline.ts:7](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/checks/pipeline.ts#L7)
+Defined in: [core/src/core/checks/pipeline.ts:7](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/checks/pipeline.ts#L7)
 
 #### Parameters
 
@@ -37,7 +37,7 @@ Defined in: [core/src/core/checks/pipeline.ts:7](https://github.com/rennf93/guar
 
 > **get** **length**(): `number`
 
-Defined in: [core/src/core/checks/pipeline.ts:43](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/checks/pipeline.ts#L43)
+Defined in: [core/src/core/checks/pipeline.ts:43](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/checks/pipeline.ts#L43)
 
 ##### Returns
 
@@ -49,7 +49,7 @@ Defined in: [core/src/core/checks/pipeline.ts:43](https://github.com/rennf93/gua
 
 > **add**(`check`): `void`
 
-Defined in: [core/src/core/checks/pipeline.ts:24](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/checks/pipeline.ts#L24)
+Defined in: [core/src/core/checks/pipeline.ts:24](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/checks/pipeline.ts#L24)
 
 #### Parameters
 
@@ -67,7 +67,7 @@ Defined in: [core/src/core/checks/pipeline.ts:24](https://github.com/rennf93/gua
 
 > **execute**(`request`): `Promise`\<[`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/) \| `null`\>
 
-Defined in: [core/src/core/checks/pipeline.ts:12](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/checks/pipeline.ts#L12)
+Defined in: [core/src/core/checks/pipeline.ts:12](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/checks/pipeline.ts#L12)
 
 #### Parameters
 
@@ -85,7 +85,7 @@ Defined in: [core/src/core/checks/pipeline.ts:12](https://github.com/rennf93/gua
 
 > **getCheckNames**(): `string`[]
 
-Defined in: [core/src/core/checks/pipeline.ts:39](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/checks/pipeline.ts#L39)
+Defined in: [core/src/core/checks/pipeline.ts:39](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/checks/pipeline.ts#L39)
 
 #### Returns
 
@@ -97,7 +97,7 @@ Defined in: [core/src/core/checks/pipeline.ts:39](https://github.com/rennf93/gua
 
 > **insert**(`index`, `check`): `void`
 
-Defined in: [core/src/core/checks/pipeline.ts:28](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/checks/pipeline.ts#L28)
+Defined in: [core/src/core/checks/pipeline.ts:28](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/checks/pipeline.ts#L28)
 
 #### Parameters
 
@@ -119,7 +119,7 @@ Defined in: [core/src/core/checks/pipeline.ts:28](https://github.com/rennf93/gua
 
 > **remove**(`name`): `boolean`
 
-Defined in: [core/src/core/checks/pipeline.ts:32](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/checks/pipeline.ts#L32)
+Defined in: [core/src/core/checks/pipeline.ts:32](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/checks/pipeline.ts#L32)
 
 #### Parameters
 

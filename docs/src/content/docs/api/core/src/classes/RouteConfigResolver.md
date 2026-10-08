@@ -5,7 +5,7 @@ prev: false
 title: "RouteConfigResolver"
 ---
 
-Defined in: [core/src/core/routing/resolver.ts:5](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/routing/resolver.ts#L5)
+Defined in: [core/src/core/routing/resolver.ts:5](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/routing/resolver.ts#L5)
 
 ## Constructors
 
@@ -13,7 +13,7 @@ Defined in: [core/src/core/routing/resolver.ts:5](https://github.com/rennf93/gua
 
 > **new RouteConfigResolver**(`config`): `RouteConfigResolver`
 
-Defined in: [core/src/core/routing/resolver.ts:8](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/routing/resolver.ts#L8)
+Defined in: [core/src/core/routing/resolver.ts:8](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/routing/resolver.ts#L8)
 
 #### Parameters
 
@@ -285,7 +285,7 @@ Defined in: [core/src/core/routing/resolver.ts:8](https://github.com/rennf93/gua
 
 > **getCloudProvidersToCheck**(`routeConfig`): `string`[] \| `null`
 
-Defined in: [core/src/core/routing/resolver.ts:34](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/routing/resolver.ts#L34)
+Defined in: [core/src/core/routing/resolver.ts:34](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/routing/resolver.ts#L34)
 
 #### Parameters
 
@@ -303,7 +303,7 @@ Defined in: [core/src/core/routing/resolver.ts:34](https://github.com/rennf93/gu
 
 > **getRouteConfig**(`request`): [`RouteConfig`](/guard-core-ts/api/core/src/classes/routeconfig/) \| `null`
 
-Defined in: [core/src/core/routing/resolver.ts:16](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/routing/resolver.ts#L16)
+Defined in: [core/src/core/routing/resolver.ts:16](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/routing/resolver.ts#L16)
 
 #### Parameters
 
@@ -321,7 +321,7 @@ Defined in: [core/src/core/routing/resolver.ts:16](https://github.com/rennf93/gu
 
 > **setGuardDecorator**(`decorator`): `void`
 
-Defined in: [core/src/core/routing/resolver.ts:12](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/routing/resolver.ts#L12)
+Defined in: [core/src/core/routing/resolver.ts:12](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/routing/resolver.ts#L12)
 
 #### Parameters
 
@@ -339,7 +339,7 @@ Defined in: [core/src/core/routing/resolver.ts:12](https://github.com/rennf93/gu
 
 > **shouldBypassCheck**(`checkName`, `routeConfig`): `boolean`
 
-Defined in: [core/src/core/routing/resolver.ts:29](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/routing/resolver.ts#L29)
+Defined in: [core/src/core/routing/resolver.ts:29](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/routing/resolver.ts#L29)
 
 #### Parameters
 

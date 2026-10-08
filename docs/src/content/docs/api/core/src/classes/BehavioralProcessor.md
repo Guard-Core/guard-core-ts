@@ -5,7 +5,7 @@ prev: false
 title: "BehavioralProcessor"
 ---
 
-Defined in: [core/src/core/behavioral/processor.ts:8](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/behavioral/processor.ts#L8)
+Defined in: [core/src/core/behavioral/processor.ts:8](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/behavioral/processor.ts#L8)
 
 ## Constructors
 
@@ -13,7 +13,7 @@ Defined in: [core/src/core/behavioral/processor.ts:8](https://github.com/rennf93
 
 > **new BehavioralProcessor**(`logger`, `eventBus`): `BehavioralProcessor`
 
-Defined in: [core/src/core/behavioral/processor.ts:11](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/behavioral/processor.ts#L11)
+Defined in: [core/src/core/behavioral/processor.ts:11](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/behavioral/processor.ts#L11)
 
 #### Parameters
 
@@ -35,7 +35,7 @@ Defined in: [core/src/core/behavioral/processor.ts:11](https://github.com/rennf9
 
 > **getEndpointId**(`request`): `string`
 
-Defined in: [core/src/core/behavioral/processor.ts:92](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/behavioral/processor.ts#L92)
+Defined in: [core/src/core/behavioral/processor.ts:92](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/behavioral/processor.ts#L92)
 
 #### Parameters
 
@@ -53,7 +53,7 @@ Defined in: [core/src/core/behavioral/processor.ts:92](https://github.com/rennf9
 
 > **processReturnRules**(`request`, `response`, `clientIp`, `routeConfig`): `Promise`\<`void`\>
 
-Defined in: [core/src/core/behavioral/processor.ts:55](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/behavioral/processor.ts#L55)
+Defined in: [core/src/core/behavioral/processor.ts:55](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/behavioral/processor.ts#L55)
 
 #### Parameters
 
@@ -83,7 +83,7 @@ Defined in: [core/src/core/behavioral/processor.ts:55](https://github.com/rennf9
 
 > **processUsageRules**(`request`, `clientIp`, `routeConfig`): `Promise`\<`void`\>
 
-Defined in: [core/src/core/behavioral/processor.ts:20](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/behavioral/processor.ts#L20)
+Defined in: [core/src/core/behavioral/processor.ts:20](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/behavioral/processor.ts#L20)
 
 #### Parameters
 
@@ -109,7 +109,7 @@ Defined in: [core/src/core/behavioral/processor.ts:20](https://github.com/rennf9
 
 > **setGuardDecorator**(`decorator`): `void`
 
-Defined in: [core/src/core/behavioral/processor.ts:16](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/behavioral/processor.ts#L16)
+Defined in: [core/src/core/behavioral/processor.ts:16](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/behavioral/processor.ts#L16)
 
 #### Parameters
 

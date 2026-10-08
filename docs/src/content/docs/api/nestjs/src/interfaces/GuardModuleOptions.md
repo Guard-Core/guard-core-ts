@@ -5,7 +5,7 @@ prev: false
 title: "GuardModuleOptions"
 ---
 
-Defined in: [nestjs/src/guard-module.ts:18](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/guard-module.ts#L18)
+Defined in: [nestjs/src/guard-module.ts:18](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/guard-module.ts#L18)
 
 ## Properties
 
@@ -13,7 +13,7 @@ Defined in: [nestjs/src/guard-module.ts:18](https://github.com/rennf93/guard-cor
 
 > `optional` **agentHandler?**: [`AgentHandlerProtocol`](/guard-core-ts/api/core/src/interfaces/agenthandlerprotocol/)
 
-Defined in: [nestjs/src/guard-module.ts:20](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/guard-module.ts#L20)
+Defined in: [nestjs/src/guard-module.ts:20](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/guard-module.ts#L20)
 
 ***
 
@@ -21,7 +21,7 @@ Defined in: [nestjs/src/guard-module.ts:20](https://github.com/rennf93/guard-cor
 
 > **config**: `object`
 
-Defined in: [nestjs/src/guard-module.ts:19](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/guard-module.ts#L19)
+Defined in: [nestjs/src/guard-module.ts:19](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/guard-module.ts#L19)
 
 #### agentApiKey?
 
@@ -315,7 +315,7 @@ Defined in: [nestjs/src/guard-module.ts:19](https://github.com/rennf93/guard-cor
 
 > `optional` **geoIpHandler?**: [`GeoIPHandler`](/guard-core-ts/api/core/src/interfaces/geoiphandler/)
 
-Defined in: [nestjs/src/guard-module.ts:21](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/guard-module.ts#L21)
+Defined in: [nestjs/src/guard-module.ts:21](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/guard-module.ts#L21)
 
 ***
 
@@ -323,4 +323,4 @@ Defined in: [nestjs/src/guard-module.ts:21](https://github.com/rennf93/guard-cor
 
 > `optional` **guardDecorator?**: `unknown`
 
-Defined in: [nestjs/src/guard-module.ts:22](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/guard-module.ts#L22)
+Defined in: [nestjs/src/guard-module.ts:22](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/guard-module.ts#L22)

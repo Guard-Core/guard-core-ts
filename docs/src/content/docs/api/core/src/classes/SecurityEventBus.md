@@ -5,7 +5,7 @@ prev: false
 title: "SecurityEventBus"
 ---
 
-Defined in: [core/src/core/events/event-bus.ts:7](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/events/event-bus.ts#L7)
+Defined in: [core/src/core/events/event-bus.ts:7](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/events/event-bus.ts#L7)
 
 ## Constructors
 
@@ -13,7 +13,7 @@ Defined in: [core/src/core/events/event-bus.ts:7](https://github.com/rennf93/gua
 
 > **new SecurityEventBus**(`agentHandler`, `config`, `logger`, `geoIpHandler?`): `SecurityEventBus`
 
-Defined in: [core/src/core/events/event-bus.ts:8](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/events/event-bus.ts#L8)
+Defined in: [core/src/core/events/event-bus.ts:8](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/events/event-bus.ts#L8)
 
 #### Parameters
 
@@ -297,7 +297,7 @@ Defined in: [core/src/core/events/event-bus.ts:8](https://github.com/rennf93/gua
 
 > **sendCloudDetectionEvents**(`request`, `clientIp`, `providers`, `passiveMode`): `Promise`\<`void`\>
 
-Defined in: [core/src/core/events/event-bus.ts:70](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/events/event-bus.ts#L70)
+Defined in: [core/src/core/events/event-bus.ts:70](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/events/event-bus.ts#L70)
 
 #### Parameters
 
@@ -327,7 +327,7 @@ Defined in: [core/src/core/events/event-bus.ts:70](https://github.com/rennf93/gu
 
 > **sendHttpsViolationEvent**(`request`, `isRouteSpecific`): `Promise`\<`void`\>
 
-Defined in: [core/src/core/events/event-bus.ts:49](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/events/event-bus.ts#L49)
+Defined in: [core/src/core/events/event-bus.ts:49](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/events/event-bus.ts#L49)
 
 #### Parameters
 
@@ -349,7 +349,7 @@ Defined in: [core/src/core/events/event-bus.ts:49](https://github.com/rennf93/gu
 
 > **sendMiddlewareEvent**(`eventType`, `request`, `actionTaken`, `reason`, `metadata?`): `Promise`\<`void`\>
 
-Defined in: [core/src/core/events/event-bus.ts:15](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/events/event-bus.ts#L15)
+Defined in: [core/src/core/events/event-bus.ts:15](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/events/event-bus.ts#L15)
 
 #### Parameters
 

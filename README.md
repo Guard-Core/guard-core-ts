@@ -3,15 +3,15 @@
 > Framework-agnostic security middleware engine for Node.js and edge runtimes.
 
 [![npm version](https://img.shields.io/npm/v/@guardcore/core.svg)](https://www.npmjs.com/package/@guardcore/core)
-[![CI](https://github.com/rennf93/guard-core-ts/actions/workflows/ci.yml/badge.svg)](https://github.com/rennf93/guard-core-ts/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/rennf93/guard-core-ts/actions/workflows/codeql.yml/badge.svg)](https://github.com/rennf93/guard-core-ts/actions/workflows/codeql.yml)
+[![CI](https://github.com/Guard-Core/guard-core-ts/actions/workflows/ci.yml/badge.svg)](https://github.com/Guard-Core/guard-core-ts/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/Guard-Core/guard-core-ts/actions/workflows/codeql.yml/badge.svg)](https://github.com/Guard-Core/guard-core-ts/actions/workflows/codeql.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8+-blue.svg)](https://www.typescriptlang.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-green.svg)](https://nodejs.org/)
 
-TypeScript port of [guard-core](https://github.com/rennf93/guard-core) — the engine that powers the Guard security ecosystem. All shared security logic lives here. Framework-specific adapters wire it into Express, Fastify, NestJS, and Hono.
+TypeScript port of [guard-core](https://github.com/Guard-Core/guard-core) — the engine that powers the Guard security ecosystem. All shared security logic lives here. Framework-specific adapters wire it into Express, Fastify, NestJS, and Hono.
 
-Docs: <https://rennf93.github.io/guard-core-ts/>
+Docs: <https://guard-core.github.io/guard-core-ts/>
 
 ## Ecosystem
 
@@ -268,13 +268,13 @@ Detection body reads are bounded: `detectionMaxBodyInspectBytes` caps what is sc
 
 ## Python Parity
 
-This is a faithful TypeScript port of [guard-core](https://github.com/rennf93/guard-core). The Python codebase is the source of truth for features, architecture, and behavior. All 157 detection patterns, 84 SecurityConfig fields, 6 protocols, 17 security checks, and 9 handlers are ported 1:1, and the engine is verified against the vendored spec 4.1.0 conformance corpus (219 cases) in `conformance/guard-core-spec-4.1.0`, wired as a CI gate.
+This is a faithful TypeScript port of [guard-core](https://github.com/Guard-Core/guard-core). The Python codebase is the source of truth for features, architecture, and behavior. All 157 detection patterns, 84 SecurityConfig fields, 6 protocols, 17 security checks, and 9 handlers are ported 1:1, and the engine is verified against the vendored spec 4.1.0 conformance corpus (219 cases) in `conformance/guard-core-spec-4.1.0`, wired as a CI gate.
 
 The Python Guard ecosystem:
-- [guard-core](https://github.com/rennf93/guard-core) — Engine (Python)
-- [fastapi-guard](https://github.com/rennf93/fastapi-guard) — FastAPI adapter
-- [flaskapi-guard](https://github.com/rennf93/flaskapi-guard) — Flask adapter
-- [djapi-guard](https://github.com/rennf93/djapi-guard) — Django adapter
+- [guard-core](https://github.com/Guard-Core/guard-core) — Engine (Python)
+- [fastapi-guard](https://github.com/Guard-Core/fastapi-guard) — FastAPI adapter
+- [flaskapi-guard](https://github.com/Guard-Core/flaskapi-guard) — Flask adapter
+- [djapi-guard](https://github.com/Guard-Core/djapi-guard) — Django adapter
 
 ## Development
 

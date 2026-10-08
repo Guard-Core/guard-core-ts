@@ -5,7 +5,7 @@ prev: false
 title: "SecurityMiddlewareOptions"
 ---
 
-Defined in: [express/src/middleware.ts:15](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/middleware.ts#L15)
+Defined in: [express/src/middleware.ts:15](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/middleware.ts#L15)
 
 ## Properties
 
@@ -13,7 +13,7 @@ Defined in: [express/src/middleware.ts:15](https://github.com/rennf93/guard-core
 
 > `optional` **agentHandler?**: [`AgentHandlerProtocol`](/guard-core-ts/api/core/src/interfaces/agenthandlerprotocol/)
 
-Defined in: [express/src/middleware.ts:17](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/middleware.ts#L17)
+Defined in: [express/src/middleware.ts:17](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/middleware.ts#L17)
 
 ***
 
@@ -21,7 +21,7 @@ Defined in: [express/src/middleware.ts:17](https://github.com/rennf93/guard-core
 
 > **config**: `object`
 
-Defined in: [express/src/middleware.ts:16](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/middleware.ts#L16)
+Defined in: [express/src/middleware.ts:16](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/middleware.ts#L16)
 
 #### agentApiKey?
 
@@ -315,7 +315,7 @@ Defined in: [express/src/middleware.ts:16](https://github.com/rennf93/guard-core
 
 > `optional` **geoIpHandler?**: [`GeoIPHandler`](/guard-core-ts/api/core/src/interfaces/geoiphandler/)
 
-Defined in: [express/src/middleware.ts:18](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/middleware.ts#L18)
+Defined in: [express/src/middleware.ts:18](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/middleware.ts#L18)
 
 ***
 
@@ -323,4 +323,4 @@ Defined in: [express/src/middleware.ts:18](https://github.com/rennf93/guard-core
 
 > `optional` **guardDecorator?**: `unknown`
 
-Defined in: [express/src/middleware.ts:19](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/middleware.ts#L19)
+Defined in: [express/src/middleware.ts:19](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/middleware.ts#L19)

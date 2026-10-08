@@ -3,7 +3,7 @@ title: "Examples"
 description: "Runnable example apps for Express, Fastify, NestJS, Hono, and an advanced production-style setup"
 ---
 
-The repository ships runnable example apps under [`examples/`](https://github.com/rennf93/guard-core-ts/tree/master/examples).
+The repository ships runnable example apps under [`examples/`](https://github.com/Guard-Core/guard-core-ts/tree/master/examples).
 Each one is a pnpm workspace member, so a single `pnpm install` at the repo
 root links `@guardcore/core` and the adapters (build them first with
 `pnpm build`).

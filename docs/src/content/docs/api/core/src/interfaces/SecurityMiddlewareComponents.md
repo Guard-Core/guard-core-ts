@@ -5,7 +5,7 @@ prev: false
 title: "SecurityMiddlewareComponents"
 ---
 
-Defined in: [core/src/middleware-support.ts:39](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/middleware-support.ts#L39)
+Defined in: [core/src/middleware-support.ts:39](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/middleware-support.ts#L39)
 
 ## Properties
 
@@ -13,7 +13,7 @@ Defined in: [core/src/middleware-support.ts:39](https://github.com/rennf93/guard
 
 > **behavioralProcessor**: [`BehavioralProcessor`](/guard-core-ts/api/core/src/classes/behavioralprocessor/)
 
-Defined in: [core/src/middleware-support.ts:48](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/middleware-support.ts#L48)
+Defined in: [core/src/middleware-support.ts:48](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/middleware-support.ts#L48)
 
 ***
 
@@ -21,7 +21,7 @@ Defined in: [core/src/middleware-support.ts:48](https://github.com/rennf93/guard
 
 > **bypassHandler**: [`BypassHandler`](/guard-core-ts/api/core/src/classes/bypasshandler/)
 
-Defined in: [core/src/middleware-support.ts:46](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/middleware-support.ts#L46)
+Defined in: [core/src/middleware-support.ts:46](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/middleware-support.ts#L46)
 
 ***
 
@@ -29,7 +29,7 @@ Defined in: [core/src/middleware-support.ts:46](https://github.com/rennf93/guard
 
 > **errorResponseFactory**: [`ErrorResponseFactory`](/guard-core-ts/api/core/src/classes/errorresponsefactory/)
 
-Defined in: [core/src/middleware-support.ts:47](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/middleware-support.ts#L47)
+Defined in: [core/src/middleware-support.ts:47](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/middleware-support.ts#L47)
 
 ***
 
@@ -37,7 +37,7 @@ Defined in: [core/src/middleware-support.ts:47](https://github.com/rennf93/guard
 
 > **eventBus**: [`SecurityEventBus`](/guard-core-ts/api/core/src/classes/securityeventbus/)
 
-Defined in: [core/src/middleware-support.ts:42](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/middleware-support.ts#L42)
+Defined in: [core/src/middleware-support.ts:42](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/middleware-support.ts#L42)
 
 ***
 
@@ -45,7 +45,7 @@ Defined in: [core/src/middleware-support.ts:42](https://github.com/rennf93/guard
 
 > **metricsCollector**: [`MetricsCollector`](/guard-core-ts/api/core/src/classes/metricscollector/)
 
-Defined in: [core/src/middleware-support.ts:43](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/middleware-support.ts#L43)
+Defined in: [core/src/middleware-support.ts:43](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/middleware-support.ts#L43)
 
 ***
 
@@ -53,7 +53,7 @@ Defined in: [core/src/middleware-support.ts:43](https://github.com/rennf93/guard
 
 > **middlewareProtocol**: [`GuardMiddlewareProtocol`](/guard-core-ts/api/core/src/interfaces/guardmiddlewareprotocol/)
 
-Defined in: [core/src/middleware-support.ts:49](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/middleware-support.ts#L49)
+Defined in: [core/src/middleware-support.ts:49](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/middleware-support.ts#L49)
 
 ***
 
@@ -61,7 +61,7 @@ Defined in: [core/src/middleware-support.ts:49](https://github.com/rennf93/guard
 
 > **pipeline**: [`SecurityCheckPipeline`](/guard-core-ts/api/core/src/classes/securitycheckpipeline/)
 
-Defined in: [core/src/middleware-support.ts:41](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/middleware-support.ts#L41)
+Defined in: [core/src/middleware-support.ts:41](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/middleware-support.ts#L41)
 
 ***
 
@@ -69,7 +69,7 @@ Defined in: [core/src/middleware-support.ts:41](https://github.com/rennf93/guard
 
 > **registry**: [`HandlerRegistry`](/guard-core-ts/api/core/src/interfaces/handlerregistry/)
 
-Defined in: [core/src/middleware-support.ts:40](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/middleware-support.ts#L40)
+Defined in: [core/src/middleware-support.ts:40](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/middleware-support.ts#L40)
 
 ***
 
@@ -77,7 +77,7 @@ Defined in: [core/src/middleware-support.ts:40](https://github.com/rennf93/guard
 
 > **routeResolver**: [`RouteConfigResolver`](/guard-core-ts/api/core/src/classes/routeconfigresolver/)
 
-Defined in: [core/src/middleware-support.ts:45](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/middleware-support.ts#L45)
+Defined in: [core/src/middleware-support.ts:45](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/middleware-support.ts#L45)
 
 ***
 
@@ -85,4 +85,4 @@ Defined in: [core/src/middleware-support.ts:45](https://github.com/rennf93/guard
 
 > **validator**: [`RequestValidator`](/guard-core-ts/api/core/src/classes/requestvalidator/)
 
-Defined in: [core/src/middleware-support.ts:44](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/middleware-support.ts#L44)
+Defined in: [core/src/middleware-support.ts:44](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/middleware-support.ts#L44)

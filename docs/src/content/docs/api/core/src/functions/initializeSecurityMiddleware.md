@@ -7,7 +7,7 @@ title: "initializeSecurityMiddleware"
 
 > **initializeSecurityMiddleware**(`config`, `logger`, `guardResponseFactory`, `agentHandler?`, `geoIpHandler?`, `guardDecorator?`): `Promise`\<[`SecurityMiddlewareComponents`](/guard-core-ts/api/core/src/interfaces/securitymiddlewarecomponents/)\>
 
-Defined in: [core/src/middleware-support.ts:52](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/middleware-support.ts#L52)
+Defined in: [core/src/middleware-support.ts:52](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/middleware-support.ts#L52)
 
 ## Parameters
 

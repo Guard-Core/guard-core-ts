@@ -5,7 +5,7 @@ prev: false
 title: "BaseSecurityDecorator"
 ---
 
-Defined in: [core/src/decorators/base.ts:17](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L17)
+Defined in: [core/src/decorators/base.ts:17](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L17)
 
 ## Constructors
 
@@ -13,7 +13,7 @@ Defined in: [core/src/decorators/base.ts:17](https://github.com/rennf93/guard-co
 
 > **new BaseSecurityDecorator**(`config`, `logger?`): `BaseSecurityDecorator`
 
-Defined in: [core/src/decorators/base.ts:24](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L24)
+Defined in: [core/src/decorators/base.ts:24](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L24)
 
 #### Parameters
 
@@ -289,7 +289,7 @@ Defined in: [core/src/decorators/base.ts:24](https://github.com/rennf93/guard-co
 
 > **agentHandler**: [`AgentHandlerProtocol`](/guard-core-ts/api/core/src/interfaces/agenthandlerprotocol/) \| `null` = `null`
 
-Defined in: [core/src/decorators/base.ts:20](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L20)
+Defined in: [core/src/decorators/base.ts:20](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L20)
 
 ***
 
@@ -297,7 +297,7 @@ Defined in: [core/src/decorators/base.ts:20](https://github.com/rennf93/guard-co
 
 > **behaviorTracker**: `BehaviorTracker`
 
-Defined in: [core/src/decorators/base.ts:19](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L19)
+Defined in: [core/src/decorators/base.ts:19](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L19)
 
 ***
 
@@ -305,7 +305,7 @@ Defined in: [core/src/decorators/base.ts:19](https://github.com/rennf93/guard-co
 
 > `readonly` **config**: `object`
 
-Defined in: [core/src/decorators/base.ts:21](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L21)
+Defined in: [core/src/decorators/base.ts:21](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L21)
 
 #### agentApiKey
 
@@ -599,7 +599,7 @@ Defined in: [core/src/decorators/base.ts:21](https://github.com/rennf93/guard-co
 
 > `readonly` **logger**: [`Logger`](/guard-core-ts/api/core/src/interfaces/logger/)
 
-Defined in: [core/src/decorators/base.ts:22](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L22)
+Defined in: [core/src/decorators/base.ts:22](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L22)
 
 ***
 
@@ -607,7 +607,7 @@ Defined in: [core/src/decorators/base.ts:22](https://github.com/rennf93/guard-co
 
 > **routeConfigs**: `Map`\<`string`, [`RouteConfig`](/guard-core-ts/api/core/src/classes/routeconfig/)\>
 
-Defined in: [core/src/decorators/base.ts:18](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L18)
+Defined in: [core/src/decorators/base.ts:18](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L18)
 
 ## Methods
 
@@ -615,7 +615,7 @@ Defined in: [core/src/decorators/base.ts:18](https://github.com/rennf93/guard-co
 
 > **applyRouteConfig**\<`T`\>(`fn`): `T`
 
-Defined in: [core/src/decorators/base.ts:44](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L44)
+Defined in: [core/src/decorators/base.ts:44](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L44)
 
 #### Type Parameters
 
@@ -639,7 +639,7 @@ Defined in: [core/src/decorators/base.ts:44](https://github.com/rennf93/guard-co
 
 > **ensureRouteConfig**(`fn`): [`RouteConfig`](/guard-core-ts/api/core/src/classes/routeconfig/)
 
-Defined in: [core/src/decorators/base.ts:34](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L34)
+Defined in: [core/src/decorators/base.ts:34](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L34)
 
 #### Parameters
 
@@ -657,7 +657,7 @@ Defined in: [core/src/decorators/base.ts:34](https://github.com/rennf93/guard-co
 
 > **getRouteConfig**(`routeId`): [`RouteConfig`](/guard-core-ts/api/core/src/classes/routeconfig/) \| `undefined`
 
-Defined in: [core/src/decorators/base.ts:30](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L30)
+Defined in: [core/src/decorators/base.ts:30](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L30)
 
 #### Parameters
 
@@ -675,7 +675,7 @@ Defined in: [core/src/decorators/base.ts:30](https://github.com/rennf93/guard-co
 
 > **getRouteId**(`fn`): `string`
 
-Defined in: [core/src/decorators/base.ts:49](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L49)
+Defined in: [core/src/decorators/base.ts:49](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L49)
 
 #### Parameters
 
@@ -693,7 +693,7 @@ Defined in: [core/src/decorators/base.ts:49](https://github.com/rennf93/guard-co
 
 > **initializeAgent**(`agentHandler`): `Promise`\<`void`\>
 
-Defined in: [core/src/decorators/base.ts:60](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L60)
+Defined in: [core/src/decorators/base.ts:60](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L60)
 
 #### Parameters
 
@@ -711,7 +711,7 @@ Defined in: [core/src/decorators/base.ts:60](https://github.com/rennf93/guard-co
 
 > **initializeBehaviorTracking**(`redisHandler?`): `Promise`\<`void`\>
 
-Defined in: [core/src/decorators/base.ts:56](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L56)
+Defined in: [core/src/decorators/base.ts:56](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L56)
 
 #### Parameters
 
@@ -729,7 +729,7 @@ Defined in: [core/src/decorators/base.ts:56](https://github.com/rennf93/guard-co
 
 > **sendAccessDeniedEvent**(`request`, `reason`, `decoratorType`, `meta?`): `Promise`\<`void`\>
 
-Defined in: [core/src/decorators/base.ts:86](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L86)
+Defined in: [core/src/decorators/base.ts:86](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L86)
 
 #### Parameters
 
@@ -759,7 +759,7 @@ Defined in: [core/src/decorators/base.ts:86](https://github.com/rennf93/guard-co
 
 > **sendAuthenticationFailedEvent**(`request`, `reason`, `authType`, `meta?`): `Promise`\<`void`\>
 
-Defined in: [core/src/decorators/base.ts:95](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L95)
+Defined in: [core/src/decorators/base.ts:95](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L95)
 
 #### Parameters
 
@@ -789,7 +789,7 @@ Defined in: [core/src/decorators/base.ts:95](https://github.com/rennf93/guard-co
 
 > **sendDecoratorEvent**(`eventType`, `_request`, `actionTaken`, `reason`, `decoratorType`, `meta?`): `Promise`\<`void`\>
 
-Defined in: [core/src/decorators/base.ts:65](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L65)
+Defined in: [core/src/decorators/base.ts:65](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L65)
 
 #### Parameters
 
@@ -827,7 +827,7 @@ Defined in: [core/src/decorators/base.ts:65](https://github.com/rennf93/guard-co
 
 > **sendDecoratorViolationEvent**(`request`, `violationType`, `reason`, `meta?`): `Promise`\<`void`\>
 
-Defined in: [core/src/decorators/base.ts:113](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L113)
+Defined in: [core/src/decorators/base.ts:113](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L113)
 
 #### Parameters
 
@@ -857,7 +857,7 @@ Defined in: [core/src/decorators/base.ts:113](https://github.com/rennf93/guard-c
 
 > **sendRateLimitEvent**(`request`, `limit`, `window`, `meta?`): `Promise`\<`void`\>
 
-Defined in: [core/src/decorators/base.ts:104](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L104)
+Defined in: [core/src/decorators/base.ts:104](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/decorators/base.ts#L104)
 
 #### Parameters
 

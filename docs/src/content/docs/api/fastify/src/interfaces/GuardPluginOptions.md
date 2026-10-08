@@ -5,7 +5,7 @@ prev: false
 title: "GuardPluginOptions"
 ---
 
-Defined in: [fastify/src/plugin.ts:15](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/plugin.ts#L15)
+Defined in: [fastify/src/plugin.ts:15](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/plugin.ts#L15)
 
 ## Properties
 
@@ -13,7 +13,7 @@ Defined in: [fastify/src/plugin.ts:15](https://github.com/rennf93/guard-core-ts/
 
 > `optional` **agentHandler?**: [`AgentHandlerProtocol`](/guard-core-ts/api/core/src/interfaces/agenthandlerprotocol/)
 
-Defined in: [fastify/src/plugin.ts:17](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/plugin.ts#L17)
+Defined in: [fastify/src/plugin.ts:17](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/plugin.ts#L17)
 
 ***
 
@@ -21,7 +21,7 @@ Defined in: [fastify/src/plugin.ts:17](https://github.com/rennf93/guard-core-ts/
 
 > **config**: `object`
 
-Defined in: [fastify/src/plugin.ts:16](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/plugin.ts#L16)
+Defined in: [fastify/src/plugin.ts:16](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/plugin.ts#L16)
 
 #### agentApiKey?
 
@@ -315,7 +315,7 @@ Defined in: [fastify/src/plugin.ts:16](https://github.com/rennf93/guard-core-ts/
 
 > `optional` **geoIpHandler?**: [`GeoIPHandler`](/guard-core-ts/api/core/src/interfaces/geoiphandler/)
 
-Defined in: [fastify/src/plugin.ts:18](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/plugin.ts#L18)
+Defined in: [fastify/src/plugin.ts:18](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/plugin.ts#L18)
 
 ***
 
@@ -323,4 +323,4 @@ Defined in: [fastify/src/plugin.ts:18](https://github.com/rennf93/guard-core-ts/
 
 > `optional` **guardDecorator?**: `unknown`
 
-Defined in: [fastify/src/plugin.ts:19](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/plugin.ts#L19)
+Defined in: [fastify/src/plugin.ts:19](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/plugin.ts#L19)

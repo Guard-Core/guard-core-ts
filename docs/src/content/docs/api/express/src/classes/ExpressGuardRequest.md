@@ -5,7 +5,7 @@ prev: false
 title: "ExpressGuardRequest"
 ---
 
-Defined in: [express/src/adapters.ts:4](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L4)
+Defined in: [express/src/adapters.ts:4](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L4)
 
 ## Implements
 
@@ -17,7 +17,7 @@ Defined in: [express/src/adapters.ts:4](https://github.com/rennf93/guard-core-ts
 
 > **new ExpressGuardRequest**(`req`): `ExpressGuardRequest`
 
-Defined in: [express/src/adapters.ts:8](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L8)
+Defined in: [express/src/adapters.ts:8](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L8)
 
 #### Parameters
 
@@ -37,7 +37,7 @@ Defined in: [express/src/adapters.ts:8](https://github.com/rennf93/guard-core-ts
 
 > **get** **clientHost**(): `string` \| `null`
 
-Defined in: [express/src/adapters.ts:22](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L22)
+Defined in: [express/src/adapters.ts:22](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L22)
 
 ##### Returns
 
@@ -55,7 +55,7 @@ Defined in: [express/src/adapters.ts:22](https://github.com/rennf93/guard-core-t
 
 > **get** **headers**(): `Readonly`\<`Record`\<`string`, `string`\>\>
 
-Defined in: [express/src/adapters.ts:23](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L23)
+Defined in: [express/src/adapters.ts:23](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L23)
 
 ##### Returns
 
@@ -73,7 +73,7 @@ Defined in: [express/src/adapters.ts:23](https://github.com/rennf93/guard-core-t
 
 > **get** **method**(): `string`
 
-Defined in: [express/src/adapters.ts:21](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L21)
+Defined in: [express/src/adapters.ts:21](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L21)
 
 ##### Returns
 
@@ -91,7 +91,7 @@ Defined in: [express/src/adapters.ts:21](https://github.com/rennf93/guard-core-t
 
 > **get** **queryParams**(): `Readonly`\<`Record`\<`string`, `string`\>\>
 
-Defined in: [express/src/adapters.ts:24](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L24)
+Defined in: [express/src/adapters.ts:24](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L24)
 
 ##### Returns
 
@@ -109,7 +109,7 @@ Defined in: [express/src/adapters.ts:24](https://github.com/rennf93/guard-core-t
 
 > **get** **scope**(): `Readonly`\<`Record`\<`string`, `unknown`\>\>
 
-Defined in: [express/src/adapters.ts:27](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L27)
+Defined in: [express/src/adapters.ts:27](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L27)
 
 ##### Returns
 
@@ -127,7 +127,7 @@ Defined in: [express/src/adapters.ts:27](https://github.com/rennf93/guard-core-t
 
 > **get** **state**(): [`GuardRequestState`](/guard-core-ts/api/core/src/interfaces/guardrequeststate/)
 
-Defined in: [express/src/adapters.ts:26](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L26)
+Defined in: [express/src/adapters.ts:26](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L26)
 
 ##### Returns
 
@@ -145,7 +145,7 @@ Defined in: [express/src/adapters.ts:26](https://github.com/rennf93/guard-core-t
 
 > **get** **urlFull**(): `string`
 
-Defined in: [express/src/adapters.ts:19](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L19)
+Defined in: [express/src/adapters.ts:19](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L19)
 
 ##### Returns
 
@@ -163,7 +163,7 @@ Defined in: [express/src/adapters.ts:19](https://github.com/rennf93/guard-core-t
 
 > **get** **urlPath**(): `string`
 
-Defined in: [express/src/adapters.ts:17](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L17)
+Defined in: [express/src/adapters.ts:17](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L17)
 
 ##### Returns
 
@@ -181,7 +181,7 @@ Defined in: [express/src/adapters.ts:17](https://github.com/rennf93/guard-core-t
 
 > **get** **urlScheme**(): `string`
 
-Defined in: [express/src/adapters.ts:18](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L18)
+Defined in: [express/src/adapters.ts:18](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L18)
 
 ##### Returns
 
@@ -197,7 +197,7 @@ Defined in: [express/src/adapters.ts:18](https://github.com/rennf93/guard-core-t
 
 > **body**(): `Promise`\<`Uint8Array`\<`ArrayBufferLike`\>\>
 
-Defined in: [express/src/adapters.ts:25](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L25)
+Defined in: [express/src/adapters.ts:25](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L25)
 
 #### Returns
 
@@ -213,7 +213,7 @@ Defined in: [express/src/adapters.ts:25](https://github.com/rennf93/guard-core-t
 
 > **urlReplaceScheme**(`scheme`): `string`
 
-Defined in: [express/src/adapters.ts:20](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L20)
+Defined in: [express/src/adapters.ts:20](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L20)
 
 #### Parameters
 

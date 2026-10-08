@@ -5,7 +5,7 @@ prev: false
 title: "FastifyGuardRequest"
 ---
 
-Defined in: [fastify/src/adapters.ts:4](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L4)
+Defined in: [fastify/src/adapters.ts:4](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L4)
 
 ## Implements
 
@@ -17,7 +17,7 @@ Defined in: [fastify/src/adapters.ts:4](https://github.com/rennf93/guard-core-ts
 
 > **new FastifyGuardRequest**(`req`): `FastifyGuardRequest`
 
-Defined in: [fastify/src/adapters.ts:7](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L7)
+Defined in: [fastify/src/adapters.ts:7](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L7)
 
 #### Parameters
 
@@ -37,7 +37,7 @@ Defined in: [fastify/src/adapters.ts:7](https://github.com/rennf93/guard-core-ts
 
 > **get** **clientHost**(): `string` \| `null`
 
-Defined in: [fastify/src/adapters.ts:14](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L14)
+Defined in: [fastify/src/adapters.ts:14](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L14)
 
 ##### Returns
 
@@ -55,7 +55,7 @@ Defined in: [fastify/src/adapters.ts:14](https://github.com/rennf93/guard-core-t
 
 > **get** **headers**(): `Readonly`\<`Record`\<`string`, `string`\>\>
 
-Defined in: [fastify/src/adapters.ts:15](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L15)
+Defined in: [fastify/src/adapters.ts:15](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L15)
 
 ##### Returns
 
@@ -73,7 +73,7 @@ Defined in: [fastify/src/adapters.ts:15](https://github.com/rennf93/guard-core-t
 
 > **get** **method**(): `string`
 
-Defined in: [fastify/src/adapters.ts:13](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L13)
+Defined in: [fastify/src/adapters.ts:13](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L13)
 
 ##### Returns
 
@@ -91,7 +91,7 @@ Defined in: [fastify/src/adapters.ts:13](https://github.com/rennf93/guard-core-t
 
 > **get** **queryParams**(): `Readonly`\<`Record`\<`string`, `string`\>\>
 
-Defined in: [fastify/src/adapters.ts:16](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L16)
+Defined in: [fastify/src/adapters.ts:16](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L16)
 
 ##### Returns
 
@@ -109,7 +109,7 @@ Defined in: [fastify/src/adapters.ts:16](https://github.com/rennf93/guard-core-t
 
 > **get** **scope**(): `Readonly`\<`Record`\<`string`, `unknown`\>\>
 
-Defined in: [fastify/src/adapters.ts:25](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L25)
+Defined in: [fastify/src/adapters.ts:25](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L25)
 
 ##### Returns
 
@@ -127,7 +127,7 @@ Defined in: [fastify/src/adapters.ts:25](https://github.com/rennf93/guard-core-t
 
 > **get** **state**(): [`GuardRequestState`](/guard-core-ts/api/core/src/interfaces/guardrequeststate/)
 
-Defined in: [fastify/src/adapters.ts:24](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L24)
+Defined in: [fastify/src/adapters.ts:24](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L24)
 
 ##### Returns
 
@@ -145,7 +145,7 @@ Defined in: [fastify/src/adapters.ts:24](https://github.com/rennf93/guard-core-t
 
 > **get** **urlFull**(): `string`
 
-Defined in: [fastify/src/adapters.ts:11](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L11)
+Defined in: [fastify/src/adapters.ts:11](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L11)
 
 ##### Returns
 
@@ -163,7 +163,7 @@ Defined in: [fastify/src/adapters.ts:11](https://github.com/rennf93/guard-core-t
 
 > **get** **urlPath**(): `string`
 
-Defined in: [fastify/src/adapters.ts:9](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L9)
+Defined in: [fastify/src/adapters.ts:9](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L9)
 
 ##### Returns
 
@@ -181,7 +181,7 @@ Defined in: [fastify/src/adapters.ts:9](https://github.com/rennf93/guard-core-ts
 
 > **get** **urlScheme**(): `string`
 
-Defined in: [fastify/src/adapters.ts:10](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L10)
+Defined in: [fastify/src/adapters.ts:10](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L10)
 
 ##### Returns
 
@@ -197,7 +197,7 @@ Defined in: [fastify/src/adapters.ts:10](https://github.com/rennf93/guard-core-t
 
 > **body**(): `Promise`\<`Uint8Array`\<`ArrayBufferLike`\>\>
 
-Defined in: [fastify/src/adapters.ts:17](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L17)
+Defined in: [fastify/src/adapters.ts:17](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L17)
 
 #### Returns
 
@@ -213,7 +213,7 @@ Defined in: [fastify/src/adapters.ts:17](https://github.com/rennf93/guard-core-t
 
 > **urlReplaceScheme**(`scheme`): `string`
 
-Defined in: [fastify/src/adapters.ts:12](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L12)
+Defined in: [fastify/src/adapters.ts:12](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L12)
 
 #### Parameters
 

@@ -5,7 +5,7 @@ prev: false
 title: "NestGuardResponse"
 ---
 
-Defined in: [nestjs/src/adapters.ts:27](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L27)
+Defined in: [nestjs/src/adapters.ts:27](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L27)
 
 ## Implements
 
@@ -17,7 +17,7 @@ Defined in: [nestjs/src/adapters.ts:27](https://github.com/rennf93/guard-core-ts
 
 > **new NestGuardResponse**(`statusCode`, `content`): `NestGuardResponse`
 
-Defined in: [nestjs/src/adapters.ts:31](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L31)
+Defined in: [nestjs/src/adapters.ts:31](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L31)
 
 #### Parameters
 
@@ -39,7 +39,7 @@ Defined in: [nestjs/src/adapters.ts:31](https://github.com/rennf93/guard-core-ts
 
 > `readonly` **statusCode**: `number`
 
-Defined in: [nestjs/src/adapters.ts:31](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L31)
+Defined in: [nestjs/src/adapters.ts:31](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L31)
 
 #### Implementation of
 
@@ -53,7 +53,7 @@ Defined in: [nestjs/src/adapters.ts:31](https://github.com/rennf93/guard-core-ts
 
 > **get** **body**(): `Uint8Array`\<`ArrayBufferLike`\> \| `null`
 
-Defined in: [nestjs/src/adapters.ts:38](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L38)
+Defined in: [nestjs/src/adapters.ts:38](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L38)
 
 ##### Returns
 
@@ -71,7 +71,7 @@ Defined in: [nestjs/src/adapters.ts:38](https://github.com/rennf93/guard-core-ts
 
 > **get** **bodyText**(): `string` \| `null`
 
-Defined in: [nestjs/src/adapters.ts:39](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L39)
+Defined in: [nestjs/src/adapters.ts:39](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L39)
 
 ##### Returns
 
@@ -89,7 +89,7 @@ Defined in: [nestjs/src/adapters.ts:39](https://github.com/rennf93/guard-core-ts
 
 > **get** **headers**(): `Record`\<`string`, `string`\>
 
-Defined in: [nestjs/src/adapters.ts:36](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L36)
+Defined in: [nestjs/src/adapters.ts:36](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L36)
 
 ##### Returns
 
@@ -105,7 +105,7 @@ Defined in: [nestjs/src/adapters.ts:36](https://github.com/rennf93/guard-core-ts
 
 > **setHeader**(`name`, `value`): `void`
 
-Defined in: [nestjs/src/adapters.ts:37](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L37)
+Defined in: [nestjs/src/adapters.ts:37](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L37)
 
 #### Parameters
 

@@ -5,7 +5,7 @@ prev: false
 title: "GuardMiddlewareProtocol"
 ---
 
-Defined in: [core/src/protocols/middleware.ts:7](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L7)
+Defined in: [core/src/protocols/middleware.ts:7](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L7)
 
 ## Properties
 
@@ -13,7 +13,7 @@ Defined in: [core/src/protocols/middleware.ts:7](https://github.com/rennf93/guar
 
 > `readonly` **agentHandler**: [`AgentHandlerProtocol`](/guard-core-ts/api/core/src/interfaces/agenthandlerprotocol/) \| `null`
 
-Defined in: [core/src/protocols/middleware.ts:16](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L16)
+Defined in: [core/src/protocols/middleware.ts:16](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L16)
 
 ***
 
@@ -21,7 +21,7 @@ Defined in: [core/src/protocols/middleware.ts:16](https://github.com/rennf93/gua
 
 > `readonly` **config**: `object`
 
-Defined in: [core/src/protocols/middleware.ts:8](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L8)
+Defined in: [core/src/protocols/middleware.ts:8](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L8)
 
 #### agentApiKey
 
@@ -315,7 +315,7 @@ Defined in: [core/src/protocols/middleware.ts:8](https://github.com/rennf93/guar
 
 > `readonly` **eventBus**: `unknown`
 
-Defined in: [core/src/protocols/middleware.ts:12](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L12)
+Defined in: [core/src/protocols/middleware.ts:12](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L12)
 
 ***
 
@@ -323,7 +323,7 @@ Defined in: [core/src/protocols/middleware.ts:12](https://github.com/rennf93/gua
 
 > `readonly` **geoIpHandler**: [`GeoIPHandler`](/guard-core-ts/api/core/src/interfaces/geoiphandler/) \| `null`
 
-Defined in: [core/src/protocols/middleware.ts:17](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L17)
+Defined in: [core/src/protocols/middleware.ts:17](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L17)
 
 ***
 
@@ -331,7 +331,7 @@ Defined in: [core/src/protocols/middleware.ts:17](https://github.com/rennf93/gua
 
 > `readonly` **guardResponseFactory**: [`GuardResponseFactory`](/guard-core-ts/api/core/src/interfaces/guardresponsefactory/)
 
-Defined in: [core/src/protocols/middleware.ts:18](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L18)
+Defined in: [core/src/protocols/middleware.ts:18](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L18)
 
 ***
 
@@ -339,7 +339,7 @@ Defined in: [core/src/protocols/middleware.ts:18](https://github.com/rennf93/gua
 
 > **lastCloudIpRefresh**: `number`
 
-Defined in: [core/src/protocols/middleware.ts:10](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L10)
+Defined in: [core/src/protocols/middleware.ts:10](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L10)
 
 ***
 
@@ -347,7 +347,7 @@ Defined in: [core/src/protocols/middleware.ts:10](https://github.com/rennf93/gua
 
 > `readonly` **logger**: [`Logger`](/guard-core-ts/api/core/src/interfaces/logger/)
 
-Defined in: [core/src/protocols/middleware.ts:9](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L9)
+Defined in: [core/src/protocols/middleware.ts:9](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L9)
 
 ***
 
@@ -355,7 +355,7 @@ Defined in: [core/src/protocols/middleware.ts:9](https://github.com/rennf93/guar
 
 > `readonly` **rateLimitHandler**: `unknown`
 
-Defined in: [core/src/protocols/middleware.ts:15](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L15)
+Defined in: [core/src/protocols/middleware.ts:15](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L15)
 
 ***
 
@@ -363,7 +363,7 @@ Defined in: [core/src/protocols/middleware.ts:15](https://github.com/rennf93/gua
 
 > `readonly` **responseFactory**: `unknown`
 
-Defined in: [core/src/protocols/middleware.ts:14](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L14)
+Defined in: [core/src/protocols/middleware.ts:14](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L14)
 
 ***
 
@@ -371,7 +371,7 @@ Defined in: [core/src/protocols/middleware.ts:14](https://github.com/rennf93/gua
 
 > `readonly` **routeResolver**: `unknown`
 
-Defined in: [core/src/protocols/middleware.ts:13](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L13)
+Defined in: [core/src/protocols/middleware.ts:13](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L13)
 
 ***
 
@@ -379,7 +379,7 @@ Defined in: [core/src/protocols/middleware.ts:13](https://github.com/rennf93/gua
 
 > **suspiciousRequestCounts**: `Map`\<`string`, `number`\>
 
-Defined in: [core/src/protocols/middleware.ts:11](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L11)
+Defined in: [core/src/protocols/middleware.ts:11](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L11)
 
 ## Methods
 
@@ -387,7 +387,7 @@ Defined in: [core/src/protocols/middleware.ts:11](https://github.com/rennf93/gua
 
 > **createErrorResponse**(`statusCode`, `defaultMessage`): `Promise`\<[`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/)\>
 
-Defined in: [core/src/protocols/middleware.ts:19](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L19)
+Defined in: [core/src/protocols/middleware.ts:19](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L19)
 
 #### Parameters
 
@@ -409,7 +409,7 @@ Defined in: [core/src/protocols/middleware.ts:19](https://github.com/rennf93/gua
 
 > **refreshCloudIpRanges**(): `Promise`\<`void`\>
 
-Defined in: [core/src/protocols/middleware.ts:20](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L20)
+Defined in: [core/src/protocols/middleware.ts:20](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L20)
 
 #### Returns
 

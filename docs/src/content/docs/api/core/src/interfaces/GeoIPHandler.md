@@ -5,7 +5,7 @@ prev: false
 title: "GeoIPHandler"
 ---
 
-Defined in: [core/src/protocols/geo-ip.ts:4](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/geo-ip.ts#L4)
+Defined in: [core/src/protocols/geo-ip.ts:4](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/geo-ip.ts#L4)
 
 ## Properties
 
@@ -13,7 +13,7 @@ Defined in: [core/src/protocols/geo-ip.ts:4](https://github.com/rennf93/guard-co
 
 > `readonly` **isInitialized**: `boolean`
 
-Defined in: [core/src/protocols/geo-ip.ts:5](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/geo-ip.ts#L5)
+Defined in: [core/src/protocols/geo-ip.ts:5](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/geo-ip.ts#L5)
 
 ## Methods
 
@@ -21,7 +21,7 @@ Defined in: [core/src/protocols/geo-ip.ts:5](https://github.com/rennf93/guard-co
 
 > **getCountry**(`ip`): `string` \| `null`
 
-Defined in: [core/src/protocols/geo-ip.ts:9](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/geo-ip.ts#L9)
+Defined in: [core/src/protocols/geo-ip.ts:9](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/geo-ip.ts#L9)
 
 #### Parameters
 
@@ -39,7 +39,7 @@ Defined in: [core/src/protocols/geo-ip.ts:9](https://github.com/rennf93/guard-co
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [core/src/protocols/geo-ip.ts:6](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/geo-ip.ts#L6)
+Defined in: [core/src/protocols/geo-ip.ts:6](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/geo-ip.ts#L6)
 
 #### Returns
 
@@ -51,7 +51,7 @@ Defined in: [core/src/protocols/geo-ip.ts:6](https://github.com/rennf93/guard-co
 
 > **initializeAgent**(`agentHandler`): `Promise`\<`void`\>
 
-Defined in: [core/src/protocols/geo-ip.ts:8](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/geo-ip.ts#L8)
+Defined in: [core/src/protocols/geo-ip.ts:8](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/geo-ip.ts#L8)
 
 #### Parameters
 
@@ -69,7 +69,7 @@ Defined in: [core/src/protocols/geo-ip.ts:8](https://github.com/rennf93/guard-co
 
 > **initializeRedis**(`redisHandler`): `Promise`\<`void`\>
 
-Defined in: [core/src/protocols/geo-ip.ts:7](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/geo-ip.ts#L7)
+Defined in: [core/src/protocols/geo-ip.ts:7](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/geo-ip.ts#L7)
 
 #### Parameters
 
