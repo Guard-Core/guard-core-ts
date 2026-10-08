@@ -5,7 +5,7 @@ prev: false
 title: "PatternReport"
 ---
 
-Defined in: [core/src/detection-engine/monitor.ts:23](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L23)
+Defined in: [core/src/detection-engine/monitor.ts:23](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L23)
 
 ## Properties
 
@@ -13,7 +13,7 @@ Defined in: [core/src/detection-engine/monitor.ts:23](https://github.com/rennf93
 
 > **avgExecutionTime**: `number`
 
-Defined in: [core/src/detection-engine/monitor.ts:31](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L31)
+Defined in: [core/src/detection-engine/monitor.ts:31](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L31)
 
 ***
 
@@ -21,7 +21,7 @@ Defined in: [core/src/detection-engine/monitor.ts:31](https://github.com/rennf93
 
 > `optional` **issue?**: `string`
 
-Defined in: [core/src/detection-engine/monitor.ts:34](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L34)
+Defined in: [core/src/detection-engine/monitor.ts:34](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L34)
 
 ***
 
@@ -29,7 +29,7 @@ Defined in: [core/src/detection-engine/monitor.ts:34](https://github.com/rennf93
 
 > **matchRate**: `number`
 
-Defined in: [core/src/detection-engine/monitor.ts:29](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L29)
+Defined in: [core/src/detection-engine/monitor.ts:29](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L29)
 
 ***
 
@@ -37,7 +37,7 @@ Defined in: [core/src/detection-engine/monitor.ts:29](https://github.com/rennf93
 
 > **maxExecutionTime**: `number`
 
-Defined in: [core/src/detection-engine/monitor.ts:32](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L32)
+Defined in: [core/src/detection-engine/monitor.ts:32](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L32)
 
 ***
 
@@ -45,7 +45,7 @@ Defined in: [core/src/detection-engine/monitor.ts:32](https://github.com/rennf93
 
 > **minExecutionTime**: `number`
 
-Defined in: [core/src/detection-engine/monitor.ts:33](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L33)
+Defined in: [core/src/detection-engine/monitor.ts:33](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L33)
 
 ***
 
@@ -53,7 +53,7 @@ Defined in: [core/src/detection-engine/monitor.ts:33](https://github.com/rennf93
 
 > **pattern**: `string`
 
-Defined in: [core/src/detection-engine/monitor.ts:24](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L24)
+Defined in: [core/src/detection-engine/monitor.ts:24](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L24)
 
 ***
 
@@ -61,7 +61,7 @@ Defined in: [core/src/detection-engine/monitor.ts:24](https://github.com/rennf93
 
 > **patternHash**: `string`
 
-Defined in: [core/src/detection-engine/monitor.ts:25](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L25)
+Defined in: [core/src/detection-engine/monitor.ts:25](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L25)
 
 ***
 
@@ -69,7 +69,7 @@ Defined in: [core/src/detection-engine/monitor.ts:25](https://github.com/rennf93
 
 > **timeoutRate**: `number`
 
-Defined in: [core/src/detection-engine/monitor.ts:30](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L30)
+Defined in: [core/src/detection-engine/monitor.ts:30](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L30)
 
 ***
 
@@ -77,7 +77,7 @@ Defined in: [core/src/detection-engine/monitor.ts:30](https://github.com/rennf93
 
 > **totalExecutions**: `number`
 
-Defined in: [core/src/detection-engine/monitor.ts:26](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L26)
+Defined in: [core/src/detection-engine/monitor.ts:26](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L26)
 
 ***
 
@@ -85,7 +85,7 @@ Defined in: [core/src/detection-engine/monitor.ts:26](https://github.com/rennf93
 
 > **totalMatches**: `number`
 
-Defined in: [core/src/detection-engine/monitor.ts:27](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L27)
+Defined in: [core/src/detection-engine/monitor.ts:27](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L27)
 
 ***
 
@@ -93,4 +93,4 @@ Defined in: [core/src/detection-engine/monitor.ts:27](https://github.com/rennf93
 
 > **totalTimeouts**: `number`
 
-Defined in: [core/src/detection-engine/monitor.ts:28](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L28)
+Defined in: [core/src/detection-engine/monitor.ts:28](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L28)

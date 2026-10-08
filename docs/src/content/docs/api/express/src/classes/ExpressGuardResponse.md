@@ -5,7 +5,7 @@ prev: false
 title: "ExpressGuardResponse"
 ---
 
-Defined in: [express/src/adapters.ts:30](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L30)
+Defined in: [express/src/adapters.ts:30](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L30)
 
 ## Implements
 
@@ -17,7 +17,7 @@ Defined in: [express/src/adapters.ts:30](https://github.com/rennf93/guard-core-t
 
 > **new ExpressGuardResponse**(`statusCode`, `content`): `ExpressGuardResponse`
 
-Defined in: [express/src/adapters.ts:34](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L34)
+Defined in: [express/src/adapters.ts:34](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L34)
 
 #### Parameters
 
@@ -39,7 +39,7 @@ Defined in: [express/src/adapters.ts:34](https://github.com/rennf93/guard-core-t
 
 > `readonly` **statusCode**: `number`
 
-Defined in: [express/src/adapters.ts:35](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L35)
+Defined in: [express/src/adapters.ts:35](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L35)
 
 #### Implementation of
 
@@ -53,7 +53,7 @@ Defined in: [express/src/adapters.ts:35](https://github.com/rennf93/guard-core-t
 
 > **get** **body**(): `Uint8Array`\<`ArrayBufferLike`\> \| `null`
 
-Defined in: [express/src/adapters.ts:44](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L44)
+Defined in: [express/src/adapters.ts:44](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L44)
 
 ##### Returns
 
@@ -71,7 +71,7 @@ Defined in: [express/src/adapters.ts:44](https://github.com/rennf93/guard-core-t
 
 > **get** **bodyText**(): `string` \| `null`
 
-Defined in: [express/src/adapters.ts:45](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L45)
+Defined in: [express/src/adapters.ts:45](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L45)
 
 ##### Returns
 
@@ -89,7 +89,7 @@ Defined in: [express/src/adapters.ts:45](https://github.com/rennf93/guard-core-t
 
 > **get** **headers**(): `Record`\<`string`, `string`\>
 
-Defined in: [express/src/adapters.ts:42](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L42)
+Defined in: [express/src/adapters.ts:42](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L42)
 
 ##### Returns
 
@@ -105,7 +105,7 @@ Defined in: [express/src/adapters.ts:42](https://github.com/rennf93/guard-core-t
 
 > **setHeader**(`name`, `value`): `void`
 
-Defined in: [express/src/adapters.ts:43](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L43)
+Defined in: [express/src/adapters.ts:43](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L43)
 
 #### Parameters
 

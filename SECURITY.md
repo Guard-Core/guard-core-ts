@@ -14,7 +14,7 @@
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
-Instead, please report them through [GitHub Security Advisories](https://github.com/rennf93/guard-core-ts/security/advisories/new).
+Instead, please report them through [GitHub Security Advisories](https://github.com/Guard-Core/guard-core-ts/security/advisories/new).
 
 You will receive an acknowledgment within **48 hours** from [@rennf93](https://github.com/rennf93).
 

@@ -5,7 +5,7 @@ prev: false
 title: "RouteConfig"
 ---
 
-Defined in: [core/src/models/route-config.ts:5](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L5)
+Defined in: [core/src/models/route-config.ts:5](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L5)
 
 ## Constructors
 
@@ -23,7 +23,7 @@ Defined in: [core/src/models/route-config.ts:5](https://github.com/rennf93/guard
 
 > **allowedContentTypes**: `string`[] \| `null` = `null`
 
-Defined in: [core/src/models/route-config.ts:21](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L21)
+Defined in: [core/src/models/route-config.ts:21](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L21)
 
 ***
 
@@ -31,7 +31,7 @@ Defined in: [core/src/models/route-config.ts:21](https://github.com/rennf93/guar
 
 > **apiKeyRequired**: `boolean` = `false`
 
-Defined in: [core/src/models/route-config.ts:25](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L25)
+Defined in: [core/src/models/route-config.ts:25](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L25)
 
 ***
 
@@ -39,7 +39,7 @@ Defined in: [core/src/models/route-config.ts:25](https://github.com/rennf93/guar
 
 > **authRequired**: `string` \| `null` = `null`
 
-Defined in: [core/src/models/route-config.ts:14](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L14)
+Defined in: [core/src/models/route-config.ts:14](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L14)
 
 ***
 
@@ -47,7 +47,7 @@ Defined in: [core/src/models/route-config.ts:14](https://github.com/rennf93/guar
 
 > **behaviorRules**: [`BehaviorRule`](/guard-core-ts/api/core/src/classes/behaviorrule/)[] = `[]`
 
-Defined in: [core/src/models/route-config.ts:18](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L18)
+Defined in: [core/src/models/route-config.ts:18](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L18)
 
 ***
 
@@ -55,7 +55,7 @@ Defined in: [core/src/models/route-config.ts:18](https://github.com/rennf93/guar
 
 > **blockCloudProviders**: `Set`\<`string`\>
 
-Defined in: [core/src/models/route-config.ts:19](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L19)
+Defined in: [core/src/models/route-config.ts:19](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L19)
 
 ***
 
@@ -63,7 +63,7 @@ Defined in: [core/src/models/route-config.ts:19](https://github.com/rennf93/guar
 
 > **blockedCountries**: `string`[] \| `null` = `null`
 
-Defined in: [core/src/models/route-config.ts:10](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L10)
+Defined in: [core/src/models/route-config.ts:10](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L10)
 
 ***
 
@@ -71,7 +71,7 @@ Defined in: [core/src/models/route-config.ts:10](https://github.com/rennf93/guar
 
 > **blockedUserAgents**: `string`[] = `[]`
 
-Defined in: [core/src/models/route-config.ts:16](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L16)
+Defined in: [core/src/models/route-config.ts:16](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L16)
 
 ***
 
@@ -79,7 +79,7 @@ Defined in: [core/src/models/route-config.ts:16](https://github.com/rennf93/guar
 
 > **bypassedChecks**: `Set`\<`string`\>
 
-Defined in: [core/src/models/route-config.ts:12](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L12)
+Defined in: [core/src/models/route-config.ts:12](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L12)
 
 ***
 
@@ -87,7 +87,7 @@ Defined in: [core/src/models/route-config.ts:12](https://github.com/rennf93/guar
 
 > **customValidators**: (`request`) => `Promise`\<[`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/) \| `null`\>[] = `[]`
 
-Defined in: [core/src/models/route-config.ts:15](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L15)
+Defined in: [core/src/models/route-config.ts:15](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L15)
 
 #### Parameters
 
@@ -105,7 +105,7 @@ Defined in: [core/src/models/route-config.ts:15](https://github.com/rennf93/guar
 
 > **enableSuspiciousDetection**: `boolean` = `true`
 
-Defined in: [core/src/models/route-config.ts:23](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L23)
+Defined in: [core/src/models/route-config.ts:23](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L23)
 
 ***
 
@@ -113,7 +113,7 @@ Defined in: [core/src/models/route-config.ts:23](https://github.com/rennf93/guar
 
 > **geoRateLimits**: `Record`\<`string`, \[`number`, `number`\]\> \| `null` = `null`
 
-Defined in: [core/src/models/route-config.ts:27](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L27)
+Defined in: [core/src/models/route-config.ts:27](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L27)
 
 ***
 
@@ -121,7 +121,7 @@ Defined in: [core/src/models/route-config.ts:27](https://github.com/rennf93/guar
 
 > **ipBlacklist**: `string`[] \| `null` = `null`
 
-Defined in: [core/src/models/route-config.ts:9](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L9)
+Defined in: [core/src/models/route-config.ts:9](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L9)
 
 ***
 
@@ -129,7 +129,7 @@ Defined in: [core/src/models/route-config.ts:9](https://github.com/rennf93/guard
 
 > **ipWhitelist**: `string`[] \| `null` = `null`
 
-Defined in: [core/src/models/route-config.ts:8](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L8)
+Defined in: [core/src/models/route-config.ts:8](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L8)
 
 ***
 
@@ -137,7 +137,7 @@ Defined in: [core/src/models/route-config.ts:8](https://github.com/rennf93/guard
 
 > **maxRequestSize**: `number` \| `null` = `null`
 
-Defined in: [core/src/models/route-config.ts:20](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L20)
+Defined in: [core/src/models/route-config.ts:20](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L20)
 
 ***
 
@@ -145,7 +145,7 @@ Defined in: [core/src/models/route-config.ts:20](https://github.com/rennf93/guar
 
 > **rateLimit**: `number` \| `null` = `null`
 
-Defined in: [core/src/models/route-config.ts:6](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L6)
+Defined in: [core/src/models/route-config.ts:6](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L6)
 
 ***
 
@@ -153,7 +153,7 @@ Defined in: [core/src/models/route-config.ts:6](https://github.com/rennf93/guard
 
 > **rateLimitWindow**: `number` \| `null` = `null`
 
-Defined in: [core/src/models/route-config.ts:7](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L7)
+Defined in: [core/src/models/route-config.ts:7](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L7)
 
 ***
 
@@ -161,7 +161,7 @@ Defined in: [core/src/models/route-config.ts:7](https://github.com/rennf93/guard
 
 > **requiredHeaders**: `Record`\<`string`, `string`\> = `{}`
 
-Defined in: [core/src/models/route-config.ts:17](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L17)
+Defined in: [core/src/models/route-config.ts:17](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L17)
 
 ***
 
@@ -169,7 +169,7 @@ Defined in: [core/src/models/route-config.ts:17](https://github.com/rennf93/guar
 
 > **requireHttps**: `boolean` = `false`
 
-Defined in: [core/src/models/route-config.ts:13](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L13)
+Defined in: [core/src/models/route-config.ts:13](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L13)
 
 ***
 
@@ -177,7 +177,7 @@ Defined in: [core/src/models/route-config.ts:13](https://github.com/rennf93/guar
 
 > **requireReferrer**: `string`[] \| `null` = `null`
 
-Defined in: [core/src/models/route-config.ts:24](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L24)
+Defined in: [core/src/models/route-config.ts:24](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L24)
 
 ***
 
@@ -185,7 +185,7 @@ Defined in: [core/src/models/route-config.ts:24](https://github.com/rennf93/guar
 
 > **sessionLimits**: `Record`\<`string`, `number`\> \| `null` = `null`
 
-Defined in: [core/src/models/route-config.ts:26](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L26)
+Defined in: [core/src/models/route-config.ts:26](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L26)
 
 ***
 
@@ -193,7 +193,7 @@ Defined in: [core/src/models/route-config.ts:26](https://github.com/rennf93/guar
 
 > **timeRestrictions**: \{ `end`: `string`; `start`: `string`; \} \| `null` = `null`
 
-Defined in: [core/src/models/route-config.ts:22](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L22)
+Defined in: [core/src/models/route-config.ts:22](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L22)
 
 ***
 
@@ -201,4 +201,4 @@ Defined in: [core/src/models/route-config.ts:22](https://github.com/rennf93/guar
 
 > **whitelistCountries**: `string`[] \| `null` = `null`
 
-Defined in: [core/src/models/route-config.ts:11](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L11)
+Defined in: [core/src/models/route-config.ts:11](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/route-config.ts#L11)

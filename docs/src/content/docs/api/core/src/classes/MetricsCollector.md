@@ -5,7 +5,7 @@ prev: false
 title: "MetricsCollector"
 ---
 
-Defined in: [core/src/core/events/metrics.ts:6](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/events/metrics.ts#L6)
+Defined in: [core/src/core/events/metrics.ts:6](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/events/metrics.ts#L6)
 
 ## Constructors
 
@@ -13,7 +13,7 @@ Defined in: [core/src/core/events/metrics.ts:6](https://github.com/rennf93/guard
 
 > **new MetricsCollector**(`agentHandler`, `config`, `logger`): `MetricsCollector`
 
-Defined in: [core/src/core/events/metrics.ts:7](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/events/metrics.ts#L7)
+Defined in: [core/src/core/events/metrics.ts:7](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/events/metrics.ts#L7)
 
 #### Parameters
 
@@ -293,7 +293,7 @@ Defined in: [core/src/core/events/metrics.ts:7](https://github.com/rennf93/guard
 
 > **collectRequestMetrics**(`request`, `responseTime`, `statusCode`): `Promise`\<`void`\>
 
-Defined in: [core/src/core/events/metrics.ts:32](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/events/metrics.ts#L32)
+Defined in: [core/src/core/events/metrics.ts:32](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/events/metrics.ts#L32)
 
 #### Parameters
 
@@ -319,7 +319,7 @@ Defined in: [core/src/core/events/metrics.ts:32](https://github.com/rennf93/guar
 
 > **sendMetric**(`metricType`, `value`, `tags?`): `Promise`\<`void`\>
 
-Defined in: [core/src/core/events/metrics.ts:13](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/events/metrics.ts#L13)
+Defined in: [core/src/core/events/metrics.ts:13](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/events/metrics.ts#L13)
 
 #### Parameters
 

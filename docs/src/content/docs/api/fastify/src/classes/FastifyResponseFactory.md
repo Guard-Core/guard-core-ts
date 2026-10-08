@@ -5,7 +5,7 @@ prev: false
 title: "FastifyResponseFactory"
 ---
 
-Defined in: [fastify/src/adapters.ts:43](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L43)
+Defined in: [fastify/src/adapters.ts:43](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L43)
 
 ## Implements
 
@@ -27,7 +27,7 @@ Defined in: [fastify/src/adapters.ts:43](https://github.com/rennf93/guard-core-t
 
 > **createRedirectResponse**(`url`, `statusCode`): [`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/)
 
-Defined in: [fastify/src/adapters.ts:48](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L48)
+Defined in: [fastify/src/adapters.ts:48](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L48)
 
 #### Parameters
 
@@ -53,7 +53,7 @@ Defined in: [fastify/src/adapters.ts:48](https://github.com/rennf93/guard-core-t
 
 > **createResponse**(`content`, `statusCode`): [`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/)
 
-Defined in: [fastify/src/adapters.ts:44](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L44)
+Defined in: [fastify/src/adapters.ts:44](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L44)
 
 #### Parameters
 

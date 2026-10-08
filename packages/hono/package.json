@@ -40,7 +40,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rennf93/guard-core-ts.git",
+    "url": "git+https://github.com/Guard-Core/guard-core-ts.git",
     "directory": "packages/hono"
   },
   "publishConfig": {

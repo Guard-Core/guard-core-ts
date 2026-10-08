@@ -8,7 +8,7 @@ This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.
 
 ## How to Report Bugs
 
-Please open a [GitHub Issue](https://github.com/rennf93/guard-core-ts/issues/new?template=bug_report.md) with the following information:
+Please open a [GitHub Issue](https://github.com/Guard-Core/guard-core-ts/issues/new?template=bug_report.md) with the following information:
 
 - **Title**: A clear and descriptive title
 - **Steps to reproduce**: Minimal steps to reproduce the behavior
@@ -23,7 +23,7 @@ Please open a [GitHub Issue](https://github.com/rennf93/guard-core-ts/issues/new
 
 ## Enhancement Suggestions
 
-Open a [Feature Request](https://github.com/rennf93/guard-core-ts/issues/new?template=feature_request.md) with:
+Open a [Feature Request](https://github.com/Guard-Core/guard-core-ts/issues/new?template=feature_request.md) with:
 
 - A clear description of the problem you are trying to solve
 - Your proposed solution with TypeScript API examples
@@ -45,7 +45,7 @@ All PRs must meet the following criteria before merging:
 ## Development Setup
 
 ```bash
-git clone https://github.com/rennf93/guard-core-ts.git
+git clone https://github.com/Guard-Core/guard-core-ts.git
 cd guard-core-ts
 pnpm install
 pnpm build

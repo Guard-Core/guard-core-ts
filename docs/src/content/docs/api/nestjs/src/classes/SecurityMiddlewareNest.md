@@ -5,7 +5,7 @@ prev: false
 title: "SecurityMiddlewareNest"
 ---
 
-Defined in: [nestjs/src/guard-module.ts:26](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/guard-module.ts#L26)
+Defined in: [nestjs/src/guard-module.ts:26](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/guard-module.ts#L26)
 
 ## Implements
 
@@ -17,7 +17,7 @@ Defined in: [nestjs/src/guard-module.ts:26](https://github.com/rennf93/guard-cor
 
 > **new SecurityMiddlewareNest**(`components`): `SecurityMiddlewareNest`
 
-Defined in: [nestjs/src/guard-module.ts:27](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/guard-module.ts#L27)
+Defined in: [nestjs/src/guard-module.ts:27](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/guard-module.ts#L27)
 
 #### Parameters
 
@@ -35,7 +35,7 @@ Defined in: [nestjs/src/guard-module.ts:27](https://github.com/rennf93/guard-cor
 
 > **use**(`req`, `res`, `next`): `Promise`\<`void`\>
 
-Defined in: [nestjs/src/guard-module.ts:31](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/guard-module.ts#L31)
+Defined in: [nestjs/src/guard-module.ts:31](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/guard-module.ts#L31)
 
 #### Parameters
 

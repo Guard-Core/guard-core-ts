@@ -7,7 +7,7 @@ title: "checkIpCountry"
 
 > **checkIpCountry**(`ip`, `config`, `geoIpHandler`): `Promise`\<`boolean`\>
 
-Defined in: [core/src/utils.ts:121](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/utils.ts#L121)
+Defined in: [core/src/utils.ts:121](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/utils.ts#L121)
 
 ## Parameters
 

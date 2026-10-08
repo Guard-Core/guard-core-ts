@@ -35,7 +35,7 @@ What `@guardcore/core` provides:
 ```
 
 - Adapters depend on core with `@guardcore/core: workspace:*`, so core must be built before adapters (turbo enforces this with `dependsOn: ["^build"]`)
-- This repo ports guard-core (https://github.com/rennf93/guard-core), the Python engine; when in doubt about intended behavior, the Python project is the upstream reference
+- This repo ports guard-core (https://github.com/Guard-Core/guard-core), the Python engine; when in doubt about intended behavior, the Python project is the upstream reference
 - Publishing is lock-step: all packages carry the same version, bumped together with `make bump-version VERSION=x.y.z`; a GitHub Release triggers .github/workflows/release.yml, which publishes each package to npm with provenance
 
 ## Boundary Rules
@@ -224,6 +224,6 @@ From tsconfig.base.json and CONTRIBUTING.md (both enforced by CI):
 
 ## Related Projects
 
-- guard-core (https://github.com/rennf93/guard-core) - the Python engine this repo ports; upstream reference for behavior and patterns
+- guard-core (https://github.com/Guard-Core/guard-core) - the Python engine this repo ports; upstream reference for behavior and patterns
 - In-repo adapters: @guardcore/express, @guardcore/fastify, @guardcore/hono, @guardcore/nestjs (each under packages/ with its own tests and examples/ apps)
 - examples/ contains a runnable app per adapter showing configuration with SecurityConfigSchema.parse

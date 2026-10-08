@@ -5,7 +5,7 @@ prev: false
 title: "PerformanceMonitor"
 ---
 
-Defined in: [core/src/detection-engine/monitor.ts:68](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L68)
+Defined in: [core/src/detection-engine/monitor.ts:68](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L68)
 
 ## Constructors
 
@@ -13,7 +13,7 @@ Defined in: [core/src/detection-engine/monitor.ts:68](https://github.com/rennf93
 
 > **new PerformanceMonitor**(`anomalyThreshold?`, `slowPatternThreshold?`, `historySize?`, `maxTrackedPatterns?`): `PerformanceMonitor`
 
-Defined in: [core/src/detection-engine/monitor.ts:78](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L78)
+Defined in: [core/src/detection-engine/monitor.ts:78](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L78)
 
 #### Parameters
 
@@ -43,7 +43,7 @@ Defined in: [core/src/detection-engine/monitor.ts:78](https://github.com/rennf93
 
 > **clearStats**(): `Promise`\<`void`\>
 
-Defined in: [core/src/detection-engine/monitor.ts:323](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L323)
+Defined in: [core/src/detection-engine/monitor.ts:323](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L323)
 
 #### Returns
 
@@ -55,7 +55,7 @@ Defined in: [core/src/detection-engine/monitor.ts:323](https://github.com/rennf9
 
 > **getPatternReport**(`pattern`): [`PatternReport`](/guard-core-ts/api/core/src/interfaces/patternreport/) \| `null`
 
-Defined in: [core/src/detection-engine/monitor.ts:232](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L232)
+Defined in: [core/src/detection-engine/monitor.ts:232](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L232)
 
 #### Parameters
 
@@ -73,7 +73,7 @@ Defined in: [core/src/detection-engine/monitor.ts:232](https://github.com/rennf9
 
 > **getProblematicPatterns**(): [`PatternReport`](/guard-core-ts/api/core/src/interfaces/patternreport/)[]
 
-Defined in: [core/src/detection-engine/monitor.ts:271](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L271)
+Defined in: [core/src/detection-engine/monitor.ts:271](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L271)
 
 #### Returns
 
@@ -85,7 +85,7 @@ Defined in: [core/src/detection-engine/monitor.ts:271](https://github.com/rennf9
 
 > **getSlowPatterns**(`limit?`): [`PatternReport`](/guard-core-ts/api/core/src/interfaces/patternreport/)[]
 
-Defined in: [core/src/detection-engine/monitor.ts:257](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L257)
+Defined in: [core/src/detection-engine/monitor.ts:257](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L257)
 
 #### Parameters
 
@@ -103,7 +103,7 @@ Defined in: [core/src/detection-engine/monitor.ts:257](https://github.com/rennf9
 
 > **getSummaryStats**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [core/src/detection-engine/monitor.ts:296](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L296)
+Defined in: [core/src/detection-engine/monitor.ts:296](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L296)
 
 #### Returns
 
@@ -115,7 +115,7 @@ Defined in: [core/src/detection-engine/monitor.ts:296](https://github.com/rennf9
 
 > **recordMetric**(`pattern`, `executionTime`, `contentLength`, `matched`, `timeout?`, `agentHandler?`, `correlationId?`): `Promise`\<`void`\>
 
-Defined in: [core/src/detection-engine/monitor.ts:90](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L90)
+Defined in: [core/src/detection-engine/monitor.ts:90](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L90)
 
 #### Parameters
 
@@ -157,7 +157,7 @@ Defined in: [core/src/detection-engine/monitor.ts:90](https://github.com/rennf93
 
 > **registerAnomalyCallback**(`callback`): `void`
 
-Defined in: [core/src/detection-engine/monitor.ts:319](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L319)
+Defined in: [core/src/detection-engine/monitor.ts:319](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L319)
 
 #### Parameters
 
@@ -175,7 +175,7 @@ Defined in: [core/src/detection-engine/monitor.ts:319](https://github.com/rennf9
 
 > **removePatternStats**(`pattern`): `Promise`\<`void`\>
 
-Defined in: [core/src/detection-engine/monitor.ts:328](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L328)
+Defined in: [core/src/detection-engine/monitor.ts:328](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L328)
 
 #### Parameters
 

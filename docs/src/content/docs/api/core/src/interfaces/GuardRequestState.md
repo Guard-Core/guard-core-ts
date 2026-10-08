@@ -5,7 +5,7 @@ prev: false
 title: "GuardRequestState"
 ---
 
-Defined in: [core/src/protocols/request.ts:1](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/request.ts#L1)
+Defined in: [core/src/protocols/request.ts:1](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/request.ts#L1)
 
 ## Indexable
 
@@ -17,7 +17,7 @@ Defined in: [core/src/protocols/request.ts:1](https://github.com/rennf93/guard-c
 
 > `optional` **guardDecorator?**: `unknown`
 
-Defined in: [core/src/protocols/request.ts:4](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/request.ts#L4)
+Defined in: [core/src/protocols/request.ts:4](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/request.ts#L4)
 
 ***
 
@@ -25,7 +25,7 @@ Defined in: [core/src/protocols/request.ts:4](https://github.com/rennf93/guard-c
 
 > `optional` **guardEndpointId?**: `string`
 
-Defined in: [core/src/protocols/request.ts:3](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/request.ts#L3)
+Defined in: [core/src/protocols/request.ts:3](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/request.ts#L3)
 
 ***
 
@@ -33,4 +33,4 @@ Defined in: [core/src/protocols/request.ts:3](https://github.com/rennf93/guard-c
 
 > `optional` **guardRouteId?**: `string`
 
-Defined in: [core/src/protocols/request.ts:2](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/request.ts#L2)
+Defined in: [core/src/protocols/request.ts:2](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/request.ts#L2)

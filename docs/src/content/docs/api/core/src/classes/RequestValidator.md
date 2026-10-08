@@ -5,7 +5,7 @@ prev: false
 title: "RequestValidator"
 ---
 
-Defined in: [core/src/core/validation/validator.ts:8](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/validation/validator.ts#L8)
+Defined in: [core/src/core/validation/validator.ts:8](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/validation/validator.ts#L8)
 
 ## Constructors
 
@@ -13,7 +13,7 @@ Defined in: [core/src/core/validation/validator.ts:8](https://github.com/rennf93
 
 > **new RequestValidator**(`config`, `logger`, `eventBus`): `RequestValidator`
 
-Defined in: [core/src/core/validation/validator.ts:9](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/validation/validator.ts#L9)
+Defined in: [core/src/core/validation/validator.ts:9](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/validation/validator.ts#L9)
 
 #### Parameters
 
@@ -293,7 +293,7 @@ Defined in: [core/src/core/validation/validator.ts:9](https://github.com/rennf93
 
 > **checkTimeWindow**(`timeRestrictions`): `Promise`\<`boolean`\>
 
-Defined in: [core/src/core/validation/validator.ts:47](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/validation/validator.ts#L47)
+Defined in: [core/src/core/validation/validator.ts:47](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/validation/validator.ts#L47)
 
 #### Parameters
 
@@ -317,7 +317,7 @@ Defined in: [core/src/core/validation/validator.ts:47](https://github.com/rennf9
 
 > **isPathExcluded**(`request`): `Promise`\<`boolean`\>
 
-Defined in: [core/src/core/validation/validator.ts:65](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/validation/validator.ts#L65)
+Defined in: [core/src/core/validation/validator.ts:65](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/validation/validator.ts#L65)
 
 #### Parameters
 
@@ -335,7 +335,7 @@ Defined in: [core/src/core/validation/validator.ts:65](https://github.com/rennf9
 
 > **isRequestHttps**(`request`): `boolean`
 
-Defined in: [core/src/core/validation/validator.ts:15](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/validation/validator.ts#L15)
+Defined in: [core/src/core/validation/validator.ts:15](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/validation/validator.ts#L15)
 
 #### Parameters
 
@@ -353,7 +353,7 @@ Defined in: [core/src/core/validation/validator.ts:15](https://github.com/rennf9
 
 > **isTrustedProxy**(`connectingIp`): `boolean`
 
-Defined in: [core/src/core/validation/validator.ts:32](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/validation/validator.ts#L32)
+Defined in: [core/src/core/validation/validator.ts:32](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/validation/validator.ts#L32)
 
 #### Parameters
 

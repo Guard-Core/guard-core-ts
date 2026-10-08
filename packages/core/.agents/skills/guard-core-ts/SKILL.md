@@ -1,6 +1,6 @@
 ---
 name: guard-core-ts
-description: Use when working in the guardcore-ts monorepo (github.com/rennf93/guard-core-ts) or consuming @guardcore/core, the framework-agnostic TypeScript security middleware engine (IP and CIDR allow/deny, auto-ban, sliding-window rate limiting, 75-pattern penetration detection with semantic analysis, security headers, behavioral analysis, cloud provider and country blocking). Load this skill when implementing or reviewing the 17-check security pipeline, the detection engine (PatternCompiler, ContentPreprocessor, SemanticAnalyzer, PerformanceMonitor), the GuardRequest/GuardResponse protocol layer, adapters for express/fastify/hono/nestjs, the SecurityDecorator mixin system, or when editing packages/core where vitest 100% statement coverage and strict no-any TypeScript rules are enforced.
+description: Use when working in the guardcore-ts monorepo (github.com/Guard-Core/guard-core-ts) or consuming @guardcore/core, the framework-agnostic TypeScript security middleware engine (IP and CIDR allow/deny, auto-ban, sliding-window rate limiting, 75-pattern penetration detection with semantic analysis, security headers, behavioral analysis, cloud provider and country blocking). Load this skill when implementing or reviewing the 17-check security pipeline, the detection engine (PatternCompiler, ContentPreprocessor, SemanticAnalyzer, PerformanceMonitor), the GuardRequest/GuardResponse protocol layer, adapters for express/fastify/hono/nestjs, the SecurityDecorator mixin system, or when editing packages/core where vitest 100% statement coverage and strict no-any TypeScript rules are enforced.
 ---
 
 # guard-core-ts
@@ -165,6 +165,6 @@ Exported from packages/core/src/utils.ts:
 
 ## Related Projects
 
-- guard-core (https://github.com/rennf93/guard-core) - the Python engine this repository ports; upstream source of truth for patterns, Redis key layouts, and behavior
+- guard-core (https://github.com/Guard-Core/guard-core) - the Python engine this repository ports; upstream source of truth for patterns, Redis key layouts, and behavior
 - In-repo adapter packages: `packages/express`, `packages/fastify`, `packages/hono`, `packages/nestjs`, each with runnable examples under `examples/`
 - Repo-level guidance: AGENTS.md / CLAUDE.md at the repository root

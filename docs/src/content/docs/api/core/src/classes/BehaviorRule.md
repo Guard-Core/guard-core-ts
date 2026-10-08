@@ -5,7 +5,7 @@ prev: false
 title: "BehaviorRule"
 ---
 
-Defined in: [core/src/models/behavior-rule.ts:4](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/behavior-rule.ts#L4)
+Defined in: [core/src/models/behavior-rule.ts:4](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/behavior-rule.ts#L4)
 
 ## Constructors
 
@@ -13,7 +13,7 @@ Defined in: [core/src/models/behavior-rule.ts:4](https://github.com/rennf93/guar
 
 > **new BehaviorRule**(`ruleType`, `threshold`, `window?`, `pattern?`, `action?`, `customAction?`): `BehaviorRule`
 
-Defined in: [core/src/models/behavior-rule.ts:12](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/behavior-rule.ts#L12)
+Defined in: [core/src/models/behavior-rule.ts:12](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/behavior-rule.ts#L12)
 
 #### Parameters
 
@@ -51,7 +51,7 @@ Defined in: [core/src/models/behavior-rule.ts:12](https://github.com/rennf93/gua
 
 > `readonly` **action**: [`BehaviorAction`](/guard-core-ts/api/core/src/type-aliases/behavioraction/)
 
-Defined in: [core/src/models/behavior-rule.ts:9](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/behavior-rule.ts#L9)
+Defined in: [core/src/models/behavior-rule.ts:9](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/behavior-rule.ts#L9)
 
 ***
 
@@ -59,7 +59,7 @@ Defined in: [core/src/models/behavior-rule.ts:9](https://github.com/rennf93/guar
 
 > `readonly` **customAction**: ((...`args`) => `unknown`) \| `null`
 
-Defined in: [core/src/models/behavior-rule.ts:10](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/behavior-rule.ts#L10)
+Defined in: [core/src/models/behavior-rule.ts:10](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/behavior-rule.ts#L10)
 
 ***
 
@@ -67,7 +67,7 @@ Defined in: [core/src/models/behavior-rule.ts:10](https://github.com/rennf93/gua
 
 > `readonly` **pattern**: `string` \| `null`
 
-Defined in: [core/src/models/behavior-rule.ts:8](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/behavior-rule.ts#L8)
+Defined in: [core/src/models/behavior-rule.ts:8](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/behavior-rule.ts#L8)
 
 ***
 
@@ -75,7 +75,7 @@ Defined in: [core/src/models/behavior-rule.ts:8](https://github.com/rennf93/guar
 
 > `readonly` **ruleType**: [`BehaviorRuleType`](/guard-core-ts/api/core/src/type-aliases/behaviorruletype/)
 
-Defined in: [core/src/models/behavior-rule.ts:5](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/behavior-rule.ts#L5)
+Defined in: [core/src/models/behavior-rule.ts:5](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/behavior-rule.ts#L5)
 
 ***
 
@@ -83,7 +83,7 @@ Defined in: [core/src/models/behavior-rule.ts:5](https://github.com/rennf93/guar
 
 > `readonly` **threshold**: `number`
 
-Defined in: [core/src/models/behavior-rule.ts:6](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/behavior-rule.ts#L6)
+Defined in: [core/src/models/behavior-rule.ts:6](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/behavior-rule.ts#L6)
 
 ***
 
@@ -91,4 +91,4 @@ Defined in: [core/src/models/behavior-rule.ts:6](https://github.com/rennf93/guar
 
 > `readonly` **window**: `number`
 
-Defined in: [core/src/models/behavior-rule.ts:7](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/behavior-rule.ts#L7)
+Defined in: [core/src/models/behavior-rule.ts:7](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/behavior-rule.ts#L7)

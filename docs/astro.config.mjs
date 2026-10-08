@@ -3,12 +3,12 @@ import starlight from '@astrojs/starlight';
 import starlightTypeDoc, { typeDocSidebarGroup } from 'starlight-typedoc';
 
 export default defineConfig({
-	site: 'https://rennf93.github.io',
+	site: 'https://guard-core.github.io',
 	base: '/guard-core-ts',
 	integrations: [
 		starlight({
 			title: '@guardcore',
-			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/rennf93/guard-core-ts' }],
+			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/Guard-Core/guard-core-ts' }],
 			plugins: [
 				starlightTypeDoc({
 					entryPoints: [

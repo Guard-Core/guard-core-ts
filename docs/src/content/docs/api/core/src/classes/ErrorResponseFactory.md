@@ -5,7 +5,7 @@ prev: false
 title: "ErrorResponseFactory"
 ---
 
-Defined in: [core/src/core/responses/factory.ts:10](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/responses/factory.ts#L10)
+Defined in: [core/src/core/responses/factory.ts:10](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/responses/factory.ts#L10)
 
 ## Constructors
 
@@ -13,7 +13,7 @@ Defined in: [core/src/core/responses/factory.ts:10](https://github.com/rennf93/g
 
 > **new ErrorResponseFactory**(`config`, `logger`, `metricsCollector`, `guardResponseFactory`, `securityHeadersManager`, `agentHandler?`): `ErrorResponseFactory`
 
-Defined in: [core/src/core/responses/factory.ts:11](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/responses/factory.ts#L11)
+Defined in: [core/src/core/responses/factory.ts:11](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/responses/factory.ts#L11)
 
 #### Parameters
 
@@ -305,7 +305,7 @@ Defined in: [core/src/core/responses/factory.ts:11](https://github.com/rennf93/g
 
 > **applyCorsHeaders**(`response`, `origin`): `Promise`\<[`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/)\>
 
-Defined in: [core/src/core/responses/factory.ts:45](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/responses/factory.ts#L45)
+Defined in: [core/src/core/responses/factory.ts:45](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/responses/factory.ts#L45)
 
 #### Parameters
 
@@ -327,7 +327,7 @@ Defined in: [core/src/core/responses/factory.ts:45](https://github.com/rennf93/g
 
 > **applyModifier**(`response`): `Promise`\<[`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/)\>
 
-Defined in: [core/src/core/responses/factory.ts:53](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/responses/factory.ts#L53)
+Defined in: [core/src/core/responses/factory.ts:53](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/responses/factory.ts#L53)
 
 #### Parameters
 
@@ -345,7 +345,7 @@ Defined in: [core/src/core/responses/factory.ts:53](https://github.com/rennf93/g
 
 > **applySecurityHeaders**(`response`, `requestPath?`): `Promise`\<[`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/)\>
 
-Defined in: [core/src/core/responses/factory.ts:34](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/responses/factory.ts#L34)
+Defined in: [core/src/core/responses/factory.ts:34](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/responses/factory.ts#L34)
 
 #### Parameters
 
@@ -367,7 +367,7 @@ Defined in: [core/src/core/responses/factory.ts:34](https://github.com/rennf93/g
 
 > **createErrorResponse**(`statusCode`, `defaultMessage`): `Promise`\<[`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/)\>
 
-Defined in: [core/src/core/responses/factory.ts:20](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/responses/factory.ts#L20)
+Defined in: [core/src/core/responses/factory.ts:20](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/responses/factory.ts#L20)
 
 #### Parameters
 
@@ -389,7 +389,7 @@ Defined in: [core/src/core/responses/factory.ts:20](https://github.com/rennf93/g
 
 > **createHttpsRedirect**(`request`): `Promise`\<[`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/)\>
 
-Defined in: [core/src/core/responses/factory.ts:28](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/responses/factory.ts#L28)
+Defined in: [core/src/core/responses/factory.ts:28](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/responses/factory.ts#L28)
 
 #### Parameters
 
@@ -407,7 +407,7 @@ Defined in: [core/src/core/responses/factory.ts:28](https://github.com/rennf93/g
 
 > **processResponse**(`request`, `response`, `responseTime`, `routeConfig`, `processBehavioralRules?`): `Promise`\<[`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/)\>
 
-Defined in: [core/src/core/responses/factory.ts:60](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/responses/factory.ts#L60)
+Defined in: [core/src/core/responses/factory.ts:60](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/responses/factory.ts#L60)
 
 #### Parameters
 

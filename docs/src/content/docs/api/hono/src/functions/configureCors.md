@@ -7,7 +7,7 @@ title: "configureCors"
 
 > **configureCors**(`app`, `config`): `void`
 
-Defined in: [hono/src/cors.ts:5](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/hono/src/cors.ts#L5)
+Defined in: [hono/src/cors.ts:5](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/hono/src/cors.ts#L5)
 
 ## Parameters
 

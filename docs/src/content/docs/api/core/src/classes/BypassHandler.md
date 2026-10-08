@@ -5,7 +5,7 @@ prev: false
 title: "BypassHandler"
 ---
 
-Defined in: [core/src/core/bypass/handler.ts:10](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/bypass/handler.ts#L10)
+Defined in: [core/src/core/bypass/handler.ts:10](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/bypass/handler.ts#L10)
 
 ## Constructors
 
@@ -13,7 +13,7 @@ Defined in: [core/src/core/bypass/handler.ts:10](https://github.com/rennf93/guar
 
 > **new BypassHandler**(`config`, `eventBus`, `routeResolver`, `responseFactory`, `validator`): `BypassHandler`
 
-Defined in: [core/src/core/bypass/handler.ts:11](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/bypass/handler.ts#L11)
+Defined in: [core/src/core/bypass/handler.ts:11](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/bypass/handler.ts#L11)
 
 #### Parameters
 
@@ -301,7 +301,7 @@ Defined in: [core/src/core/bypass/handler.ts:11](https://github.com/rennf93/guar
 
 > **handlePassthrough**(`request`, `callNext`): `Promise`\<[`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/) \| `null`\>
 
-Defined in: [core/src/core/bypass/handler.ts:19](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/bypass/handler.ts#L19)
+Defined in: [core/src/core/bypass/handler.ts:19](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/bypass/handler.ts#L19)
 
 #### Parameters
 
@@ -323,7 +323,7 @@ Defined in: [core/src/core/bypass/handler.ts:19](https://github.com/rennf93/guar
 
 > **handleSecurityBypass**(`request`, `callNext`, `routeConfig`): `Promise`\<[`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/) \| `null`\>
 
-Defined in: [core/src/core/bypass/handler.ts:36](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/bypass/handler.ts#L36)
+Defined in: [core/src/core/bypass/handler.ts:36](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/bypass/handler.ts#L36)
 
 #### Parameters
 

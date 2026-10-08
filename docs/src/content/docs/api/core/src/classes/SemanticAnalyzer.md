@@ -5,7 +5,7 @@ prev: false
 title: "SemanticAnalyzer"
 ---
 
-Defined in: [core/src/detection-engine/semantic.ts:59](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L59)
+Defined in: [core/src/detection-engine/semantic.ts:59](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L59)
 
 ## Constructors
 
@@ -23,7 +23,7 @@ Defined in: [core/src/detection-engine/semantic.ts:59](https://github.com/rennf9
 
 > **analyze**(`content`): [`SemanticAnalysis`](/guard-core-ts/api/core/src/interfaces/semanticanalysis/)
 
-Defined in: [core/src/detection-engine/semantic.ts:215](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L215)
+Defined in: [core/src/detection-engine/semantic.ts:215](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L215)
 
 #### Parameters
 
@@ -41,7 +41,7 @@ Defined in: [core/src/detection-engine/semantic.ts:215](https://github.com/rennf
 
 > **analyzeAttackProbability**(`content`): `Record`\<`string`, `number`\>
 
-Defined in: [core/src/detection-engine/semantic.ts:123](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L123)
+Defined in: [core/src/detection-engine/semantic.ts:123](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L123)
 
 #### Parameters
 
@@ -59,7 +59,7 @@ Defined in: [core/src/detection-engine/semantic.ts:123](https://github.com/rennf
 
 > **analyzeCodeInjectionRisk**(`content`): `number`
 
-Defined in: [core/src/detection-engine/semantic.ts:185](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L185)
+Defined in: [core/src/detection-engine/semantic.ts:185](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L185)
 
 #### Parameters
 
@@ -77,7 +77,7 @@ Defined in: [core/src/detection-engine/semantic.ts:185](https://github.com/rennf
 
 > **calculateEntropy**(`content`): `number`
 
-Defined in: [core/src/detection-engine/semantic.ts:83](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L83)
+Defined in: [core/src/detection-engine/semantic.ts:83](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L83)
 
 #### Parameters
 
@@ -95,7 +95,7 @@ Defined in: [core/src/detection-engine/semantic.ts:83](https://github.com/rennf9
 
 > **detectEncodingLayers**(`content`): `number`
 
-Defined in: [core/src/detection-engine/semantic.ts:107](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L107)
+Defined in: [core/src/detection-engine/semantic.ts:107](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L107)
 
 #### Parameters
 
@@ -113,7 +113,7 @@ Defined in: [core/src/detection-engine/semantic.ts:107](https://github.com/rennf
 
 > **detectObfuscation**(`content`): `boolean`
 
-Defined in: [core/src/detection-engine/semantic.ts:151](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L151)
+Defined in: [core/src/detection-engine/semantic.ts:151](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L151)
 
 #### Parameters
 
@@ -131,7 +131,7 @@ Defined in: [core/src/detection-engine/semantic.ts:151](https://github.com/rennf
 
 > **extractSuspiciousPatterns**(`content`): `object`[]
 
-Defined in: [core/src/detection-engine/semantic.ts:164](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L164)
+Defined in: [core/src/detection-engine/semantic.ts:164](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L164)
 
 #### Parameters
 
@@ -149,7 +149,7 @@ Defined in: [core/src/detection-engine/semantic.ts:164](https://github.com/rennf
 
 > **extractTokens**(`content`): `string`[]
 
-Defined in: [core/src/detection-engine/semantic.ts:60](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L60)
+Defined in: [core/src/detection-engine/semantic.ts:60](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L60)
 
 #### Parameters
 
@@ -167,7 +167,7 @@ Defined in: [core/src/detection-engine/semantic.ts:60](https://github.com/rennf9
 
 > **getThreatScore**(`analysis`): `number`
 
-Defined in: [core/src/detection-engine/semantic.ts:227](https://github.com/rennf93/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L227)
+Defined in: [core/src/detection-engine/semantic.ts:227](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L227)
 
 #### Parameters
 
