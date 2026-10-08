@@ -26,17 +26,53 @@ jobs:
           npm --version
       - run: pnpm build
 
+      # Version-bump only the packages that ship in this release; a package
+      # whose version is already on the npm registry is skipped by the
+      # per-package check below (the registry rejects duplicate versions).
+      - name: Resolve versions to publish
+        id: versions
+        run: |
+          node - <<'NODE'
+          const fs = require("fs");
+          const { execSync } = require("child_process");
+          const packages = ["core", "express", "fastify", "nestjs", "hono"];
+          const out = {};
+          for (const pkg of packages) {
+            const manifest = JSON.parse(fs.readFileSync(`packages/${pkg}/package.json`, "utf8"));
+            const name = manifest.name;
+            const version = manifest.version;
+            let published = false;
+            try {
+              execSync(`npm view ${name}@${version} version`, { stdio: "pipe" });
+              published = true;
+            } catch {
+              published = false;
+            }
+            out[pkg] = published ? "skip" : "publish";
+            console.log(`${name}@${version}: ${out[pkg]}`);
+          }
+          const flag = (pkg) => `echo "publish_${pkg.replace("-", "_")}=${out[pkg]}" >> "$GITHUB_OUTPUT"`;
+          for (const pkg of packages) flag(pkg);
+          NODE
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+
       - name: Publish @guardcore/core
+        if: steps.versions.outputs.publish_core == 'publish'
         run: cd packages/core && pnpm publish --no-git-checks --access public --provenance
 
       - name: Publish @guardcore/express
+        if: steps.versions.outputs.publish_express == 'publish'
         run: cd packages/express && pnpm publish --no-git-checks --access public --provenance
 
       - name: Publish @guardcore/fastify
+        if: steps.versions.outputs.publish_fastify == 'publish'
         run: cd packages/fastify && pnpm publish --no-git-checks --access public --provenance
 
       - name: Publish @guardcore/nestjs
+        if: steps.versions.outputs.publish_nestjs == 'publish'
         run: cd packages/nestjs && pnpm publish --no-git-checks --access public --provenance
 
       - name: Publish @guardcore/hono
+        if: steps.versions.outputs.publish_hono == 'publish'
         run: cd packages/hono && pnpm publish --no-git-checks --access public --provenance
