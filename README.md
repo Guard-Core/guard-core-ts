@@ -1,17 +1,62 @@
-# @guardcore
+<p align="center">
+    <a href="https://guard-core.github.io/guard-core/latest/">
+        <img src="https://guard-core.github.io/guard-core/latest/assets/guard_core_legend.svg" alt="Guard Core">
+    </a>
+</p>
 
-> Framework-agnostic security middleware engine for Node.js and edge runtimes.
+___
 
-[![npm version](https://img.shields.io/npm/v/@guardcore/core.svg)](https://www.npmjs.com/package/@guardcore/core)
-[![CI](https://github.com/Guard-Core/guard-core-ts/actions/workflows/ci.yml/badge.svg)](https://github.com/Guard-Core/guard-core-ts/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/Guard-Core/guard-core-ts/actions/workflows/codeql.yml/badge.svg)](https://github.com/Guard-Core/guard-core-ts/actions/workflows/codeql.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.8+-blue.svg)](https://www.typescriptlang.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-18%2B-green.svg)](https://nodejs.org/)
+<p align="center">
+    <strong>Framework-agnostic security middleware engine for Node.js and edge runtimes.</strong>
+</p>
 
-TypeScript port of [guard-core](https://github.com/Guard-Core/guard-core) — the engine that powers the Guard security ecosystem. All shared security logic lives here. Framework-specific adapters wire it into Express, Fastify, NestJS, and Hono.
+<p align="center">
+    <a href="https://www.npmjs.com/package/@guardcore/core">
+        <img src="https://img.shields.io/npm/v/@guardcore/core?color=0080ff" alt="npm version">
+    </a>
+    <a href="https://guard-core.github.io/guard-core-ts/latest/">
+        <img src="https://img.shields.io/badge/docs-latest-0080ff.svg" alt="Docs">
+    </a>
+    <a href="https://github.com/Guard-Core/guard-core-ts/actions/workflows/release.yml">
+        <img src="https://github.com/Guard-Core/guard-core-ts/actions/workflows/release.yml/badge.svg" alt="Release">
+    </a>
+    <a href="https://opensource.org/licenses/MIT">
+        <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
+    </a>
+    <a href="https://github.com/Guard-Core/guard-core-ts/actions/workflows/ci.yml">
+        <img src="https://github.com/Guard-Core/guard-core-ts/actions/workflows/ci.yml/badge.svg" alt="CI">
+    </a>
+    <a href="https://github.com/Guard-Core/guard-core-ts/actions/workflows/codeql.yml">
+        <img src="https://github.com/Guard-Core/guard-core-ts/actions/workflows/codeql.yml/badge.svg" alt="CodeQL">
+    </a>
+</p>
 
-Docs: <https://guard-core.github.io/guard-core-ts/>
+<p align="center">
+    <a href="https://github.com/Guard-Core/guard-core-ts/actions/workflows/pages/pages-build-deployment">
+        <img src="https://github.com/Guard-Core/guard-core-ts/actions/workflows/pages/pages-build-deployment/badge.svg?branch=gh-pages" alt="PagesBuildDeployment">
+    </a>
+    <a href="https://github.com/Guard-Core/guard-core-ts/actions/workflows/docs.yml">
+        <img src="https://github.com/Guard-Core/guard-core-ts/actions/workflows/docs.yml/badge.svg" alt="DocsUpdate">
+    </a>
+    <img src="https://img.shields.io/github/last-commit/Guard-Core/guard-core-ts?style=flat&amp;logo=git&amp;logoColor=white&amp;color=0080ff" alt="last-commit">
+</p>
+
+<p align="center">
+    <img src="https://img.shields.io/badge/TypeScript-3178C6.svg?style=flat&logo=typescript&logoColor=white" alt="TypeScript">
+    <a href="https://www.npmjs.com/package/@guardcore/core">
+        <img src="https://img.shields.io/npm/dt/@guardcore/core" alt="Downloads">
+    </a>
+</p>
+
+<p align="center">
+    <a href="https://guard-core.com">Website</a> &middot;
+    <a href="https://guard-core.github.io/guard-core-ts/latest/">Docs</a> &middot;
+    <a href="https://playground.guard-core.com">Playground</a> &middot;
+    <a href="https://app.guard-core.com">Dashboard</a> &middot;
+    <a href="https://discord.gg/ZW7ZJbjMkK">Discord</a>
+</p>
+
+---
 
 ## Ecosystem
 
