@@ -47,10 +47,10 @@ jobs:
 
       - name: Tag and push to GHCR
         run: |
-          docker tag guard-core-ts-advanced-exampleocal ghcr.io/guard-core/guard-core-ts-example:latest
+          docker tag guard-core-ts-advanced-example:local ghcr.io/guard-core/guard-core-ts-example:latest
           docker push ghcr.io/guard-core/guard-core-ts-example:latest
 
           if [[ "${{ env.IS_RELEASE }}" == "true" ]]; then
-            docker tag guard-core-ts-advanced-exampleocal ghcr.io/guard-core/guard-core-ts-example:${{ env.VERSION }}
+            docker tag guard-core-ts-advanced-example:local ghcr.io/guard-core/guard-core-ts-example:${{ env.VERSION }}
             docker push ghcr.io/guard-core/guard-core-ts-example:${{ env.VERSION }}
           fi
