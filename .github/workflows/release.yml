@@ -51,8 +51,9 @@ jobs:
             out[pkg] = published ? "skip" : "publish";
             console.log(`${name}@${version}: ${out[pkg]}`);
           }
-          const flag = (pkg) => `echo "publish_${pkg.replace("-", "_")}=${out[pkg]}" >> "$GITHUB_OUTPUT"`;
-          for (const pkg of packages) flag(pkg);
+          for (const pkg of packages) {
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `publish_${pkg.replace("-", "_")}=${out[pkg]}\n`);
+          }
           NODE
         env:
           NODE_OPTIONS: --max-old-space-size=4096
