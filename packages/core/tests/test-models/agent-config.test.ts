@@ -67,7 +67,7 @@ describe('toAgentConfig (the reference to_agent_config seam)', () => {
       agentProjectEncryptionKey: 'enc-key',
       agentGuardVersion: '1.2.3',
       agentStatusInterval: 120,
-    }), { guardCoreVersion: '4.3.1' });
+    }), { guardCoreVersion: '4.3.2' });
     expect(result).toMatchObject({
       projectId: 'proj-1',
       highWatermarkRatio: 0.9,
@@ -83,7 +83,7 @@ describe('toAgentConfig (the reference to_agent_config seam)', () => {
       projectEncryptionKey: 'enc-key',
       guardVersion: '1.2.3',
       statusInterval: 120,
-      guardCoreVersion: '4.3.1',
+      guardCoreVersion: '4.3.2',
     });
   });
 

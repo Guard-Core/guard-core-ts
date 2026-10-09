@@ -97,7 +97,7 @@ describe('PatternValidationCache', () => {
     const values = Object.values(stored);
     expect(values.length).toBe(1);
     expect(values[0]['version']).toBe(ENGINE_VERSION);
-    expect(engineVersion()).toBe('4.3.1');
+    expect(engineVersion()).toBe('4.3.2');
   });
 
   it('a corrupt cache starts empty and recovers', async () => {
