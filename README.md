@@ -58,6 +58,16 @@ ___
 
 ---
 
+
+## Documentation
+
+📚 **[Documentation](https://guard-core.github.io/guard-core-ts/latest/)** - full technical documentation for this package.
+
+🛡️ **[Guard Core](https://guard-core.github.io/guard-core/latest/)** - the engine's reference documentation.
+
+🤖 **[Monitoring Agent Integration](https://github.com/Guard-Core/guard-agent)** - monitor your Guard instance with a monitoring agent.
+___
+
 ## Ecosystem
 
 ```
