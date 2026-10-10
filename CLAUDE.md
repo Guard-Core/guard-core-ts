@@ -180,7 +180,7 @@ Conventions:
 
 Conformance status (be precise in docs and PRs):
 
-- The spec 4.1.0 conformance runner lives in packages/core/tests/conformance and runs against the vendored spec 4.1.0 corpus (conformance/guard-core-spec-4.1.0, 219 cases) with a fail-closed baseline; CI gates it via `pnpm --filter @guardcore/core exec vitest run tests/conformance`
+- The spec 4.1.0 conformance runner lives in packages/core/tests/conformance and runs against the vendored spec 4.1.0 corpus (conformance/guard-core-spec-4.1.0, 375 cases at the engine 4.3.2 regeneration) with a fail-closed baseline; CI gates it via `pnpm --filter @guardcore/core exec vitest run tests/conformance`
 
 Known CI state: master CI is green (build, lint, test, conformance, and dependency-audit jobs).
 

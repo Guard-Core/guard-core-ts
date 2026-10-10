@@ -137,7 +137,7 @@ monitor.registerAnomalyCallback((anomaly) => {
 
 ## Pattern Table
 
-The engine ships with the 157-row spec 4.1.0 pattern table across 19 categories (the canonical sources are carried verbatim and verified by the spec 4.1.0 conformance corpus, 219 cases):
+The engine ships with the 157-row spec 4.1.0 pattern table across 19 categories (the canonical sources are carried verbatim and verified by the spec 4.1.0 conformance corpus, 375 cases):
 
 | Category | Patterns | Contexts |
 |----------|----------|----------|
