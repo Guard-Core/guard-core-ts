@@ -323,7 +323,7 @@ Detection body reads are bounded: `detectionMaxBodyInspectBytes` caps what is sc
 
 ## Python Parity
 
-This is a faithful TypeScript port of [guard-core](https://github.com/Guard-Core/guard-core). The Python codebase is the source of truth for features, architecture, and behavior. All 157 detection patterns, 84 SecurityConfig fields, 6 protocols, 17 security checks, and 9 handlers are ported 1:1, and the engine is verified against the vendored spec 4.1.0 conformance corpus (219 cases) in `conformance/guard-core-spec-4.1.0`, wired as a CI gate.
+This is a faithful TypeScript port of [guard-core](https://github.com/Guard-Core/guard-core). The Python codebase is the source of truth for features, architecture, and behavior. All 157 detection patterns, 84 SecurityConfig fields, 6 protocols, 17 security checks, and 9 handlers are ported 1:1, and the engine is verified against the vendored spec 4.1.0 conformance corpus (375 cases, engine 4.3.2 regeneration) in `conformance/guard-core-spec-4.1.0`, wired as a CI gate.
 
 The Python Guard ecosystem:
 - [guard-core](https://github.com/Guard-Core/guard-core) — Engine (Python)
