@@ -80,9 +80,9 @@ test(
         spec_version: '4.1.0',
         _comment: 'Documented divergences of the TS event surface against the event_stream corpus. '
           + 'Fail-closed: a failing case NOT listed here is red; a listed case that now passes is red '
-          + '(stale baseline). The TS event coverage is partial: middleware-bus envelopes carry a smaller '
-          + 'field set than the reference SecurityEvent, several handler seams emit no event yet, and the '
-          + 'envelope comparison records the absent fields. Entries name the TS source responsible.',
+          + '(stale baseline). Entries carry the mechanical observed-vs-expected diff from the envelope '
+          + 'comparison; the residual divergences are reason-message shapes (Python exception class '
+          + 'names and Python redis-driver error text with no TS equivalent), not missing emitters.',
         cases: regenerated,
       };
       await writeFile(xfailPath('events'), `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
