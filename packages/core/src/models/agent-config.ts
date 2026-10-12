@@ -11,6 +11,7 @@
  * engine version.
  */
 
+import { ENGINE_VERSION } from '../detection-engine/validation-cache.js';
 import type { ResolvedSecurityConfig } from './config.js';
 
 /** Overflow behavior when the agent's in-memory buffer is full. */
@@ -56,11 +57,6 @@ export interface SecurityAgentConfigInput {
   onError?: SecurityErrorHook;
 }
 
-export interface ToAgentConfigOptions {
-  /** The guard-core engine version (the reference passes __version__). */
-  guardCoreVersion?: string | null;
-}
-
 /**
  * The twin of SecurityConfig.to_agent_config: null when enableAgent is off
  * or agentApiKey is unset; otherwise the agent constructor input with every
@@ -69,7 +65,6 @@ export interface ToAgentConfigOptions {
  */
 export function toAgentConfig(
   config: ResolvedSecurityConfig,
-  options: ToAgentConfigOptions = {},
 ): SecurityAgentConfigInput | null {
   if (!config.enableAgent || !config.agentApiKey) {
     return null;
@@ -94,7 +89,7 @@ export function toAgentConfig(
     sensitiveHeaders: config.agentSensitiveHeaders,
     maxPayloadSize: config.agentMaxPayloadSize,
     guardVersion: config.agentGuardVersion,
-    guardCoreVersion: options.guardCoreVersion ?? null,
+    guardCoreVersion: ENGINE_VERSION,
     compressionEnabled: config.agentCompressionEnabled,
     compressionThreshold: config.agentCompressionThreshold,
     installId: config.agentInstallId,

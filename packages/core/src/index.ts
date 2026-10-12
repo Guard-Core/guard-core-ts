@@ -97,7 +97,7 @@ export {
 } from './models/logger-setup.js';
 export type { LogRecord, CustomLoggingOptions } from './models/logger-setup.js';
 export { toAgentConfig } from './models/agent-config.js';
-export type { SecurityAgentConfigInput, SecurityBufferOverflowPolicy, SecurityErrorHook, ToAgentConfigOptions } from './models/agent-config.js';
+export type { SecurityAgentConfigInput, SecurityBufferOverflowPolicy, SecurityErrorHook } from './models/agent-config.js';
 
 /* Agent handler fan-out + export sinks (parity with the reference
    composite/otel/logfire event handlers). */

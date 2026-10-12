@@ -1,6 +1,6 @@
 {
   "name": "@guardcore/nestjs",
-  "version": "4.3.2",
+  "version": "4.3.3",
   "description": "NestJS adapter for @guardcore/core security middleware",
   "type": "module",
   "main": "./dist/index.cjs",
