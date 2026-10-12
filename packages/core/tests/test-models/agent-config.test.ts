@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { ENGINE_VERSION } from '../../src/detection-engine/validation-cache.js';
 import { toAgentConfig } from '../../src/models/agent-config.js';
 import { SecurityConfigSchema } from '../../src/models/config.js';
 import type { ResolvedSecurityConfig } from '../../src/models/config.js';
@@ -46,7 +47,7 @@ describe('toAgentConfig (the reference to_agent_config seam)', () => {
 
   it('drops null-able identity fields when unset (the agent defaults them)', () => {
     const result = toAgentConfig(config()) as Record<string, unknown>;
-    for (const key of ['projectId', 'guardVersion', 'guardCoreVersion', 'installId', 'payloadSigningSecret', 'projectEncryptionKey']) {
+    for (const key of ['projectId', 'guardVersion', 'installId', 'payloadSigningSecret', 'projectEncryptionKey']) {
       expect(key in result).toBe(false);
     }
   });
@@ -67,7 +68,7 @@ describe('toAgentConfig (the reference to_agent_config seam)', () => {
       agentProjectEncryptionKey: 'enc-key',
       agentGuardVersion: '1.2.3',
       agentStatusInterval: 120,
-    }), { guardCoreVersion: '4.3.2' });
+    }));
     expect(result).toMatchObject({
       projectId: 'proj-1',
       highWatermarkRatio: 0.9,
@@ -83,15 +84,16 @@ describe('toAgentConfig (the reference to_agent_config seam)', () => {
       projectEncryptionKey: 'enc-key',
       guardVersion: '1.2.3',
       statusInterval: 120,
-      guardCoreVersion: '4.3.2',
+      guardCoreVersion: ENGINE_VERSION,
     });
   });
 
   it('passes the on_error hook through and stamps the engine version', () => {
     const onError = (): void => {};
-    const result = toAgentConfig(config({ onError }), { guardCoreVersion: '9.9.9' });
+    const result = toAgentConfig(config({ onError }));
     expect(result?.onError).toBe(onError);
-    expect(result?.guardCoreVersion).toBe('9.9.9');
+    expect(result?.guardCoreVersion).toBe(ENGINE_VERSION);
+    expect(result?.guardCoreVersion).toBe('4.3.3');
   });
 
   it('rejects an out-of-range status interval and overflow policy at the schema', () => {
