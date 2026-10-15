@@ -13,7 +13,10 @@ import { checkIpAccess } from '../../src/core/checks/ip-access.js';
 import { checkRouteIpAccess } from '../../src/core/checks/helpers.js';
 import { SecurityConfigSchema } from '../../src/models/config.js';
 import { RouteConfig } from '../../src/models/route-config.js';
-import { createMockMiddleware } from '../helpers.js';
+import { initializeSecurityMiddleware } from '../../src/middleware-support.js';
+import { defaultLogger } from '../../src/models/logger.js';
+import type { GuardRequest } from '../../src/protocols/request.js';
+import { createMockMiddleware, createMockResponseFactory } from '../helpers.js';
 
 interface Row {
   whitelist: string[];
@@ -59,4 +62,54 @@ describe('IP list precedence matches the reference', () => {
       expect(await checkRouteIpAccess(r.ip, rc, createMockMiddleware())).toBe(r.route);
     },
   );
+});
+
+interface RouteGlobalRow {
+  globalWhitelist: string[];
+  globalBlacklist: string[];
+  routeWhitelist: string[];
+  routeBlacklist: string[];
+  ip: string;
+  allowed: boolean;
+}
+
+const ROUTE_GLOBAL_ROWS: RouteGlobalRow[] = JSON.parse(
+  readFileSync(new URL('./ip-list-route-global-cases.json', import.meta.url), 'utf8'),
+);
+
+function request(ip: string, routeConfig: RouteConfig): GuardRequest {
+  return {
+    urlPath: '/api/test',
+    urlScheme: 'https',
+    urlFull: 'https://example.com/api/test',
+    urlReplaceScheme: (s: string) => `${s}://example.com/api/test`,
+    method: 'GET',
+    clientHost: ip,
+    headers: { 'user-agent': 'TestAgent/1.0' },
+    queryParams: {},
+    body: async () => new Uint8Array(0),
+    state: { _routeConfig: routeConfig },
+    scope: {},
+  };
+}
+
+describe('route and global IP lists match the reference', () => {
+  it('a configured route whitelist skips the global lists', async () => {
+    const failures: string[] = [];
+    for (const r of ROUTE_GLOBAL_ROWS) {
+      const config = SecurityConfigSchema.parse({
+        enableRedis: false,
+        enableRateLimiting: false,
+        whitelist: r.globalWhitelist.length > 0 ? r.globalWhitelist : null,
+        blacklist: r.globalBlacklist,
+      });
+      const rc = new RouteConfig();
+      rc.ipWhitelist = r.routeWhitelist.length > 0 ? r.routeWhitelist : null;
+      rc.ipBlacklist = r.routeBlacklist.length > 0 ? r.routeBlacklist : null;
+      const components = await initializeSecurityMiddleware(config, defaultLogger, createMockResponseFactory());
+      const allowed = (await components.pipeline.execute(request(r.ip, rc))) === null;
+      if (allowed !== r.allowed) failures.push(`${JSON.stringify(r)}: got ${allowed}`);
+    }
+    expect(failures).toEqual([]);
+  });
 });
