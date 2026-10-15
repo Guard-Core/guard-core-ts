@@ -1,0 +1,2035 @@
+{
+ "countries": {
+  "10.0.0.1": "US",
+  "10.0.0.2": "CN",
+  "192.168.1.5": null
+ },
+ "route": [
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "10.0.0.1",
+   "route": null
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "10.0.0.2",
+   "route": null
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "192.168.1.5",
+   "route": null
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "unknown",
+   "route": null
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.1",
+   "route": true
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "10.0.0.1",
+   "route": null
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "192.168.1.5",
+   "route": null
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "unknown",
+   "route": null
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.1",
+   "route": true
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "10.0.0.1",
+   "route": false
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "10.0.0.2",
+   "route": null
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "192.168.1.5",
+   "route": null
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "unknown",
+   "route": null
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.1",
+   "route": false
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "10.0.0.1",
+   "route": false
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "192.168.1.5",
+   "route": null
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "unknown",
+   "route": null
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.1",
+   "route": false
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "10.0.0.1",
+   "route": null
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "192.168.1.5",
+   "route": null
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "unknown",
+   "route": null
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.1",
+   "route": true
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "10.0.0.1",
+   "route": null
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "192.168.1.5",
+   "route": null
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "unknown",
+   "route": null
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.1",
+   "route": true
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "10.0.0.1",
+   "route": true
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.1",
+   "route": true
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "10.0.0.1",
+   "route": true
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.1",
+   "route": true
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "10.0.0.1",
+   "route": true
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.1",
+   "route": true
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "10.0.0.1",
+   "route": true
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.1",
+   "route": true
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "10.0.0.1",
+   "route": true
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.1",
+   "route": true
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "10.0.0.1",
+   "route": true
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.1",
+   "route": true
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.1"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "10.0.0.1",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "10.0.0.2",
+   "route": true
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.1",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "10.0.0.1",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.1",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "10.0.0.1",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "10.0.0.2",
+   "route": true
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.1",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "10.0.0.1",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.1",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.1"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "10.0.0.1",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "10.0.0.2",
+   "route": true
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.1",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "10.0.0.1",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [],
+   "ip": "unknown",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.1",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.2",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "192.168.1.5",
+   "route": false
+  },
+  {
+   "routeWhitelist": [
+    "10.0.0.2"
+   ],
+   "routeBlacklist": [
+    "10.0.0.2"
+   ],
+   "blockedCountries": [
+    "CN"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "unknown",
+   "route": false
+  }
+ ],
+ "global": [
+  {
+   "whitelist": [],
+   "whitelistCountries": [],
+   "ip": "10.0.0.1",
+   "allowed": true
+  },
+  {
+   "whitelist": [],
+   "whitelistCountries": [],
+   "ip": "10.0.0.2",
+   "allowed": true
+  },
+  {
+   "whitelist": [],
+   "whitelistCountries": [],
+   "ip": "192.168.1.5",
+   "allowed": true
+  },
+  {
+   "whitelist": [],
+   "whitelistCountries": [],
+   "ip": "unknown",
+   "allowed": true
+  },
+  {
+   "whitelist": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.1",
+   "allowed": true
+  },
+  {
+   "whitelist": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.2",
+   "allowed": false
+  },
+  {
+   "whitelist": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "192.168.1.5",
+   "allowed": false
+  },
+  {
+   "whitelist": [],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "unknown",
+   "allowed": false
+  },
+  {
+   "whitelist": [
+    "10.0.0.1"
+   ],
+   "whitelistCountries": [],
+   "ip": "10.0.0.1",
+   "allowed": true
+  },
+  {
+   "whitelist": [
+    "10.0.0.1"
+   ],
+   "whitelistCountries": [],
+   "ip": "10.0.0.2",
+   "allowed": false
+  },
+  {
+   "whitelist": [
+    "10.0.0.1"
+   ],
+   "whitelistCountries": [],
+   "ip": "192.168.1.5",
+   "allowed": false
+  },
+  {
+   "whitelist": [
+    "10.0.0.1"
+   ],
+   "whitelistCountries": [],
+   "ip": "unknown",
+   "allowed": false
+  },
+  {
+   "whitelist": [
+    "10.0.0.1"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.1",
+   "allowed": true
+  },
+  {
+   "whitelist": [
+    "10.0.0.1"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.2",
+   "allowed": false
+  },
+  {
+   "whitelist": [
+    "10.0.0.1"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "192.168.1.5",
+   "allowed": false
+  },
+  {
+   "whitelist": [
+    "10.0.0.1"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "unknown",
+   "allowed": false
+  },
+  {
+   "whitelist": [
+    "10.0.0.2"
+   ],
+   "whitelistCountries": [],
+   "ip": "10.0.0.1",
+   "allowed": false
+  },
+  {
+   "whitelist": [
+    "10.0.0.2"
+   ],
+   "whitelistCountries": [],
+   "ip": "10.0.0.2",
+   "allowed": true
+  },
+  {
+   "whitelist": [
+    "10.0.0.2"
+   ],
+   "whitelistCountries": [],
+   "ip": "192.168.1.5",
+   "allowed": false
+  },
+  {
+   "whitelist": [
+    "10.0.0.2"
+   ],
+   "whitelistCountries": [],
+   "ip": "unknown",
+   "allowed": false
+  },
+  {
+   "whitelist": [
+    "10.0.0.2"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.1",
+   "allowed": false
+  },
+  {
+   "whitelist": [
+    "10.0.0.2"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "10.0.0.2",
+   "allowed": true
+  },
+  {
+   "whitelist": [
+    "10.0.0.2"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "192.168.1.5",
+   "allowed": false
+  },
+  {
+   "whitelist": [
+    "10.0.0.2"
+   ],
+   "whitelistCountries": [
+    "US"
+   ],
+   "ip": "unknown",
+   "allowed": false
+  }
+ ]
+}

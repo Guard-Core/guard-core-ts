@@ -4,7 +4,7 @@ import ipaddr from 'ipaddr.js';
 import { multipartPartEntries, parseFormPairs, parseMediaTypeParams, parseMultipartParts } from './detection-engine/body-form-scan.js';
 import type { ResolvedSecurityConfig } from './models/config.js';
 import { defaultLogger } from './models/logger.js';
-import { requestClientIp } from './core/client-identity.js';
+import { requestClientIp, UNKNOWN_CLIENT_IDENTITY } from './core/client-identity.js';
 import { canonicalIpText, canonicalizeIp, ipInList } from './ip-identity.js';
 import type { Logger } from './models/logger.js';
 import type { AgentHandlerProtocol } from './protocols/agent.js';
@@ -445,7 +445,9 @@ export async function checkIpCountry(
   const country = geoIpHandler.getCountry(ip);
   if (!country) {
     logCountryCheckResult(ip, null, 'no_geolocation', config);
-    return false;
+    /* Reference _resolve_country_verdict: an ungeolocated client is blocked
+       only when a country whitelist is configured. */
+    return config.whitelistCountries.length > 0;
   }
 
   if (config.whitelistCountries.length > 0) {
@@ -471,18 +473,27 @@ export async function isIpAllowed(
   geoIpHandler?: GeoIPHandler | null,
 ): Promise<boolean> {
   try {
+    /* Reference _check_unknown_identity_access: an unknown client identity
+       only blocks when a whitelist or country whitelist is configured. */
+    if (ip === UNKNOWN_CLIENT_IDENTITY) {
+      return !((config.whitelist?.length ?? 0) > 0 || config.whitelistCountries.length > 0);
+    }
+
     if (canonicalIpText(ip) === null) return false;
 
     /* Reference _check_ip_lists_detail: a configured whitelist alone decides;
-       the blacklist applies only when no whitelist is configured. */
+       the blacklist applies only when no whitelist is configured, and a
+       whitelist match skips the country verdict. */
+    let whitelisted = false;
     if (config.whitelist && config.whitelist.length > 0) {
       if (!ipInList(ip, config.whitelist)) return false;
+      whitelisted = true;
     } else if (ipInList(ip, config.blacklist)) {
       return false;
     }
 
     /* v8 ignore start -- geoIpHandler branch unreachable in recursive JSON check because dangerousPatterns check returns first */
-    if (geoIpHandler) {
+    if (geoIpHandler && !whitelisted) {
       const blocked = await checkIpCountry(ip, config, geoIpHandler);
       if (blocked) return false;
     }

@@ -51,8 +51,14 @@ describe('guardWebSocketUpgrade', () => {
     });
   });
 
-  it('falls through to the allow check for an unknown identity when failSecure is off', async () => {
+  it('lets an unknown identity through the allow check when failSecure is off and no whitelist is set', async () => {
     const components = await buildComponents({ failSecure: false });
+    const verdict = await guardWebSocketUpgrade(wsRequest({ clientHost: null }), components);
+    expect(verdict).toMatchObject({ allowed: true });
+  });
+
+  it('rejects an unknown identity at the allow check when a whitelist is configured and failSecure is off', async () => {
+    const components = await buildComponents({ failSecure: false, whitelist: ['8.8.4.4'] });
     const verdict = await guardWebSocketUpgrade(wsRequest({ clientHost: null }), components);
     expect(verdict).toMatchObject({ allowed: false, close: WS_CLOSE_IP_NOT_ALLOWED });
   });

@@ -60,17 +60,20 @@ export async function checkRouteIpAccess(
 ): Promise<boolean | null> {
   try {
     /* Reference check_route_ip_access: a configured route whitelist alone
-       decides; the route blacklist is consulted only when it is absent. */
+       decides among the IP lists (the route blacklist is consulted only when
+       it is absent), then the route country verdict is combined: a blocked
+       verdict from either denies, an allowed verdict from either allows. */
+    let ipResult: boolean | null = null;
     if (routeConfig.ipWhitelist && routeConfig.ipWhitelist.length > 0) {
-      const whitelistResult = isIpInWhitelist(clientIp, routeConfig.ipWhitelist);
-      if (whitelistResult !== null) return whitelistResult;
+      ipResult = isIpInWhitelist(clientIp, routeConfig.ipWhitelist);
     } else if (routeConfig.ipBlacklist && routeConfig.ipBlacklist.length > 0) {
-      if (isIpInBlacklist(clientIp, routeConfig.ipBlacklist)) return false;
+      if (isIpInBlacklist(clientIp, routeConfig.ipBlacklist)) ipResult = false;
     }
 
     const countryResult = checkCountryAccess(clientIp, routeConfig, middleware.geoIpHandler);
-    if (countryResult !== null) return countryResult;
 
+    if (ipResult === false || countryResult === false) return false;
+    if (ipResult === true || countryResult === true) return true;
     return null;
   /* v8 ignore start -- catch block requires ipaddr.parse to throw on a value that already passed validation */
   } catch {
