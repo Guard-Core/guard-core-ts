@@ -179,6 +179,13 @@ export const SecurityConfigSchema = z.object({
   behaviorMaxResponseBodyInspectBytes: z.number().int().min(1).default(262144),
 
   detectionCompilerTimeout: z.number().min(0.1).max(10).default(2.0),
+  /* Cap on the CPU time (seconds) spent regex scanning one request, not wall
+     time, summed across every field and every pattern (reference
+     detection_max_scan_seconds). Once reached, remaining patterns and values
+     are not scanned and the request receives a weighted pattern_timeout
+     threat that counts toward the anomaly score, so padding a request cannot
+     skip detection. */
+  detectionMaxScanSeconds: z.number().min(0.1).max(60).default(10.0),
   detectionMaxContentLength: z.number().int().min(1000).max(100000).default(10000),
   detectionPreserveAttackPatterns: z.boolean().default(true),
   detectionSemanticThreshold: z.number().min(0).max(1).default(0.7),
@@ -216,6 +223,12 @@ export const SecurityConfigSchema = z.object({
   excludedDetectionParams: z.array(z.string()).default([]),
   excludedDetectionBodyFields: z.array(z.string()).default([]),
   excludedDetectionHeaders: z.array(z.string()).default([]),
+  /* Opt-in (reference excluded_semantic_detection_headers): header names
+     whose values skip the semantic analyzer only, matched case-insensitively.
+     Regex category scanning of these headers is unchanged. Useful for apps
+     whose JWT session cookies score near detectionSemanticThreshold (for
+     example cookie, authorization). Default empty. */
+  excludedSemanticDetectionHeaders: z.array(z.string()).default([]),
 
   /* Detection categories that scan (the TS port of the reference
      enabled_detection_categories frozenset,

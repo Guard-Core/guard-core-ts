@@ -12,7 +12,11 @@ import { ContentPreprocessor } from '../detection-engine/preprocessor.js';
 import { PatternCompiler } from '../detection-engine/compiler.js';
 import { PatternValidationCache } from '../detection-engine/validation-cache.js';
 import { PerformanceMonitor } from '../detection-engine/monitor.js';
-import { ScanPoolSupervisor } from '../detection-engine/scan-pool.js';
+import {
+  SCAN_TIME_BUDGET_EXHAUSTED_PATTERN,
+  ScanPoolSupervisor,
+  ScanTimeBudget,
+} from '../detection-engine/scan-pool.js';
 import type { ScanOutcome } from '../detection-engine/scan-pool.js';
 import { createWorkerScanPool } from '../detection-engine/scan-worker-pool.js';
 import type { RegexCandidate, WorkerScanPool } from '../detection-engine/scan-worker-pool.js';
@@ -341,9 +345,17 @@ export class SusPatternsManager {
     content: string,
     context: string,
     correlationId: string | null,
-    options: { rawViewOnly?: boolean | null; urlDecodedViewOnly?: boolean | null } = {},
+    options: {
+      rawViewOnly?: boolean | null;
+      urlDecodedViewOnly?: boolean | null;
+      scanTime?: ScanTimeBudget;
+      ipAddress?: string;
+    } = {},
   ): Promise<{ threats: InternalRegexThreat[]; matchedPatterns: string[]; timeouts: string[] }> {
     const { rawViewOnly = null, urlDecodedViewOnly = null } = options;
+    // Without a request budget (standalone detectPatternMatch) the scan still
+    // yields between slices, it just has no cap.
+    const scanTime = options.scanTime ?? new ScanTimeBudget();
     const threats: InternalRegexThreat[] = [];
     const matchedPatterns: string[] = [];
     const timeouts: string[] = [];
@@ -377,12 +389,38 @@ export class SusPatternsManager {
     }
 
     for (const pattern of allPatterns) {
+      // Reference per-request scan budget (_scan_time_budget_exhausted): the
+      // exhaustion is recorded exactly like a per-pattern timeout (same
+      // pattern_timeout shape, weighted, fail-closed) and ends this pass.
+      if (scanTime.exhausted) {
+        const budgetThreat: InternalRegexThreat = {
+          type: 'pattern_timeout',
+          pattern: SCAN_TIME_BUDGET_EXHAUSTED_PATTERN,
+          match: '',
+          position: 0,
+          category: 'custom',
+          weight: resolvePatternWeight(SCAN_TIME_BUDGET_EXHAUSTED_PATTERN, 'custom'),
+        };
+        if (scanTime.takeWarning()) {
+          this.logger.warn(
+            `detectionMaxScanSeconds (${scanTime.cap}) reached for client ${options.ipAddress ?? 'unknown'}; remaining patterns and request values are not scanned`,
+          );
+        }
+        threats.push(budgetThreat);
+        matchedPatterns.push(budgetThreat.pattern);
+        timeouts.push(budgetThreat.pattern);
+        break;
+      }
       if (SusPatternsManager.excludedFromView(pattern.source, rawViewOnly, urlDecodedViewOnly)) continue;
       if (!skipFilter && !pattern.contexts.has(normalized)) continue;
 
       const patternStart = performance.now();
-      const outcome = await this.runPatternScan(pattern, content, validatorContext, binaryPrefix);
+      const outcome = await this.runPatternScan(pattern, content, validatorContext, binaryPrefix, scanTime);
       const elapsed = (performance.now() - patternStart) / 1000;
+      // A synchronous scan never returns to the event loop on its own: hand
+      // it back every EVENT_LOOP_SLICE_MS so one request's scan cannot
+      // starve every other request's I/O.
+      await scanTime.yieldIfDue();
 
       // Reference timeout semantics (_suspatterns_regex.py): a scan that
       // overshoots detection_compiler_timeout yields no regex verdict, the
@@ -462,11 +500,14 @@ export class SusPatternsManager {
     content: string,
     validatorContext: string,
     binaryPrefix: number[],
+    scanTime: ScanTimeBudget,
   ): Promise<ScanOutcome<InternalRegexThreat | null>> {
     if (!this.scanWorkerPoolEnabled || SusPatternsManager.hasStructuralMatcher(pattern.source)) {
       return this.scanPool.run(
         pattern.source,
-        () => this.checkRegexPattern(pattern, content, pattern.category, validatorContext, binaryPrefix),
+        () => scanTime.measure(
+          () => this.checkRegexPattern(pattern, content, pattern.category, validatorContext, binaryPrefix),
+        ),
       );
     }
 
@@ -474,7 +515,9 @@ export class SusPatternsManager {
     if (pool === null) {
       return this.scanPool.run(
         pattern.source,
-        () => this.checkRegexPattern(pattern, content, pattern.category, validatorContext, binaryPrefix),
+        () => scanTime.measure(
+          () => this.checkRegexPattern(pattern, content, pattern.category, validatorContext, binaryPrefix),
+        ),
       );
     }
 
@@ -485,7 +528,8 @@ export class SusPatternsManager {
     const flags = pattern.custom
       ? pattern.compiled.re.flags.replace('y', 'gm')
       : pattern.compiled.re.flags.replace('y', 'g');
-    return pool.run(
+    // The worker's CPU is not observable from here, so its wall time is charged.
+    const outcome = await pool.run(
       pattern.source,
       { patternSource: pattern.compiled.re.source, flags, content },
       (candidates) =>
@@ -497,6 +541,8 @@ export class SusPatternsManager {
           binaryPrefix,
         ),
     );
+    scanTime.record(outcome.elapsedMs / 1000);
+    return outcome;
   }
 
   private static hasStructuralMatcher(source: string): boolean {
@@ -586,6 +632,18 @@ export class SusPatternsManager {
     };
   }
 
+  /* `header:<name>` and `header:<name>:embedded_json` contexts, matched
+     case-insensitively against the trimmed excluded names. */
+  private static contextHeaderIsSemanticExcluded(
+    context: string,
+    excluded: ReadonlySet<string> | undefined,
+  ): boolean {
+    if (excluded === undefined || excluded.size === 0) return false;
+    if (!context.startsWith('header:')) return false;
+    const name = context.slice('header:'.length).replace(/:embedded_json$/, '');
+    return excluded.has(name.trim().toLowerCase());
+  }
+
   private checkSemanticThreats(
     processedContent: string,
     rawContent: string,
@@ -643,7 +701,11 @@ export class SusPatternsManager {
     ipAddress: string,
     context = 'unknown',
     correlationId: string | null = null,
-    options?: { skipCategories?: ReadonlySet<string> },
+    options?: {
+      skipCategories?: ReadonlySet<string>;
+      scanTime?: ScanTimeBudget;
+      semanticExcludedHeaders?: ReadonlySet<string>;
+    },
   ): Promise<DetectionResult> {
     const startTime = performance.now();
     const originalLength = countCodePoints(content);
@@ -654,10 +716,11 @@ export class SusPatternsManager {
       decodeBudgetExhausted,
     );
     const normalizedCtx = this.normalizeContext(context);
+    const passOptions = { ipAddress, ...(options?.scanTime ? { scanTime: options.scanTime } : {}) };
 
-    const mainPass = await this.checkRegexPatterns(processedContent, context, correlationId, { rawViewOnly: false });
+    const mainPass = await this.checkRegexPatterns(processedContent, context, correlationId, { rawViewOnly: false, ...passOptions });
     const rawViewContent = this.preprocessor.preprocessSignalPreserving(content);
-    const rawPass = await this.checkRegexPatterns(rawViewContent, context, correlationId, { rawViewOnly: true });
+    const rawPass = await this.checkRegexPatterns(rawViewContent, context, correlationId, { rawViewOnly: true, ...passOptions });
     // The raw view rescans rows that already ran on the processed views (now
     // including the recon rows), so a row matching both views on the same
     // text must be reported once (Python `_merge_raw_view_results`: merge
@@ -683,6 +746,7 @@ export class SusPatternsManager {
     const urlDecodedViewContent = this.preprocessor.truncateSafely(decodedContent);
     const urlDecodedPass = await this.checkRegexPatterns(urlDecodedViewContent, context, correlationId, {
       urlDecodedViewOnly: true,
+      ...passOptions,
     });
     regexThreats.push(...urlDecodedPass.threats);
     matchedPatterns.push(...urlDecodedPass.matchedPatterns);
@@ -708,13 +772,21 @@ export class SusPatternsManager {
 
     const additiveViewContent = this.preprocessor.preprocessShortBase64AdditiveView(content);
     if (additiveViewContent) {
-      const additivePass = await this.checkRegexPatterns(additiveViewContent, context, correlationId);
+      const additivePass = await this.checkRegexPatterns(additiveViewContent, context, correlationId, passOptions);
       regexThreats.push(...additivePass.threats);
       matchedPatterns.push(...additivePass.matchedPatterns);
       timeouts.push(...additivePass.timeouts);
     }
 
-    const { threats: semanticThreats } = this.checkSemanticThreats(processedContent, content);
+    // Opt-in semantic-only header exclusion (reference
+    // _context_header_is_semantic_excluded): the regex passes above already
+    // ran on this value, only the semantic analyzer is skipped.
+    const semanticThreats = SusPatternsManager.contextHeaderIsSemanticExcluded(
+      context,
+      options?.semanticExcludedHeaders,
+    )
+      ? []
+      : this.checkSemanticThreats(processedContent, content).threats;
 
     // Excluded-header category skip (the reference's
     // _scan_excluded_header_component effective categories): threats whose

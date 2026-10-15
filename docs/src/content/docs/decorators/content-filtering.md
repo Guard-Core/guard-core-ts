@@ -101,7 +101,7 @@ Multiple `customValidation` calls on the same route stack -- all validators run 
 
 ## `detectionExclusion(options)`
 
-Configure per-route detection exclusions, the port of the reference `detection_exclusion` decorator (guard_core/decorators/content_filtering.py). Each given surface replaces the global `SecurityConfig` value for that route; an omitted surface keeps inheriting the global config. `headers` always merges with the hardcoded proxy-identity defaults and the global `excludedDetectionHeaders` (an excluded header keeps scanning every category except the ssrf skip, so an attack payload in it still detects). Entries are matched case-insensitively.
+Configure per-route detection exclusions, the port of the reference `detection_exclusion` decorator (guard_core/decorators/content_filtering.py). Each given surface replaces the global `SecurityConfig` value for that route; an omitted surface keeps inheriting the global config. `headers` always merges with the hardcoded proxy-identity defaults and the global `excludedDetectionHeaders` (an excluded header keeps scanning every category except the ssrf skip, so an attack payload in it still detects). Entries are matched case-insensitively. `semanticHeaders` names headers whose values skip the semantic analyzer only (regex scanning is unchanged); it merges with the global `excludedSemanticDetectionHeaders`.
 
 ```typescript
 const handler = guard.detectionExclusion({

@@ -47,6 +47,10 @@ export class RouteConfig {
      and the route set, see resolveDetectionExclusions). Entries are matched
      lowercased like the reference. */
   excludedDetectionHeaders: Set<string> | null = null;
+  /* Header names whose values skip the semantic analyzer only (regex
+     scanning is unchanged); merged with the global
+     excludedSemanticDetectionHeaders, never a replacement. */
+  excludedSemanticDetectionHeaders: Set<string> | null = null;
   excludedDetectionParams: Set<string> | null = null;
   excludedDetectionBodyFields: Set<string> | null = null;
   /* When non-null, replaces the global enabled category set for this route

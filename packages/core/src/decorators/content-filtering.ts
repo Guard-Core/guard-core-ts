@@ -56,6 +56,7 @@ export function ContentFiltering<T extends AnyConstructor>(Base: T) {
        scan. */
     detectionExclusion(options: {
       headers?: Set<string>;
+      semanticHeaders?: Set<string>;
       params?: Set<string>;
       bodyFields?: Set<string>;
       categories?: Set<string>;
@@ -64,6 +65,7 @@ export function ContentFiltering<T extends AnyConstructor>(Base: T) {
       return <F extends Function>(fn: F): F => {
         const rc = this.ensureRouteConfig(fn);
         if (options.headers !== undefined) rc.excludedDetectionHeaders = new Set(options.headers);
+        if (options.semanticHeaders !== undefined) rc.excludedSemanticDetectionHeaders = new Set(options.semanticHeaders);
         if (options.params !== undefined) rc.excludedDetectionParams = new Set(options.params);
         if (options.bodyFields !== undefined) rc.excludedDetectionBodyFields = new Set(options.bodyFields);
         if (options.categories !== undefined) rc.enabledDetectionCategories = new Set(options.categories);

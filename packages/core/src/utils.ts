@@ -16,6 +16,7 @@ import {
   resolveDetectionExclusions,
 } from './core/routing/detection-exclusions.js';
 import type { ResolvedDetectionExclusions } from './core/routing/detection-exclusions.js';
+import { ScanTimeBudget } from './detection-engine/scan-pool.js';
 import { fireBlockHook } from './core/block-events.js';
 import { readCappedBody } from './core/bounded-body-reader.js';
 
@@ -385,6 +386,7 @@ export async function isIpAllowed(
 const MAX_SCAN_VALUES = 512;
 const MAX_SCAN_CHARS = 65536;
 const MAX_JSON_DEPTH = 32;
+const DEFAULT_MAX_SCAN_SECONDS = 10.0;
 
 /** Mongo operator keys, ported from _MONGO_OPERATOR_KEY_RE in body_json_scan.py. */
 const MONGO_OPERATOR_KEY_RE =
@@ -398,6 +400,11 @@ interface ScanBudget {
      at the first hit, so after a threat this holds that hit's categories,
      which the caller reports to the autoban counter. */
   categories: string[];
+  /* Per-request regex scan time budget (detectionMaxScanSeconds) and the
+     semantic-only header exclusions, threaded into every manager.detect call
+     like the reference's request-scoped contextvars. */
+  scanTime: ScanTimeBudget;
+  semanticHeaders: ReadonlySet<string>;
 }
 
 /**
@@ -411,6 +418,7 @@ interface ScanExclusions {
   params: ReadonlySet<string>;
   bodyFields: ReadonlySet<string>;
   headers: ReadonlySet<string>;
+  semanticHeaders: ReadonlySet<string>;
   /* Categories that must not produce a threat for this request: the
      complement of the resolved enabled-category set (empty when every
      category scans). Folded into every detect() skip set so a match in a
@@ -431,6 +439,7 @@ function resolveScanExclusions(
     params: exclusions.excludedParams,
     bodyFields: exclusions.excludedBodyFields,
     headers: exclusions.excludedHeaders,
+    semanticHeaders: exclusions.excludedSemanticHeaders,
     disabledCategories: disabledCategoriesOf(exclusions),
     scanBody: exclusions.scanBody,
   };
@@ -465,6 +474,14 @@ function isExcludedBodyField(exclusions: ScanExclusions, name: string): boolean 
   return exclusions.bodyFields.has(name.toLowerCase());
 }
 
+function detectOptions(budget: ScanBudget, skipCategories?: ReadonlySet<string>) {
+  return {
+    ...(skipCategories ? { skipCategories } : {}),
+    scanTime: budget.scanTime,
+    semanticExcludedHeaders: budget.semanticHeaders,
+  };
+}
+
 function scanBudgetExhausted(budget: ScanBudget, value: string): boolean {
   budget.values++;
   if (budget.values > MAX_SCAN_VALUES) return true;
@@ -493,6 +510,16 @@ function getDefaultSusPatternsManager(): Promise<{ manager: SusPatternsManager; 
 function buildThreatMessage(result: DetectionResult): string {
   const threat = result.threats[0];
   if (threat === undefined) return 'Threat detected';
+  const message = describeThreat(threat);
+  if (threat.detectionMethod === 'pattern_timeout') return message;
+  // A per-pattern timeout or the spent scan budget can be what tips the
+  // request over the threshold behind an unrelated first threat: name it too
+  // (the reference _build_threats_message).
+  const timeout = result.threats.find((t) => t.detectionMethod === 'pattern_timeout');
+  return timeout === undefined ? message : `${message}; ${describeThreat(timeout)}`;
+}
+
+function describeThreat(threat: DetectionResult['threats'][number]): string {
   if (threat.detectionMethod === 'semantic') {
     /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
     const attackType = threat.pattern.slice('semantic:'.length) || 'suspicious';
@@ -502,6 +529,9 @@ function buildThreatMessage(result: DetectionResult): string {
     const score = scoreMatch ? Number(scoreMatch[1]).toFixed(2) : '0.00';
     /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
     return `Semantic attack: ${attackType} (score: ${score})`;
+  }
+  if (threat.detectionMethod === 'pattern_timeout') {
+    return `Pattern exceeded scan time budget: '${threat.pattern}'`;
   }
   return `Value matched pattern '${threat.pattern}'`;
 }
@@ -549,11 +579,39 @@ export async function scanRequestWithManager(
   /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
   const clientIp = request.clientHost ?? 'unknown';
   /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
-  const budget: ScanBudget = { values: 0, chars: 0, categories: [] };
   const exclusions = resolveScanExclusions(config, resolvedExclusions);
+  const budget: ScanBudget = {
+    values: 0,
+    chars: 0,
+    categories: [],
+    scanTime: new ScanTimeBudget(config?.detectionMaxScanSeconds ?? DEFAULT_MAX_SCAN_SECONDS),
+    semanticHeaders: exclusions.semanticHeaders,
+  };
 
   const [isThreat, info] = await runRequestSurfaceScan(manager, request, clientIp, budget, exclusions, config);
   return [isThreat, info, budget.categories];
+}
+
+/* The Cookie header scans one name=value pair at a time, like query
+   parameters (reference _header_items_to_scan): as one value the `;`
+   between cookies read as command separators in the semantic score, so an
+   ordinary logged-in header could reach the threshold. Only spaces around a
+   pair are trimmed (a CR or LF stays in the scanned value) and empty pairs
+   are skipped. Each pair then takes the normal header path and counts
+   against the value budget. */
+function* headerItemsToScan(
+  headers: Readonly<Record<string, string>>,
+): Generator<[string, string]> {
+  for (const [key, value] of Object.entries(headers)) {
+    if (key.trim().toLowerCase() !== 'cookie') {
+      yield [key, value];
+      continue;
+    }
+    for (const pair of value.split(';')) {
+      const stripped = pair.replace(/^ +| +$/g, '');
+      if (stripped !== '') yield [key, stripped];
+    }
+  }
 }
 
 async function runRequestSurfaceScan(
@@ -578,7 +636,7 @@ async function runRequestSurfaceScan(
     if (hit[0]) return [true, `URL path: ${hit[1]}`];
   }
 
-  for (const [headerName, headerValue] of Object.entries(request.headers)) {
+  for (const [headerName, headerValue] of headerItemsToScan(request.headers)) {
     const nameLower = headerName.toLowerCase();
     // Excluded headers (the hardcoded proxy identity set merged with the
     // configured and per-route excludedDetectionHeaders) are not skipped
@@ -754,7 +812,7 @@ async function detectValueEnhanced(
   let result: DetectionResult;
   try {
     /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
-    result = await manager.detect(value, clientIp, context, null, skipCategories ? { skipCategories } : undefined);
+    result = await manager.detect(value, clientIp, context, null, detectOptions(budget, skipCategories));
     /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
   } catch {
     return [false, ''];
@@ -789,7 +847,7 @@ async function detectComponent(
   if (scanBudgetExhausted(budget, value)) return [false, ''];
   try {
     /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
-    const result = await manager.detect(value, clientIp, context, null, skipCategories ? { skipCategories } : undefined);
+    const result = await manager.detect(value, clientIp, context, null, detectOptions(budget, skipCategories));
     /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
     if (!result.isThreat) return [false, ''];
     recordHitCategories(budget, result);

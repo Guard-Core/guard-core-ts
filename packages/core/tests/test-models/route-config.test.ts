@@ -29,10 +29,10 @@ describe('RouteConfig', () => {
     expect(rc.geoRateLimits).toBeNull();
   });
 
-  it('has 31 properties', () => {
+  it('has 32 properties', () => {
     const rc = new RouteConfig();
     const keys = Object.keys(rc);
-    expect(keys.length).toBe(31);
+    expect(keys.length).toBe(32);
   });
 
   it('allows mutation of all fields', () => {
