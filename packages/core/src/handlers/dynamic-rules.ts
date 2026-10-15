@@ -444,10 +444,17 @@ export class DynamicRuleManager {
   /* The twin of _apply_rules (guard_core/handlers/_dynamic_rule_application.py
      + dynamic_rule_handler.py): IP bans and unbans, the blocking lists, the
      rate limits, the feature toggles, then emergency mode, all mutating the
-     live config the request checks read. A failed apply restores the config
-     snapshot and rethrows; the first successful apply keeps its snapshot as
-     the base that expiry restores. */
+     live config the request checks read. Every apply starts from the base
+     snapshot, so a new version replaces the previous one instead of stacking
+     on it. A failed apply restores the config as it was before the call and
+     rethrows; the first successful apply keeps its snapshot as the base that
+     expiry restores. */
   private async applyRules(rules: DynamicRules): Promise<void> {
+    const previous = this.snapshotConfig();
+    /* Each version overlays the true base, never the previous version's
+       result (the reference _apply_rules): restore the base first so the
+       emergency halving and the replaced collections do not compound. */
+    if (this.activeBaseSnapshot !== null) this.restoreConfig(this.activeBaseSnapshot);
     const snapshot = this.snapshotConfig();
     try {
       await this.applyIpRules(rules);
@@ -458,7 +465,7 @@ export class DynamicRuleManager {
       this.applyFeatureToggles(rules);
       if (rules.emergencyMode) this.activateEmergencyMode(rules.emergencyWhitelist);
     } catch (e) {
-      this.restoreConfig(snapshot);
+      this.restoreConfig(previous);
       this.logger.error(`Failed to apply dynamic rules: ${e}`);
       throw e;
     }
@@ -551,7 +558,10 @@ export class DynamicRuleManager {
     const sus = this.targets.susPatternsManager ?? null;
     const added: string[] = [];
     const rejected: string[] = [];
-    for (const pattern of patterns) {
+    /* A pattern the registry already holds is skipped (the reference
+       _apply_pattern_rules), so a later version does not re-add it. */
+    const known = new Set(sus?.getAllPatterns() ?? []);
+    for (const pattern of patterns.filter((p) => !known.has(p))) {
       if (sus !== null && await sus.addPattern(pattern)) added.push(pattern);
       else rejected.push(pattern);
     }
