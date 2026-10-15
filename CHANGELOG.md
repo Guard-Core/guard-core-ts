@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The `Cookie` header is scanned one `name=value` pair at a time, like query parameters. As a single value, the `;` between cookies counted as command separators in the semantic score, so an ordinary logged-in header (a JWT session cookie plus `theme` and `_ga`) could reach 0.71 and be blocked. Each pair takes the normal header path, empty pairs are skipped, only spaces around a pair are trimmed (a CR or LF stays in the scanned value), and each pair counts against the value budget. Ports guard-core #162 (issue #161).
+
 ### Added
 
 - `excludedSemanticDetectionHeaders` (default empty) and `detectionExclusion({ semanticHeaders })`: opt-in header names whose values skip the semantic analyzer only; regex scanning of those headers is unchanged.

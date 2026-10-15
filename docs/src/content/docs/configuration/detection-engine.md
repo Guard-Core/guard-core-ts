@@ -185,6 +185,10 @@ With the knob on:
 
 All other timeout semantics (the `pattern_timeout` threat, the 0.9x slow-completion arm, the `timeouts` result list, the anomaly events) are identical in both modes.
 
+## Cookie Header
+
+The `Cookie` header scans one `name=value` pair at a time, as `header`, the same way query parameters scan one by one. Empty pairs are skipped, only spaces around a pair are trimmed (a CR or LF stays in the scanned value), and each pair counts against the value budget. Every regex and semantic check still runs on each cookie, so an attack inside one cookie is still detected.
+
 ## Tuning Knobs
 
 | Config Field | Default | Effect |

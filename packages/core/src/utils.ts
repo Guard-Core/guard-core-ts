@@ -592,6 +592,28 @@ export async function scanRequestWithManager(
   return [isThreat, info, budget.categories];
 }
 
+/* The Cookie header scans one name=value pair at a time, like query
+   parameters (reference _header_items_to_scan): as one value the `;`
+   between cookies read as command separators in the semantic score, so an
+   ordinary logged-in header could reach the threshold. Only spaces around a
+   pair are trimmed (a CR or LF stays in the scanned value) and empty pairs
+   are skipped. Each pair then takes the normal header path and counts
+   against the value budget. */
+function* headerItemsToScan(
+  headers: Readonly<Record<string, string>>,
+): Generator<[string, string]> {
+  for (const [key, value] of Object.entries(headers)) {
+    if (key.trim().toLowerCase() !== 'cookie') {
+      yield [key, value];
+      continue;
+    }
+    for (const pair of value.split(';')) {
+      const stripped = pair.replace(/^ +| +$/g, '');
+      if (stripped !== '') yield [key, stripped];
+    }
+  }
+}
+
 async function runRequestSurfaceScan(
   manager: SusPatternsManager,
   request: GuardRequest,
@@ -614,7 +636,7 @@ async function runRequestSurfaceScan(
     if (hit[0]) return [true, `URL path: ${hit[1]}`];
   }
 
-  for (const [headerName, headerValue] of Object.entries(request.headers)) {
+  for (const [headerName, headerValue] of headerItemsToScan(request.headers)) {
     const nameLower = headerName.toLowerCase();
     // Excluded headers (the hardcoded proxy identity set merged with the
     // configured and per-route excludedDetectionHeaders) are not skipped
