@@ -184,3 +184,60 @@ export class ScanPoolSupervisor {
     }
   }
 }
+
+/**
+ * Per-request regex scan time budget and event-loop slicing (reference
+ * detection_max_scan_seconds, _record_scan_time and _EVENT_LOOP_SLICE_SECONDS
+ * in guard_core/_utils/detection_scan.py). The reference carries this in
+ * contextvars; here one instance rides the request scan explicitly.
+ *
+ * A synchronous RegExp cannot be preempted, so the budget is enforced
+ * between patterns: once the summed per-pattern scan time reaches the cap
+ * the remaining patterns are skipped and the caller records the exhaustion
+ * as a weighted pattern_timeout threat. `yieldIfDue()` hands the event loop
+ * back to I/O callbacks after every EVENT_LOOP_SLICE_MS of scanning, which
+ * microtask awaits alone never do.
+ */
+export const EVENT_LOOP_SLICE_MS = 2;
+export const SCAN_TIME_BUDGET_EXHAUSTED_PATTERN = 'scan_time_budget_exhausted';
+
+export function yieldToEventLoop(): Promise<void> {
+  return new Promise((resolve) => {
+    if (typeof setImmediate === 'function') setImmediate(resolve);
+    else setTimeout(resolve, 0);
+  });
+}
+
+export class ScanTimeBudget {
+  private spentMs = 0;
+  private sliceStartMs = performance.now();
+  private warned = false;
+
+  /** capSeconds Infinity means no cap (the reference's None). */
+  constructor(private readonly capSeconds: number = Infinity) {}
+
+  get cap(): number {
+    return this.capSeconds;
+  }
+
+  get exhausted(): boolean {
+    return this.spentMs / 1000 >= this.capSeconds;
+  }
+
+  record(elapsedSeconds: number): void {
+    this.spentMs += elapsedSeconds * 1000;
+  }
+
+  /** True exactly once per request: the caller logs the cap warning then. */
+  takeWarning(): boolean {
+    if (this.warned) return false;
+    this.warned = true;
+    return true;
+  }
+
+  async yieldIfDue(): Promise<void> {
+    if (performance.now() - this.sliceStartMs < EVENT_LOOP_SLICE_MS) return;
+    await yieldToEventLoop();
+    this.sliceStartMs = performance.now();
+  }
+}

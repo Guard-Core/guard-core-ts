@@ -190,6 +190,7 @@ All other timeout semantics (the `pattern_timeout` threat, the 0.9x slow-complet
 | Config Field | Default | Effect |
 |-------------|---------|--------|
 | `detectionCompilerTimeout` | `2.0` | Per-scan verdict deadline in seconds (a scan that overshoots it is discarded as a timeout and heads toward quarantine) |
+| `detectionMaxScanSeconds` | `10.0` | Per-request cap on the summed regex scan time; once spent, remaining patterns and values are skipped and a weighted `pattern_timeout` threat (`scan_time_budget_exhausted`) is recorded like a per-pattern timeout. A scan also yields to the event loop every ~2 ms, so one request's scan cannot starve other requests' I/O |
 | `detectionMaxContentLength` | `10000` | Max characters to scan per request |
 | `detectionPreserveAttackPatterns` | `true` | Keep attack regions when truncating |
 | `detectionSemanticThreshold` | `0.7` | Minimum semantic score to flag as threat |

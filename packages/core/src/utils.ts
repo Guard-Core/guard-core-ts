@@ -16,6 +16,7 @@ import {
   resolveDetectionExclusions,
 } from './core/routing/detection-exclusions.js';
 import type { ResolvedDetectionExclusions } from './core/routing/detection-exclusions.js';
+import { ScanTimeBudget } from './detection-engine/scan-pool.js';
 import { fireBlockHook } from './core/block-events.js';
 import { readCappedBody } from './core/bounded-body-reader.js';
 
@@ -385,6 +386,7 @@ export async function isIpAllowed(
 const MAX_SCAN_VALUES = 512;
 const MAX_SCAN_CHARS = 65536;
 const MAX_JSON_DEPTH = 32;
+const DEFAULT_MAX_SCAN_SECONDS = 10.0;
 
 /** Mongo operator keys, ported from _MONGO_OPERATOR_KEY_RE in body_json_scan.py. */
 const MONGO_OPERATOR_KEY_RE =
@@ -398,6 +400,10 @@ interface ScanBudget {
      at the first hit, so after a threat this holds that hit's categories,
      which the caller reports to the autoban counter. */
   categories: string[];
+  /* Per-request regex scan time budget (detectionMaxScanSeconds), threaded
+     into every manager.detect call like the reference's request-scoped
+     contextvar. */
+  scanTime: ScanTimeBudget;
 }
 
 /**
@@ -463,6 +469,13 @@ function isExcludedParam(exclusions: ScanExclusions, key: string): boolean {
 
 function isExcludedBodyField(exclusions: ScanExclusions, name: string): boolean {
   return exclusions.bodyFields.has(name.toLowerCase());
+}
+
+function detectOptions(budget: ScanBudget, skipCategories?: ReadonlySet<string>) {
+  return {
+    ...(skipCategories ? { skipCategories } : {}),
+    scanTime: budget.scanTime,
+  };
 }
 
 function scanBudgetExhausted(budget: ScanBudget, value: string): boolean {
@@ -549,8 +562,13 @@ export async function scanRequestWithManager(
   /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
   const clientIp = request.clientHost ?? 'unknown';
   /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
-  const budget: ScanBudget = { values: 0, chars: 0, categories: [] };
   const exclusions = resolveScanExclusions(config, resolvedExclusions);
+  const budget: ScanBudget = {
+    values: 0,
+    chars: 0,
+    categories: [],
+    scanTime: new ScanTimeBudget(config?.detectionMaxScanSeconds ?? DEFAULT_MAX_SCAN_SECONDS),
+  };
 
   const [isThreat, info] = await runRequestSurfaceScan(manager, request, clientIp, budget, exclusions, config);
   return [isThreat, info, budget.categories];
@@ -754,7 +772,7 @@ async function detectValueEnhanced(
   let result: DetectionResult;
   try {
     /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
-    result = await manager.detect(value, clientIp, context, null, skipCategories ? { skipCategories } : undefined);
+    result = await manager.detect(value, clientIp, context, null, detectOptions(budget, skipCategories));
     /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
   } catch {
     return [false, ''];
@@ -789,7 +807,7 @@ async function detectComponent(
   if (scanBudgetExhausted(budget, value)) return [false, ''];
   try {
     /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
-    const result = await manager.detect(value, clientIp, context, null, skipCategories ? { skipCategories } : undefined);
+    const result = await manager.detect(value, clientIp, context, null, detectOptions(budget, skipCategories));
     /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
     if (!result.isThreat) return [false, ''];
     recordHitCategories(budget, result);

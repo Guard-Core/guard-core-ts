@@ -12,7 +12,11 @@ import { ContentPreprocessor } from '../detection-engine/preprocessor.js';
 import { PatternCompiler } from '../detection-engine/compiler.js';
 import { PatternValidationCache } from '../detection-engine/validation-cache.js';
 import { PerformanceMonitor } from '../detection-engine/monitor.js';
-import { ScanPoolSupervisor } from '../detection-engine/scan-pool.js';
+import {
+  SCAN_TIME_BUDGET_EXHAUSTED_PATTERN,
+  ScanPoolSupervisor,
+  ScanTimeBudget,
+} from '../detection-engine/scan-pool.js';
 import type { ScanOutcome } from '../detection-engine/scan-pool.js';
 import { createWorkerScanPool } from '../detection-engine/scan-worker-pool.js';
 import type { RegexCandidate, WorkerScanPool } from '../detection-engine/scan-worker-pool.js';
@@ -341,9 +345,17 @@ export class SusPatternsManager {
     content: string,
     context: string,
     correlationId: string | null,
-    options: { rawViewOnly?: boolean | null; urlDecodedViewOnly?: boolean | null } = {},
+    options: {
+      rawViewOnly?: boolean | null;
+      urlDecodedViewOnly?: boolean | null;
+      scanTime?: ScanTimeBudget;
+      ipAddress?: string;
+    } = {},
   ): Promise<{ threats: InternalRegexThreat[]; matchedPatterns: string[]; timeouts: string[] }> {
     const { rawViewOnly = null, urlDecodedViewOnly = null } = options;
+    // Without a request budget (standalone detectPatternMatch) the scan still
+    // yields between slices, it just has no cap.
+    const scanTime = options.scanTime ?? new ScanTimeBudget();
     const threats: InternalRegexThreat[] = [];
     const matchedPatterns: string[] = [];
     const timeouts: string[] = [];
@@ -377,12 +389,39 @@ export class SusPatternsManager {
     }
 
     for (const pattern of allPatterns) {
+      // Reference per-request scan budget (_scan_time_budget_exhausted): the
+      // exhaustion is recorded exactly like a per-pattern timeout (same
+      // pattern_timeout shape, weighted, fail-closed) and ends this pass.
+      if (scanTime.exhausted) {
+        const budgetThreat: InternalRegexThreat = {
+          type: 'pattern_timeout',
+          pattern: SCAN_TIME_BUDGET_EXHAUSTED_PATTERN,
+          match: '',
+          position: 0,
+          category: 'custom',
+          weight: resolvePatternWeight(SCAN_TIME_BUDGET_EXHAUSTED_PATTERN, 'custom'),
+        };
+        if (scanTime.takeWarning()) {
+          this.logger.warn(
+            `detectionMaxScanSeconds (${scanTime.cap}) reached for client ${options.ipAddress ?? 'unknown'}; remaining patterns and request values are not scanned`,
+          );
+        }
+        threats.push(budgetThreat);
+        matchedPatterns.push(budgetThreat.pattern);
+        timeouts.push(budgetThreat.pattern);
+        break;
+      }
       if (SusPatternsManager.excludedFromView(pattern.source, rawViewOnly, urlDecodedViewOnly)) continue;
       if (!skipFilter && !pattern.contexts.has(normalized)) continue;
 
       const patternStart = performance.now();
       const outcome = await this.runPatternScan(pattern, content, validatorContext, binaryPrefix);
       const elapsed = (performance.now() - patternStart) / 1000;
+      scanTime.record(elapsed);
+      // A synchronous scan never returns to the event loop on its own: hand
+      // it back every EVENT_LOOP_SLICE_MS so one request's scan cannot
+      // starve every other request's I/O.
+      await scanTime.yieldIfDue();
 
       // Reference timeout semantics (_suspatterns_regex.py): a scan that
       // overshoots detection_compiler_timeout yields no regex verdict, the
@@ -643,7 +682,10 @@ export class SusPatternsManager {
     ipAddress: string,
     context = 'unknown',
     correlationId: string | null = null,
-    options?: { skipCategories?: ReadonlySet<string> },
+    options?: {
+      skipCategories?: ReadonlySet<string>;
+      scanTime?: ScanTimeBudget;
+    },
   ): Promise<DetectionResult> {
     const startTime = performance.now();
     const originalLength = countCodePoints(content);
@@ -654,10 +696,11 @@ export class SusPatternsManager {
       decodeBudgetExhausted,
     );
     const normalizedCtx = this.normalizeContext(context);
+    const passOptions = { ipAddress, ...(options?.scanTime ? { scanTime: options.scanTime } : {}) };
 
-    const mainPass = await this.checkRegexPatterns(processedContent, context, correlationId, { rawViewOnly: false });
+    const mainPass = await this.checkRegexPatterns(processedContent, context, correlationId, { rawViewOnly: false, ...passOptions });
     const rawViewContent = this.preprocessor.preprocessSignalPreserving(content);
-    const rawPass = await this.checkRegexPatterns(rawViewContent, context, correlationId, { rawViewOnly: true });
+    const rawPass = await this.checkRegexPatterns(rawViewContent, context, correlationId, { rawViewOnly: true, ...passOptions });
     // The raw view rescans rows that already ran on the processed views (now
     // including the recon rows), so a row matching both views on the same
     // text must be reported once (Python `_merge_raw_view_results`: merge
@@ -683,6 +726,7 @@ export class SusPatternsManager {
     const urlDecodedViewContent = this.preprocessor.truncateSafely(decodedContent);
     const urlDecodedPass = await this.checkRegexPatterns(urlDecodedViewContent, context, correlationId, {
       urlDecodedViewOnly: true,
+      ...passOptions,
     });
     regexThreats.push(...urlDecodedPass.threats);
     matchedPatterns.push(...urlDecodedPass.matchedPatterns);
@@ -708,7 +752,7 @@ export class SusPatternsManager {
 
     const additiveViewContent = this.preprocessor.preprocessShortBase64AdditiveView(content);
     if (additiveViewContent) {
-      const additivePass = await this.checkRegexPatterns(additiveViewContent, context, correlationId);
+      const additivePass = await this.checkRegexPatterns(additiveViewContent, context, correlationId, passOptions);
       regexThreats.push(...additivePass.threats);
       matchedPatterns.push(...additivePass.matchedPatterns);
       timeouts.push(...additivePass.timeouts);

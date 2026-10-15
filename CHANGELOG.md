@@ -7,13 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
+### Added
 
-- Received dynamic rules are now applied. `DynamicRuleManager` fetched, validated, stored and persisted rules but never acted on them, so an `ipBlacklist`, `emergencyMode` or `globalRateLimit` rule had no effect on request handling. The apply step (the reference `_dynamic_rule_application`) now bans the `ipBlacklist` IPs for `ipBanDuration`, unbans the `ipWhitelist` IPs, adds `suspiciousPatterns` through the pattern validator, and replaces the live country lists, rate limits, cloud providers, `blockedUserAgents` (ReDoS validated), feature toggles, auto-ban threshold and duration, and emergency mode with its whitelist (which also halves the auto-ban threshold). A failed apply restores the previous config, an expiring rule restores the pre-rule config, and boot hydration applies the last-known rules. The rule model gains the `autoBanThreshold`, `autoBanDuration` and `enableRateLimitAutoBan` overrides. `SusPatternsManager.addPattern` now resolves a boolean (false when the validator refuses the pattern).
+- `detectionMaxScanSeconds` (default 10.0, range 0.1 to 60): a per-request cap on the summed regex scan time. Once spent, remaining patterns and values are skipped and a weighted `pattern_timeout` threat (`scan_time_budget_exhausted`) is recorded like a per-pattern timeout, so padding a request cannot skip detection. A synchronous RegExp cannot be preempted, so the cap is enforced between patterns.
 
 ### Changed
 
 - The `enableDynamicRules` description lists exactly what a rule can change.
+- The detection scan yields to the event loop every ~2 ms of scanning, so one request's scan no longer holds the loop for its whole duration.
+
+### Fixed
+
+- Received dynamic rules are now applied. `DynamicRuleManager` fetched, validated, stored and persisted rules but never acted on them, so an `ipBlacklist`, `emergencyMode` or `globalRateLimit` rule had no effect on request handling. The apply step (the reference `_dynamic_rule_application`) now bans the `ipBlacklist` IPs for `ipBanDuration`, unbans the `ipWhitelist` IPs, adds `suspiciousPatterns` through the pattern validator, and replaces the live country lists, rate limits, cloud providers, `blockedUserAgents` (ReDoS validated), feature toggles, auto-ban threshold and duration, and emergency mode with its whitelist (which also halves the auto-ban threshold). A failed apply restores the previous config, an expiring rule restores the pre-rule config, and boot hydration applies the last-known rules. The rule model gains the `autoBanThreshold`, `autoBanDuration` and `enableRateLimitAutoBan` overrides. `SusPatternsManager.addPattern` now resolves a boolean (false when the validator refuses the pattern).
 
 ## [4.3.3] - 2026-10-12
 
