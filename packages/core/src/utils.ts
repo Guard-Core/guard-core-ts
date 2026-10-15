@@ -473,9 +473,13 @@ export async function isIpAllowed(
   try {
     if (canonicalIpText(ip) === null) return false;
 
-    if (ipInList(ip, config.blacklist)) return false;
-
-    if (config.whitelist && config.whitelist.length > 0 && !ipInList(ip, config.whitelist)) return false;
+    /* Reference _check_ip_lists_detail: a configured whitelist alone decides;
+       the blacklist applies only when no whitelist is configured. */
+    if (config.whitelist && config.whitelist.length > 0) {
+      if (!ipInList(ip, config.whitelist)) return false;
+    } else if (ipInList(ip, config.blacklist)) {
+      return false;
+    }
 
     /* v8 ignore start -- geoIpHandler branch unreachable in recursive JSON check because dangerousPatterns check returns first */
     if (geoIpHandler) {
