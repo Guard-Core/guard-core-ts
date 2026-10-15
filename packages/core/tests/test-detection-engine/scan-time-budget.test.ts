@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 
-import { ScanTimeBudget, yieldToEventLoop } from '../../src/detection-engine/scan-pool.js';
+import { ScanTimeBudget, cpuSeconds, yieldToEventLoop } from '../../src/detection-engine/scan-pool.js';
 import { SusPatternsManager } from '../../src/handlers/sus-patterns.js';
 import { defaultLogger } from '../../src/models/logger.js';
 import { createMockRequest, createTestConfig } from '../helpers.js';
@@ -96,7 +96,7 @@ describe('per-request scan time budget in the engine', () => {
     expect(result.timeouts).not.toContain(BUDGET_PATTERN);
   });
 
-  it('names the budget in the trigger when it tips the request over the threshold', async () => {
+  it('names the budget in the trigger when it tips the request over the threshold', { timeout: 60_000 }, async () => {
     const cfg = createTestConfig({ detectionMaxScanSeconds: 0.1 });
     const m = new SusPatternsManager(cfg, defaultLogger);
     for (let i = 0; i < 150; i++) await m.addPattern(`[a-z ]+zzz${i}q`);
@@ -136,7 +136,7 @@ describe('per-request scan time budget in the engine', () => {
     expect(info).toBe("Query param name 'q': Value matched pattern 'a'; Pattern exceeded scan time budget: 'slow'");
   });
 
-  it('the request scan stops once the configured cap is spent by padded values', async () => {
+  it('the request scan stops once the configured cap is spent by padded values', { timeout: 60_000 }, async () => {
     const cfg = createTestConfig({ detectionMaxScanSeconds: 0.1 });
     const m = new SusPatternsManager(cfg, defaultLogger);
     // Slow custom patterns pad the per-pattern time until the cap is spent.
@@ -146,6 +146,51 @@ describe('per-request scan time budget in the engine', () => {
     const [isThreat, info] = await scanRequestWithManager(m, createMockRequest({ queryParams }), cfg);
     expect(isThreat).toBe(true);
     expect(info).toContain(BUDGET_PATTERN);
+  });
+});
+
+describe('the budget counts CPU time, not wall time', () => {
+  it('a wall-slow but CPU-cheap scan does not exhaust the budget', async () => {
+    const m = manager();
+    // Each pattern scan takes ~1 ms of wall time but the injected CPU clock never moves.
+    vi.spyOn(m as unknown as { checkRegexPattern: () => null }, 'checkRegexPattern').mockImplementation(() => {
+      const end = performance.now() + 1;
+      while (performance.now() < end) { /* busy wait */ }
+      return null;
+    });
+    const scanTime = new ScanTimeBudget(0.05, () => 0);
+    const wallStart = performance.now();
+    const result = await m.detect('hello world', '127.0.0.1', 'query_param:q', null, { scanTime });
+    expect(performance.now() - wallStart).toBeGreaterThan(50);
+    expect(result.threats.some((t) => t.pattern === BUDGET_PATTERN)).toBe(false);
+    expect(result.isThreat).toBe(false);
+  });
+
+  it('CPU-heavy scanning still exhausts the budget', async () => {
+    const m = manager();
+    let cpu = 0;
+    const scanTime = new ScanTimeBudget(0.1, () => (cpu += 1));
+    const result = await m.detect('hello world', '127.0.0.1', 'query_param:q', null, { scanTime });
+    expect(result.threats.some((t) => t.pattern === BUDGET_PATTERN)).toBe(true);
+  });
+
+  it('measure charges the clock delta even when the scan throws', () => {
+    let cpu = 0;
+    const scanTime = new ScanTimeBudget(1.0, () => (cpu += 0.6));
+    expect(() => scanTime.measure(() => { throw new Error('boom'); })).toThrow('boom');
+    expect(scanTime.exhausted).toBe(false);
+    scanTime.measure(() => 1);
+    expect(scanTime.exhausted).toBe(true);
+  });
+
+  it('cpuSeconds reads process CPU time and falls back to wall time without process', () => {
+    expect(cpuSeconds()).toBeGreaterThan(0);
+    vi.stubGlobal('process', undefined);
+    try {
+      expect(cpuSeconds()).toBeGreaterThan(0);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });
 

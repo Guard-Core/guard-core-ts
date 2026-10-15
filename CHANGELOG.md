@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `excludedSemanticDetectionHeaders` (default empty) and `detectionExclusion({ semanticHeaders })`: opt-in header names whose values skip the semantic analyzer only; regex scanning of those headers is unchanged.
-- `detectionMaxScanSeconds` (default 10.0, range 0.1 to 60): a per-request cap on the summed regex scan time. Once spent, remaining patterns and values are skipped and a weighted `pattern_timeout` threat (`scan_time_budget_exhausted`) is recorded like a per-pattern timeout, so padding a request cannot skip detection. A synchronous RegExp cannot be preempted, so the cap is enforced between patterns.
+- `detectionMaxScanSeconds` (default 10.0, range 0.1 to 60): a per-request cap on the summed regex scan CPU time (process CPU time around each synchronous scan, not wall time, so a busy or CPU-starved host does not exhaust it). Once spent, remaining patterns and values are skipped and a weighted `pattern_timeout` threat (`scan_time_budget_exhausted`) is recorded like a per-pattern timeout, so padding a request cannot skip detection. A synchronous RegExp cannot be preempted, so the cap is enforced between patterns.
 
 ### Changed
 

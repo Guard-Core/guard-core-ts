@@ -179,8 +179,8 @@ export const SecurityConfigSchema = z.object({
   behaviorMaxResponseBodyInspectBytes: z.number().int().min(1).default(262144),
 
   detectionCompilerTimeout: z.number().min(0.1).max(10).default(2.0),
-  /* Cap on the total regex scan time (seconds) spent on one request, summed
-     across every field and every pattern (reference
+  /* Cap on the CPU time (seconds) spent regex scanning one request, not wall
+     time, summed across every field and every pattern (reference
      detection_max_scan_seconds). Once reached, remaining patterns and values
      are not scanned and the request receives a weighted pattern_timeout
      threat that counts toward the anomaly score, so padding a request cannot

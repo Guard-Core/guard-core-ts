@@ -191,6 +191,10 @@ export class ScanPoolSupervisor {
  * in guard_core/_utils/detection_scan.py). The reference carries this in
  * contextvars; here one instance rides the request scan explicitly.
  *
+ * The budget counts CPU time actually spent scanning (process.cpuUsage()
+ * deltas around each synchronous scan, user plus system), not wall time, so a
+ * busy or CPU-starved host does not push ordinary requests over the cap. The
+ * clock falls back to wall time on runtimes without process.cpuUsage (edge).
  * A synchronous RegExp cannot be preempted, so the budget is enforced
  * between patterns: once the summed per-pattern scan time reaches the cap
  * the remaining patterns are skipped and the caller records the exhaustion
@@ -200,6 +204,14 @@ export class ScanPoolSupervisor {
  */
 export const EVENT_LOOP_SLICE_MS = 2;
 export const SCAN_TIME_BUDGET_EXHAUSTED_PATTERN = 'scan_time_budget_exhausted';
+
+export function cpuSeconds(): number {
+  if (typeof process !== 'undefined' && typeof process.cpuUsage === 'function') {
+    const usage = process.cpuUsage();
+    return (usage.user + usage.system) / 1e6;
+  }
+  return performance.now() / 1000;
+}
 
 export function yieldToEventLoop(): Promise<void> {
   return new Promise((resolve) => {
@@ -214,7 +226,10 @@ export class ScanTimeBudget {
   private warned = false;
 
   /** capSeconds Infinity means no cap (the reference's None). */
-  constructor(private readonly capSeconds: number = Infinity) {}
+  constructor(
+    private readonly capSeconds: number = Infinity,
+    private readonly clock: () => number = cpuSeconds,
+  ) {}
 
   get cap(): number {
     return this.capSeconds;
@@ -226,6 +241,16 @@ export class ScanTimeBudget {
 
   record(elapsedSeconds: number): void {
     this.spentMs += elapsedSeconds * 1000;
+  }
+
+  /** Runs one synchronous scan and charges its CPU time to the budget. */
+  measure<T>(scan: () => T): T {
+    const start = this.clock();
+    try {
+      return scan();
+    } finally {
+      this.record(this.clock() - start);
+    }
   }
 
   /** True exactly once per request: the caller logs the cap warning then. */

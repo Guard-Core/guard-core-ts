@@ -415,9 +415,8 @@ export class SusPatternsManager {
       if (!skipFilter && !pattern.contexts.has(normalized)) continue;
 
       const patternStart = performance.now();
-      const outcome = await this.runPatternScan(pattern, content, validatorContext, binaryPrefix);
+      const outcome = await this.runPatternScan(pattern, content, validatorContext, binaryPrefix, scanTime);
       const elapsed = (performance.now() - patternStart) / 1000;
-      scanTime.record(elapsed);
       // A synchronous scan never returns to the event loop on its own: hand
       // it back every EVENT_LOOP_SLICE_MS so one request's scan cannot
       // starve every other request's I/O.
@@ -501,11 +500,14 @@ export class SusPatternsManager {
     content: string,
     validatorContext: string,
     binaryPrefix: number[],
+    scanTime: ScanTimeBudget,
   ): Promise<ScanOutcome<InternalRegexThreat | null>> {
     if (!this.scanWorkerPoolEnabled || SusPatternsManager.hasStructuralMatcher(pattern.source)) {
       return this.scanPool.run(
         pattern.source,
-        () => this.checkRegexPattern(pattern, content, pattern.category, validatorContext, binaryPrefix),
+        () => scanTime.measure(
+          () => this.checkRegexPattern(pattern, content, pattern.category, validatorContext, binaryPrefix),
+        ),
       );
     }
 
@@ -513,7 +515,9 @@ export class SusPatternsManager {
     if (pool === null) {
       return this.scanPool.run(
         pattern.source,
-        () => this.checkRegexPattern(pattern, content, pattern.category, validatorContext, binaryPrefix),
+        () => scanTime.measure(
+          () => this.checkRegexPattern(pattern, content, pattern.category, validatorContext, binaryPrefix),
+        ),
       );
     }
 
@@ -524,7 +528,8 @@ export class SusPatternsManager {
     const flags = pattern.custom
       ? pattern.compiled.re.flags.replace('y', 'gm')
       : pattern.compiled.re.flags.replace('y', 'g');
-    return pool.run(
+    // The worker's CPU is not observable from here, so its wall time is charged.
+    const outcome = await pool.run(
       pattern.source,
       { patternSource: pattern.compiled.re.source, flags, content },
       (candidates) =>
@@ -536,6 +541,8 @@ export class SusPatternsManager {
           binaryPrefix,
         ),
     );
+    scanTime.record(outcome.elapsedMs / 1000);
+    return outcome;
   }
 
   private static hasStructuralMatcher(source: string): boolean {
