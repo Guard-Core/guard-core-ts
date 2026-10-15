@@ -35,6 +35,9 @@ export interface GuardSurface {
 import fp from 'fastify-plugin';
 import { FastifyGuardRequest, FastifyResponseFactory } from './adapters.js';
 
+/** Upper bound on response bytes captured for behavioral return-pattern scans (spec 1.4 bounded read). */
+const RESPONSE_CAPTURE_LIMIT = 10_000;
+
 export interface GuardPluginOptions {
   config: SecurityConfig;
   agentHandler?: AgentHandlerProtocol;
@@ -181,9 +184,7 @@ export const guardPlugin = fp(async function guardPlugin(fastify: FastifyInstanc
       guardReq.state.guardRouteConfig = directConfig;
     }
 
-    const passthrough = await components.bypassHandler.handlePassthrough(
-      guardReq, async () => createPassthroughResponse(),
-    );
+    const passthrough = await components.bypassHandler.handlePassthrough(guardReq);
     if (passthrough) {
       sendFastifyResponse(reply, passthrough);
       return;
@@ -191,26 +192,23 @@ export const guardPlugin = fp(async function guardPlugin(fastify: FastifyInstanc
 
     const routeConfig = components.routeResolver.getRouteConfig(guardReq);
 
-    const bypass = await components.bypassHandler.handleSecurityBypass(
-      guardReq, async () => createPassthroughResponse(), routeConfig,
-    );
-    if (bypass) {
-      sendFastifyResponse(reply, bypass);
-      return;
-    }
-
-    /* Stamp for preValidation and onSend. Excluded/bypassed paths answered here
-       never reach preValidation, and onSend skips responses without a stamp. */
-    (request as unknown as Record<string, unknown>)['_guardRequest'] = guardReq;
-    (request as unknown as Record<string, unknown>)['_guardRouteConfig'] = routeConfig;
-    (request as unknown as Record<string, unknown>)['_guardStartTime'] = performance.now();
+    /* Stamp for preValidation and onSend. An excluded path keeps going
+       (exclusion-scoped pipeline), an all-checks bypass route skips the
+       pipeline and runs only the response modifier; both reach the route
+       handler. Requests answered above never get a stamp, so onSend skips
+       them. */
+    const stamped = request as unknown as Record<string, unknown>;
+    stamped['_guardRequest'] = guardReq;
+    stamped['_guardRouteConfig'] = routeConfig;
+    stamped['_guardStartTime'] = performance.now();
+    stamped['_guardBypass'] = await components.bypassHandler.beginSecurityBypass(guardReq, routeConfig);
   });
 
   fastify.addHook('preValidation', async (request, reply) => {
     const stamped = request as unknown as Record<string, unknown>;
     const guardReq = stamped['_guardRequest'] as FastifyGuardRequest | undefined;
     const routeConfig = stamped['_guardRouteConfig'] as RouteConfig | null | undefined;
-    if (!guardReq) return;
+    if (!guardReq || stamped['_guardBypass'] === true) return;
 
     /* Body-dependent checks (penetration scan, size/content rules) need the
        parsed body, which Fastify only exposes after its parsing stage: at
@@ -220,6 +218,9 @@ export const guardPlugin = fp(async function guardPlugin(fastify: FastifyInstanc
        framework's bodyLimit, not by the adapter. */
     const blockResponse = await components.pipeline.execute(guardReq);
     if (blockResponse) {
+      /* A blocked request never reaches the pass-through response pass
+         (reference: metrics and headers only for responses the app produced). */
+      stamped['_guardBlocked'] = true;
       sendFastifyResponse(reply, blockResponse);
       return;
     }
@@ -231,23 +232,36 @@ export const guardPlugin = fp(async function guardPlugin(fastify: FastifyInstanc
   });
 
   fastify.addHook('onSend', async (request, reply, payload) => {
-    const guardReq = (request as unknown as Record<string, unknown>)['_guardRequest'] as FastifyGuardRequest | undefined;
-    const routeConfig = (request as unknown as Record<string, unknown>)['_guardRouteConfig'] as RouteConfig | null | undefined;
-    const startTime = (request as unknown as Record<string, unknown>)['_guardStartTime'] as number | undefined;
+    const stamped = request as unknown as Record<string, unknown>;
+    const guardReq = stamped['_guardRequest'] as FastifyGuardRequest | undefined;
+    const routeConfig = stamped['_guardRouteConfig'] as RouteConfig | null | undefined;
+    const startTime = stamped['_guardStartTime'] as number | undefined;
 
-    if (!guardReq || startTime === undefined) return payload;
+    if (!guardReq || startTime === undefined || stamped['_guardBlocked'] === true) return payload;
 
     const responseTime = (performance.now() - startTime) / 1000;
-    const bodyText = typeof payload === 'string' ? payload : null;
+    /* Bounded read (spec 1.4): string and Buffer payloads are captured up to
+       the cap; a stream payload is never consumed, so body patterns skip it. */
+    let bodyBytes: Uint8Array | null = null;
+    if (typeof payload === 'string') bodyBytes = new TextEncoder().encode(payload);
+    else if (payload instanceof Uint8Array) bodyBytes = payload;
+    if (bodyBytes && bodyBytes.length > RESPONSE_CAPTURE_LIMIT) {
+      bodyBytes = bodyBytes.subarray(0, RESPONSE_CAPTURE_LIMIT);
+    }
     const capturedResponse: GuardResponse = {
       statusCode: reply.statusCode,
       headers: Object.fromEntries(
         Object.entries(reply.getHeaders()).map(([k, v]) => [k, String(v)]),
       ),
       setHeader(name: string, value: string) { reply.header(name, value); },
-      body: bodyText ? new TextEncoder().encode(bodyText) : null,
-      bodyText,
+      body: bodyBytes,
+      bodyText: bodyBytes ? new TextDecoder().decode(bodyBytes) : null,
     };
+
+    if (stamped['_guardBypass'] === true) {
+      await components.errorResponseFactory.applyModifier(capturedResponse);
+      return payload;
+    }
 
     await components.errorResponseFactory.processResponse(
       guardReq, capturedResponse, responseTime, routeConfig ?? null,
@@ -273,17 +287,4 @@ function sendFastifyResponse(reply: FastifyReply, response: GuardResponse): void
   }
 
   reply.status(response.statusCode).send(response.bodyText ?? '');
-}
-
-function createPassthroughResponse(): GuardResponse {
-  /* Passthrough responses never carry headers; the noop only satisfies the
-     GuardResponse interface. */
-  return {
-    statusCode: 200,
-    headers: {},
-    /* v8 ignore next */
-    setHeader() {},
-    body: null,
-    bodyText: null,
-  };
 }

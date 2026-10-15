@@ -199,10 +199,14 @@ const { mockComponents, mockInitialize } = vi.hoisted(() => {
     bypassHandler: {
       handlePassthrough: vi.fn().mockResolvedValue(null),
       handleSecurityBypass: vi.fn().mockResolvedValue(null),
+      beginSecurityBypass: vi.fn().mockResolvedValue(false),
     },
     routeResolver: { getRouteConfig: vi.fn().mockReturnValue(null) },
     behavioralProcessor: { processUsageRules: vi.fn(), processReturnRules: vi.fn() },
-    errorResponseFactory: { processResponse: vi.fn().mockImplementation((_: unknown, r: unknown) => Promise.resolve(r)) },
+    errorResponseFactory: {
+      processResponse: vi.fn().mockImplementation((_: unknown, r: unknown) => Promise.resolve(r)),
+      applyModifier: vi.fn().mockImplementation((r: unknown) => Promise.resolve(r)),
+    },
     middlewareProtocol: {},
     registry: {},
     eventBus: {},
@@ -269,6 +273,7 @@ describe('guardPlugin', () => {
     (mockComponents.pipeline.execute as ReturnType<typeof vi.fn>).mockResolvedValue(null);
     (mockComponents.bypassHandler.handlePassthrough as ReturnType<typeof vi.fn>).mockResolvedValue(null);
     (mockComponents.bypassHandler.handleSecurityBypass as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+(mockComponents.bypassHandler.beginSecurityBypass as ReturnType<typeof vi.fn>).mockResolvedValue(false);
     (mockComponents.routeResolver.getRouteConfig as ReturnType<typeof vi.fn>).mockReturnValue(null);
     (mockComponents.errorResponseFactory.processResponse as ReturnType<typeof vi.fn>).mockImplementation((_: unknown, r: unknown) => Promise.resolve(r));
   });
@@ -293,6 +298,19 @@ describe('guardPlugin', () => {
     expect((request as unknown as Record<string, unknown>)['_guardStartTime']).toBeTypeOf('number');
   });
 
+  it('onRequest sends an empty body when the passthrough response has no body text', async () => {
+    const { hooks } = await createPlugin();
+    (mockComponents.bypassHandler.handlePassthrough as ReturnType<typeof vi.fn>).mockImplementationOnce(
+      async () => ({ statusCode: 403, headers: {}, setHeader() {}, body: null, bodyText: null }),
+    );
+
+    const reply = createMockReply();
+    await hooks['onRequest'](createMockRequest(), reply);
+
+    expect(reply.status).toHaveBeenCalledWith(403);
+    expect(reply.send).toHaveBeenCalledWith('');
+  });
+
   it('onRequest sends response when passthrough returns', async () => {
     const { hooks } = await createPlugin();
     const passthroughResponse: GuardResponse = {
@@ -303,10 +321,7 @@ describe('guardPlugin', () => {
       bodyText: 'ok',
     };
     (mockComponents.bypassHandler.handlePassthrough as ReturnType<typeof vi.fn>).mockImplementationOnce(
-      async (_req: unknown, factory: () => GuardResponse) => {
-        factory();
-        return passthroughResponse;
-      },
+      async () => passthroughResponse,
     );
 
     const request = createMockRequest();
@@ -317,27 +332,17 @@ describe('guardPlugin', () => {
     expect(reply.send).toHaveBeenCalledWith('ok');
   });
 
-  it('onRequest sends response when security bypass returns', async () => {
+  it('onRequest stamps an all-checks bypass route and skips the pipeline', async () => {
     const { hooks } = await createPlugin();
-    const bypassResponse: GuardResponse = {
-      statusCode: 200,
-      headers: {},
-      setHeader() {},
-      body: null,
-      bodyText: null,
-    };
-    (mockComponents.bypassHandler.handleSecurityBypass as ReturnType<typeof vi.fn>).mockImplementationOnce(
-      async (_req: unknown, factory: () => GuardResponse) => {
-        factory();
-        return bypassResponse;
-      },
-    );
+    (mockComponents.bypassHandler.beginSecurityBypass as ReturnType<typeof vi.fn>).mockResolvedValueOnce(true);
 
     const request = createMockRequest();
     const reply = createMockReply();
     await hooks['onRequest'](request, reply);
+    await hooks['preValidation'](request, reply);
 
-    expect(reply.send).toHaveBeenCalledWith('');
+    expect(reply.send).not.toHaveBeenCalled();
+    expect(mockComponents.pipeline.execute).not.toHaveBeenCalled();
   });
 
   it('preValidation runs the pipeline after onRequest has stamped the request', async () => {

@@ -84,13 +84,17 @@ Adapters store this object and use it to process every request.
 ```
 1. Adapter receives native request
 2. Wraps it in GuardRequest
-3. BypassHandler.handlePassthrough() → check excludePaths
+3. BypassHandler.handlePassthrough() → a request with no client address is answered 403
+   (failSecure, the default) or continues as "unknown"; an excluded path is marked
+   exclusion-scoped and continues
 4. RouteConfigResolver.getRouteConfig() → resolve per-route config
-5. BypassHandler.handleSecurityBypass() → check bypassed checks
-6. SecurityCheckPipeline.execute() → run 17 checks
-7. If blocked: send GuardResponse via adapter
+5. BypassHandler.beginSecurityBypass() → an all-checks bypass route goes straight to the
+   route handler (only customResponseModifier runs on its response)
+6. SecurityCheckPipeline.execute() → run 17 checks (an exclusion-scoped request runs only
+   route_config, ip_security and rate_limit)
+7. If blocked: send GuardResponse via adapter (no response pass, no request metrics)
 8. If passed: call next() / route handler
-9. Capture response for behavioral processing + security headers
+9. Capture response for behavioral processing, security headers and request metrics
 ```
 
 ## Dependency Injection

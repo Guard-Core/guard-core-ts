@@ -82,7 +82,9 @@ export class SecurityCheckPipeline {
   }
 
   async execute(request: GuardRequest): Promise<GuardResponse | null> {
+    const exclusionScoped = request.state?.guardExclusionScoped === true;
     for (const check of this.checks) {
+      if (exclusionScoped && !check.enforcedOnExcludedPaths) continue;
       const config = check.middlewareRef.config as ResolvedSecurityConfig;
       let response: GuardResponse | null = null;
       try {

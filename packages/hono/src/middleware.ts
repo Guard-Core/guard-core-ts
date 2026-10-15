@@ -14,6 +14,7 @@ import type {
 import { SecurityConfigSchema, resolveConfiguredLogger, initializeSecurityMiddleware } from '@guardcore/core';
 import { resolveAgentHandler } from './agent.js';
 import { HonoGuardRequest, HonoResponseFactory } from './adapters.js';
+import { resolveHonoClientAddress } from './client-address.js';
 import { resolveHonoRouteId, resolveHonoEndpointId } from './route-id.js';
 
 export interface GuardMiddlewareOptions {
@@ -27,9 +28,11 @@ export interface GuardMiddlewareOptions {
   routeConfigs?: PathRouteConfigEntry[];
   /**
    * Optional hook that returns the connecting peer IP for the request.
-   * Defaults to `c.env['remoteAddr']`; wire this to the runtime's connection
-   * info helper (for example `getConnInfo` from the node-server adapter) when
-   * the runtime does not expose the peer address through the environment.
+   * Defaults to `resolveHonoClientAddress`, which reads the peer address the
+   * runtime hands the app (@hono/node-server, Deno.serve, Bun.serve and
+   * Cloudflare Workers). Wire this to the runtime's connection info helper
+   * (for example `getConnInfo`) for any other runtime. A request with no
+   * resolvable address is rejected with 403 under the default failSecure.
    */
   connectingIpResolver?: (c: Context) => string | null | undefined;
 }
@@ -102,7 +105,7 @@ export function createGuardMiddleware(options: GuardMiddlewareOptions): Middlewa
     const startTime = performance.now();
     const connectingIp = options.connectingIpResolver
       ? options.connectingIpResolver(c) ?? null
-      : (c.env as Record<string, unknown> | undefined)?.['remoteAddr'] as string | undefined ?? null;
+      : resolveHonoClientAddress(c);
     const guardReq = new HonoGuardRequest(c.req, connectingIp);
 
     /* W3 wiring: the decorated handler's `_guardRouteId` (stamped by the
@@ -114,17 +117,19 @@ export function createGuardMiddleware(options: GuardMiddlewareOptions): Middlewa
     const endpointId = resolveHonoEndpointId(c);
     if (endpointId !== null) guardReq.state.guardEndpointId = endpointId;
 
-    const passthrough = await components.bypassHandler.handlePassthrough(
-      guardReq, async () => createPassthroughResponse(),
-    );
+    const passthrough = await components.bypassHandler.handlePassthrough(guardReq);
     if (passthrough) return sendHonoResponse(c, passthrough);
 
     const routeConfig = components.routeResolver.getRouteConfig(guardReq);
 
-    const bypass = await components.bypassHandler.handleSecurityBypass(
-      guardReq, async () => createPassthroughResponse(), routeConfig,
-    );
-    if (bypass) return sendHonoResponse(c, bypass);
+    /* An all-checks bypass route awaits the real downstream handler
+       (reference handle_security_bypass): only the response modifier runs on
+       the real response, no pipeline and no response pass. */
+    if (await components.bypassHandler.beginSecurityBypass(guardReq, routeConfig)) {
+      await next();
+      await components.errorResponseFactory.applyModifier(await captureResponse(c, false));
+      return;
+    }
 
     const blockResponse = await components.pipeline.execute(guardReq);
     if (blockResponse) return sendHonoResponse(c, blockResponse);
@@ -137,16 +142,9 @@ export function createGuardMiddleware(options: GuardMiddlewareOptions): Middlewa
     await next();
 
     const responseTime = (performance.now() - startTime) / 1000;
-    const capturedResponse: GuardResponse = {
-      statusCode: c.res.status,
-      headers: Object.fromEntries(c.res.headers.entries()),
-      setHeader(name: string, value: string) { c.res.headers.set(name, value); },
-      body: null,
-      /* Spec 1.4: without a bounded response-body reader, body-based behavioral
-         return patterns are skipped. The response may be a live stream, so the
-         body is deliberately not read here. */
-      bodyText: null,
-    };
+    const wantsBody = resolved.behaviorScanResponseBody
+      && ((routeConfig?.behaviorRules.length ?? 0) > 0 || resolved.globalBehaviorRules.length > 0);
+    const capturedResponse = await captureResponse(c, wantsBody);
 
     await components.errorResponseFactory.processResponse(
       guardReq, capturedResponse, responseTime, routeConfig ?? null,
@@ -205,15 +203,43 @@ function sendHonoResponse(c: Context, response: GuardResponse): Response {
   return c.body(response.bodyText ?? '', response.statusCode as ContentfulStatusCode);
 }
 
-function createPassthroughResponse(): GuardResponse {
-  /* Passthrough responses never carry headers; the noop only satisfies the
-     GuardResponse interface. */
+/** Upper bound on response bytes captured for behavioral return-pattern scans (spec 1.4 bounded read). */
+const RESPONSE_CAPTURE_LIMIT = 10_000;
+
+/* The downstream response as a GuardResponse. With `readBody` the body is read
+   from a clone, bounded to the capture cap (the original stream stays
+   untouched for the server); server-sent-event streams are never read.
+   ponytail: a slow non-SSE stream holds the middleware until the cap or the
+   end of the stream, a size cap of the inspected prefix is the upgrade path. */
+async function captureResponse(c: Context, readBody: boolean): Promise<GuardResponse> {
+  let body: Uint8Array | null = null;
+  const contentType = c.res.headers.get('content-type') ?? '';
+  if (readBody && c.res.body && !contentType.startsWith('text/event-stream')) {
+    const reader = c.res.clone().body!.getReader();
+    const chunks: Uint8Array[] = [];
+    let total = 0;
+    while (total < RESPONSE_CAPTURE_LIMIT) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+      total += value.length;
+    }
+    /* Not awaited: a tee branch's cancel settles only once the other branch
+       (the one the server reads) is cancelled too. */
+    void reader.cancel();
+    body = new Uint8Array(Math.min(total, RESPONSE_CAPTURE_LIMIT));
+    let offset = 0;
+    for (const chunk of chunks) {
+      const part = chunk.subarray(0, body.length - offset);
+      body.set(part, offset);
+      offset += part.length;
+    }
+  }
   return {
-    statusCode: 200,
-    headers: {},
-    /* v8 ignore next */
-    setHeader() {},
-    body: null,
-    bodyText: null,
+    statusCode: c.res.status,
+    headers: Object.fromEntries(c.res.headers.entries()),
+    setHeader(name: string, value: string) { c.res.headers.set(name, value); },
+    body,
+    bodyText: body ? new TextDecoder().decode(body) : null,
   };
 }

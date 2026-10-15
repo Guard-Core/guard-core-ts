@@ -2,6 +2,7 @@ export { createGuardMiddleware } from './middleware.js';
 export type { GuardMiddlewareOptions, GuardSurface } from './middleware.js';
 export { configureCors } from './cors.js';
 export { HonoGuardRequest, HonoGuardResponse, HonoResponseFactory } from './adapters.js';
+export { resolveHonoClientAddress } from './client-address.js';
 export { resolveHonoRouteId, resolveHonoEndpointId } from './route-id.js';
 export { attachWebSocketGuard, NodeUpgradeGuardRequest } from './websocket.js';
 export type { WebSocketGuardOptions } from './websocket.js';

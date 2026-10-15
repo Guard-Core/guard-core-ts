@@ -356,10 +356,14 @@ const { sharedMockComponents, mockInitialize } = vi.hoisted(() => ({
     bypassHandler: {
       handlePassthrough: vi.fn().mockResolvedValue(null),
       handleSecurityBypass: vi.fn().mockResolvedValue(null),
+      beginSecurityBypass: vi.fn().mockResolvedValue(false),
     },
     routeResolver: { getRouteConfig: vi.fn().mockReturnValue(null) },
     behavioralProcessor: { processUsageRules: vi.fn(), processReturnRules: vi.fn() },
-    errorResponseFactory: { processResponse: vi.fn().mockImplementation((_: unknown, r: unknown) => Promise.resolve(r)) },
+    errorResponseFactory: {
+      processResponse: vi.fn().mockImplementation((_: unknown, r: unknown) => Promise.resolve(r)),
+      applyModifier: vi.fn().mockImplementation((r: unknown) => Promise.resolve(r)),
+    },
     middlewareProtocol: {},
     registry: {},
     eventBus: {},
@@ -415,6 +419,7 @@ describe('createSecurityMiddleware full flow', () => {
     (sharedMockComponents.pipeline.execute as ReturnType<typeof vi.fn>).mockResolvedValue(null);
     (sharedMockComponents.bypassHandler.handlePassthrough as ReturnType<typeof vi.fn>).mockResolvedValue(null);
     (sharedMockComponents.bypassHandler.handleSecurityBypass as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+(sharedMockComponents.bypassHandler.beginSecurityBypass as ReturnType<typeof vi.fn>).mockResolvedValue(false);
     (sharedMockComponents.routeResolver.getRouteConfig as ReturnType<typeof vi.fn>).mockReturnValue(null);
     (sharedMockComponents.errorResponseFactory.processResponse as ReturnType<typeof vi.fn>).mockImplementation((_: unknown, r: unknown) => Promise.resolve(r));
   });
@@ -470,10 +475,7 @@ describe('createSecurityMiddleware full flow', () => {
       bodyText: 'OK',
     };
     (sharedMockComponents.bypassHandler.handlePassthrough as ReturnType<typeof vi.fn>).mockImplementationOnce(
-      async (_req: unknown, factory: () => GuardResponse) => {
-        factory();
-        return passthroughResponse;
-      },
+      async () => passthroughResponse,
     );
 
     const middleware = createSecurityMiddleware({ config: {} });
@@ -485,27 +487,16 @@ describe('createSecurityMiddleware full flow', () => {
     expect(res.send).toHaveBeenCalled();
   });
 
-  it('sends response when security bypass returns a response', async () => {
-    const bypassResponse: GuardResponse = {
-      statusCode: 200,
-      headers: {},
-      setHeader() {},
-      body: null,
-      bodyText: null,
-    };
-    (sharedMockComponents.bypassHandler.handleSecurityBypass as ReturnType<typeof vi.fn>).mockImplementationOnce(
-      async (_req: unknown, factory: () => GuardResponse) => {
-        factory();
-        return bypassResponse;
-      },
-    );
+  it('continues to the downstream handler on an all-checks bypass route', async () => {
+    (sharedMockComponents.bypassHandler.beginSecurityBypass as ReturnType<typeof vi.fn>).mockResolvedValueOnce(true);
 
     const middleware = createSecurityMiddleware({ config: {} });
     const res = createMockResForMiddleware();
     const next = vi.fn();
     await middleware(createMockReqForMiddleware(), res as never, next);
 
-    expect(next).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(sharedMockComponents.pipeline.execute).not.toHaveBeenCalled();
   });
 
   it('sends response when pipeline blocks the request', async () => {
