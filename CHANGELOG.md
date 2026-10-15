@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Received dynamic rules are now applied. `DynamicRuleManager` fetched, validated, stored and persisted rules but never acted on them, so an `ipBlacklist`, `emergencyMode` or `globalRateLimit` rule had no effect on request handling. The apply step (the reference `_dynamic_rule_application`) now bans the `ipBlacklist` IPs for `ipBanDuration`, unbans the `ipWhitelist` IPs, adds `suspiciousPatterns` through the pattern validator, and replaces the live country lists, rate limits, cloud providers, `blockedUserAgents` (ReDoS validated), feature toggles, auto-ban threshold and duration, and emergency mode with its whitelist (which also halves the auto-ban threshold). A failed apply restores the previous config, an expiring rule restores the pre-rule config, and boot hydration applies the last-known rules. The rule model gains the `autoBanThreshold`, `autoBanDuration` and `enableRateLimitAutoBan` overrides. `SusPatternsManager.addPattern` now resolves a boolean (false when the validator refuses the pattern).
+
+### Changed
+
+- The `enableDynamicRules` description lists exactly what a rule can change.
+
 ## [4.3.3] - 2026-10-12
 
 ### Changed

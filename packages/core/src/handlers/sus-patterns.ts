@@ -838,7 +838,9 @@ export class SusPatternsManager {
     return [false, null];
   }
 
-  async addPattern(pattern: string, custom = true): Promise<void> {
+  /* Resolves false when the safety validator refuses the pattern (the
+     reference add_pattern bool), true once it joins the scan set. */
+  async addPattern(pattern: string, custom = true): Promise<boolean> {
     // Reference add_pattern (suspatterns registry) runs
     // compiler.validate_pattern_safety first and refuses unsafe or
     // uncompilable patterns with a warning; rejected patterns never join the
@@ -847,7 +849,7 @@ export class SusPatternsManager {
       const [isSafe, reason] = this.compiler.validatePatternSafety(pattern);
       if (!isSafe) {
         this.logger.warn(`Rejected unsafe pattern (${reason}): ${pattern}`);
-        return;
+        return false;
       }
     }
     this.customPatterns.add(pattern);
@@ -868,6 +870,7 @@ export class SusPatternsManager {
         totalPatterns: custom ? this.customPatterns.size : this.getDefaultPatterns().length,
       },
     );
+    return true;
   }
 
   async removePattern(pattern: string): Promise<void> {

@@ -77,10 +77,10 @@ describe('DynamicRulesSchema', () => {
     })).toThrow();
   });
 
-  it('has 21 fields total', () => {
+  it('has 24 fields total', () => {
     const rules = DynamicRulesSchema.parse({
       ruleId: 'r', version: 1, timestamp: '2024-01-01T00:00:00Z',
     });
-    expect(Object.keys(rules).length).toBe(21);
+    expect(Object.keys(rules).length).toBe(24);
   });
 });
