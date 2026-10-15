@@ -506,6 +506,16 @@ function getDefaultSusPatternsManager(): Promise<{ manager: SusPatternsManager; 
 function buildThreatMessage(result: DetectionResult): string {
   const threat = result.threats[0];
   if (threat === undefined) return 'Threat detected';
+  const message = describeThreat(threat);
+  if (threat.detectionMethod === 'pattern_timeout') return message;
+  // A per-pattern timeout or the spent scan budget can be what tips the
+  // request over the threshold behind an unrelated first threat: name it too
+  // (the reference _build_threats_message).
+  const timeout = result.threats.find((t) => t.detectionMethod === 'pattern_timeout');
+  return timeout === undefined ? message : `${message}; ${describeThreat(timeout)}`;
+}
+
+function describeThreat(threat: DetectionResult['threats'][number]): string {
   if (threat.detectionMethod === 'semantic') {
     /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
     const attackType = threat.pattern.slice('semantic:'.length) || 'suspicious';
@@ -515,6 +525,9 @@ function buildThreatMessage(result: DetectionResult): string {
     const score = scoreMatch ? Number(scoreMatch[1]).toFixed(2) : '0.00';
     /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
     return `Semantic attack: ${attackType} (score: ${score})`;
+  }
+  if (threat.detectionMethod === 'pattern_timeout') {
+    return `Pattern exceeded scan time budget: '${threat.pattern}'`;
   }
   return `Value matched pattern '${threat.pattern}'`;
 }

@@ -96,6 +96,46 @@ describe('per-request scan time budget in the engine', () => {
     expect(result.timeouts).not.toContain(BUDGET_PATTERN);
   });
 
+  it('names the budget in the trigger when it tips the request over the threshold', async () => {
+    const cfg = createTestConfig({ detectionMaxScanSeconds: 0.1 });
+    const m = new SusPatternsManager(cfg, defaultLogger);
+    for (let i = 0; i < 150; i++) await m.addPattern(`[a-z ]+zzz${i}q`);
+    const queryParams: Record<string, string> = {};
+    for (let i = 0; i < 200; i++) queryParams[`p${i}`] = 'the quick brown fox jumps over the lazy dog '.repeat(2);
+    const [isThreat, info] = await scanRequestWithManager(m, createMockRequest({ queryParams }), cfg);
+    expect(isThreat).toBe(true);
+    expect(info).toContain("Pattern exceeded scan time budget: 'scan_time_budget_exhausted'");
+  });
+
+  it('keeps a real match first and appends the timeout behind it', async () => {
+    const cfg = createTestConfig();
+    const m = new SusPatternsManager(cfg, defaultLogger);
+    // Exhausted only after the main pass, so the raw-view pass adds the timeout.
+    const allowed = m.getAllPatterns().length + 5;
+    class LateBudget extends ScanTimeBudget {
+      private checks = 0;
+      override get exhausted(): boolean { return ++this.checks > allowed; }
+    }
+    const result = await m.detect('select name from users', '127.0.0.1', 'query_param:q', null, { scanTime: new LateBudget() });
+    expect(result.threats[0]?.detectionMethod).toBe('regex');
+    expect(result.threats.some((t) => t.detectionMethod === 'pattern_timeout')).toBe(true);
+
+  });
+
+  it('appends a later timeout to the first threat in the trigger text', async () => {
+    const stub = {
+      detect: async () => ({
+        isThreat: true,
+        threats: [
+          { pattern: 'a', context: 'query_param', matchedContent: 'x', detectionMethod: 'regex' },
+          { pattern: 'slow', context: 'query_param', matchedContent: '', detectionMethod: 'pattern_timeout' },
+        ],
+      }),
+    } as unknown as SusPatternsManager;
+    const [, info] = await scanRequestWithManager(stub, createMockRequest({ queryParams: { q: 'v' } }));
+    expect(info).toBe("Query param name 'q': Value matched pattern 'a'; Pattern exceeded scan time budget: 'slow'");
+  });
+
   it('the request scan stops once the configured cap is spent by padded values', async () => {
     const cfg = createTestConfig({ detectionMaxScanSeconds: 0.1 });
     const m = new SusPatternsManager(cfg, defaultLogger);
