@@ -278,6 +278,15 @@ export const SecurityConfigSchema = z.object({
   agentPayloadSigningSecret: z.string().nullable().default(null),
   agentStatusInterval: z.number().int().min(60).max(86400).default(300),
 
+  /* Lets the SaaS dashboard change protection at runtime without a code
+     change: a rule bans the IPs in its ipBlacklist (for ipBanDuration
+     seconds), unbans the IPs in its ipWhitelist, adds its suspiciousPatterns
+     to detection, and replaces blockedCountries, whitelistCountries,
+     rateLimit, rateLimitWindow, endpointRateLimits, blockCloudProviders,
+     blockedUserAgents, enablePenetrationDetection, enableIpBanning,
+     enableRateLimiting, enableRateLimitAutoBan, autoBanThreshold,
+     autoBanDuration, emergencyMode and emergencyWhitelist. Requires
+     enableAgent. A rule cannot change any other setting. */
   enableDynamicRules: z.boolean().default(false),
   dynamicRuleInterval: z.number().int().min(60).default(300),
   /* The reference dynamic_rules_cache_path (a Path | None, so a non-empty

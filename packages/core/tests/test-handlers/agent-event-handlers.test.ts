@@ -596,7 +596,7 @@ describe('pattern_detected / pattern_added / pattern_removed events', () => {
     await manager.initializeAgent({
       async sendEvent() { throw new Error('down'); },
     } as unknown as AgentHandlerProtocol);
-    await expect(manager.addPattern('corpuspattern-[a-z]+')).resolves.toBeUndefined();
+    await expect(manager.addPattern('corpuspattern-[a-z]+')).resolves.toBe(true);
     await expect(manager.removePattern('corpuspattern-[a-z]+')).resolves.toBeUndefined();
   });
 });

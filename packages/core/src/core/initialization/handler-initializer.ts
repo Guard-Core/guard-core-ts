@@ -56,7 +56,10 @@ export class HandlerInitializer {
     const susPatternsHandler = new SusPatternsManager(this.config, this.logger);
     const securityHeadersHandler = new SecurityHeadersManager(this.logger);
     const behaviorTracker = new BehaviorTracker(this.config, this.logger);
-    const dynamicRuleHandler = new DynamicRuleManager(this.config, this.logger);
+    const dynamicRuleHandler = new DynamicRuleManager(this.config, this.logger, {
+      ipBanManager: ipBanHandler,
+      susPatternsManager: susPatternsHandler,
+    });
 
     let redisHandler: RedisManager | null = null;
 

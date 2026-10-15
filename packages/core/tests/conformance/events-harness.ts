@@ -425,7 +425,10 @@ export class EventsCaseRun {
           emergencyMode: payload['emergency_mode'] === true,
           emergencyWhitelist: (payload['emergency_whitelist'] as string[]) ?? [],
         };
-        const manager = new DynamicRuleManager(config, defaultLogger);
+        // The reference harness sets agent_handler directly and calls
+        // update_rules once, without starting the update loop; the loop-less
+        // config copy gives the same single fetch here.
+        const manager = new DynamicRuleManager({ ...config, enableDynamicRules: false }, defaultLogger);
         await manager.initializeAgent(agent);
         await manager.updateRules();
         await manager.stop();

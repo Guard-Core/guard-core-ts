@@ -25,6 +25,9 @@ export const DynamicRulesSchema = z.object({
   enablePenetrationDetection: z.boolean().nullable().default(null),
   enableIpBanning: z.boolean().nullable().default(null),
   enableRateLimiting: z.boolean().nullable().default(null),
+  autoBanThreshold: z.number().int().min(1).nullable().default(null),
+  autoBanDuration: z.number().int().min(1).nullable().default(null),
+  enableRateLimitAutoBan: z.boolean().nullable().default(null),
   emergencyMode: z.boolean().default(false),
   emergencyWhitelist: z.array(z.string()).default([]),
 });

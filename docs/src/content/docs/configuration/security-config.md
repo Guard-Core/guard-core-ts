@@ -145,7 +145,7 @@ Every penetration-detection violation increments the source IP's counter for the
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `enableDynamicRules` | `boolean` | `false` | Enable agent-driven rule updates (requires `enableAgent`) |
+| `enableDynamicRules` | `boolean` | `false` | Enable agent-driven rule updates (requires `enableAgent`). Enabling it lets the dashboard change protection at runtime without a code change: a rule bans the IPs in its `ipBlacklist` (for `ipBanDuration` seconds), unbans the IPs in its `ipWhitelist`, adds its `suspiciousPatterns` to detection, and replaces `blockedCountries`, `whitelistCountries`, `rateLimit`, `rateLimitWindow`, `endpointRateLimits`, `blockCloudProviders`, `blockedUserAgents`, `enablePenetrationDetection`, `enableIpBanning`, `enableRateLimiting`, `enableRateLimitAutoBan`, `autoBanThreshold`, `autoBanDuration`, `emergencyMode` and `emergencyWhitelist`. A rule cannot change any other setting |
 | `dynamicRuleInterval` | `number` | `300` | Polling interval in seconds |
 
 ## Redis

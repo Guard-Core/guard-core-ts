@@ -140,7 +140,7 @@ export function dumpLastKnownRulesSnapshot(
 /** The hydrated rules state in the TS live model shape: the DynamicRules
  * fields (camelCase, blockedCloudProviders back as a Set). The three
  * snapshot-only auto-ban knobs are reference-model surface the TS engine
- * does not consume; they round-trip through dump only. */
+ * now applies as live config overrides like the rest of the model. */
 export interface LoadedLastKnownRules {
   ruleId: string;
   version: number;
@@ -161,6 +161,9 @@ export interface LoadedLastKnownRules {
   enablePenetrationDetection: boolean | null;
   enableIpBanning: boolean | null;
   enableRateLimiting: boolean | null;
+  autoBanThreshold: number | null;
+  autoBanDuration: number | null;
+  enableRateLimitAutoBan: boolean | null;
   emergencyMode: boolean;
   emergencyWhitelist: string[];
 }
@@ -199,6 +202,9 @@ export function loadLastKnownRulesSnapshot(payload: string): LoadedLastKnownRule
     enablePenetrationDetection: r.enable_penetration_detection,
     enableIpBanning: r.enable_ip_banning,
     enableRateLimiting: r.enable_rate_limiting,
+    autoBanThreshold: r.auto_ban_threshold,
+    autoBanDuration: r.auto_ban_duration,
+    enableRateLimitAutoBan: r.enable_rate_limit_auto_ban,
     emergencyMode: r.emergency_mode,
     emergencyWhitelist: r.emergency_whitelist,
   };
