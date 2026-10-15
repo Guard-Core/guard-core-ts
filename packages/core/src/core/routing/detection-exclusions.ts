@@ -15,6 +15,9 @@ export interface ResolvedDetectionExclusions {
   excludedParams: ReadonlySet<string>;
   excludedBodyFields: ReadonlySet<string>;
   excludedHeaders: ReadonlySet<string>;
+  /* Lowercased header names whose values skip the semantic analyzer only
+     (reference _resolve_semantic_excluded_headers: config set union route set). */
+  excludedSemanticHeaders: ReadonlySet<string>;
   enabledCategories: ReadonlySet<string> | null;
   scanBody: boolean;
 }
@@ -39,13 +42,18 @@ export function resolveDetectionExclusions(
     excludedParams: new Set<string>(),
     excludedBodyFields: new Set<string>(),
     excludedHeaders: new Set<string>(),
+    excludedSemanticHeaders: new Set<string>(),
     enabledCategories: null,
     scanBody: true,
   };
   const excludedParams = new Set<string>();
   const excludedBodyFields = new Set<string>();
   const excludedHeaders = new Set<string>();
+  const excludedSemanticHeaders = new Set<string>();
   if (config !== null) {
+    for (const name of config.excludedSemanticDetectionHeaders) {
+      excludedSemanticHeaders.add(name.trim().toLowerCase());
+    }
     for (const name of config.excludedDetectionParams) {
       excludedParams.add(name.toLowerCase());
     }
@@ -71,6 +79,11 @@ export function resolveDetectionExclusions(
     }
   }
   if (route !== null) {
+    if (route.excludedSemanticDetectionHeaders !== null) {
+      for (const name of route.excludedSemanticDetectionHeaders) {
+        excludedSemanticHeaders.add(name.trim().toLowerCase());
+      }
+    }
     // _resolve_excluded_params / _resolve_excluded_body_fields: a non-null
     // route set replaces the global one.
     if (route.excludedDetectionParams !== null) {
@@ -105,6 +118,7 @@ export function resolveDetectionExclusions(
   resolved.excludedParams = excludedParams;
   resolved.excludedBodyFields = excludedBodyFields;
   resolved.excludedHeaders = excludedHeaders;
+  resolved.excludedSemanticHeaders = excludedSemanticHeaders;
   return resolved;
 }
 

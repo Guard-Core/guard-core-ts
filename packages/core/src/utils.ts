@@ -400,10 +400,11 @@ interface ScanBudget {
      at the first hit, so after a threat this holds that hit's categories,
      which the caller reports to the autoban counter. */
   categories: string[];
-  /* Per-request regex scan time budget (detectionMaxScanSeconds), threaded
-     into every manager.detect call like the reference's request-scoped
-     contextvar. */
+  /* Per-request regex scan time budget (detectionMaxScanSeconds) and the
+     semantic-only header exclusions, threaded into every manager.detect call
+     like the reference's request-scoped contextvars. */
   scanTime: ScanTimeBudget;
+  semanticHeaders: ReadonlySet<string>;
 }
 
 /**
@@ -417,6 +418,7 @@ interface ScanExclusions {
   params: ReadonlySet<string>;
   bodyFields: ReadonlySet<string>;
   headers: ReadonlySet<string>;
+  semanticHeaders: ReadonlySet<string>;
   /* Categories that must not produce a threat for this request: the
      complement of the resolved enabled-category set (empty when every
      category scans). Folded into every detect() skip set so a match in a
@@ -437,6 +439,7 @@ function resolveScanExclusions(
     params: exclusions.excludedParams,
     bodyFields: exclusions.excludedBodyFields,
     headers: exclusions.excludedHeaders,
+    semanticHeaders: exclusions.excludedSemanticHeaders,
     disabledCategories: disabledCategoriesOf(exclusions),
     scanBody: exclusions.scanBody,
   };
@@ -475,6 +478,7 @@ function detectOptions(budget: ScanBudget, skipCategories?: ReadonlySet<string>)
   return {
     ...(skipCategories ? { skipCategories } : {}),
     scanTime: budget.scanTime,
+    semanticExcludedHeaders: budget.semanticHeaders,
   };
 }
 
@@ -581,6 +585,7 @@ export async function scanRequestWithManager(
     chars: 0,
     categories: [],
     scanTime: new ScanTimeBudget(config?.detectionMaxScanSeconds ?? DEFAULT_MAX_SCAN_SECONDS),
+    semanticHeaders: exclusions.semanticHeaders,
   };
 
   const [isThreat, info] = await runRequestSurfaceScan(manager, request, clientIp, budget, exclusions, config);

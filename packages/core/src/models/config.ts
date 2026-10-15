@@ -223,6 +223,12 @@ export const SecurityConfigSchema = z.object({
   excludedDetectionParams: z.array(z.string()).default([]),
   excludedDetectionBodyFields: z.array(z.string()).default([]),
   excludedDetectionHeaders: z.array(z.string()).default([]),
+  /* Opt-in (reference excluded_semantic_detection_headers): header names
+     whose values skip the semantic analyzer only, matched case-insensitively.
+     Regex category scanning of these headers is unchanged. Useful for apps
+     whose JWT session cookies score near detectionSemanticThreshold (for
+     example cookie, authorization). Default empty. */
+  excludedSemanticDetectionHeaders: z.array(z.string()).default([]),
 
   /* Detection categories that scan (the TS port of the reference
      enabled_detection_categories frozenset,

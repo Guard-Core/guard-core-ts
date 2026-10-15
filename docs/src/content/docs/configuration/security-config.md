@@ -68,6 +68,7 @@ whitelist match.
 | `enablePenetrationDetection` | `boolean` | `true` | Enable the 75-pattern detection engine |
 | `detectionCompilerTimeout` | `number` | `2.0` | Regex compilation timeout in seconds (0.1-10) |
 | `detectionMaxScanSeconds` | `number` | `10.0` | Cap on the total regex scan time spent on one request, summed across every field and pattern (0.1-60). Once reached, remaining patterns and values are not scanned and the request receives a weighted `pattern_timeout` threat (`scan_time_budget_exhausted`) that counts toward the anomaly score |
+| `excludedSemanticDetectionHeaders` | `string[]` | `[]` | Opt-in: header names whose values skip the semantic analyzer only (case-insensitive). Regex scanning of these headers is unchanged, e.g. `cookie` or `authorization` for apps whose JWTs score near `detectionSemanticThreshold` |
 | `detectionMaxContentLength` | `number` | `10000` | Max content length for scanning (1000-100000) |
 | `detectionPreserveAttackPatterns` | `boolean` | `true` | Preserve attack regions when truncating long content |
 | `detectionSemanticThreshold` | `number` | `0.7` | Semantic analysis threat score threshold (0-1) |

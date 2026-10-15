@@ -625,6 +625,18 @@ export class SusPatternsManager {
     };
   }
 
+  /* `header:<name>` and `header:<name>:embedded_json` contexts, matched
+     case-insensitively against the trimmed excluded names. */
+  private static contextHeaderIsSemanticExcluded(
+    context: string,
+    excluded: ReadonlySet<string> | undefined,
+  ): boolean {
+    if (excluded === undefined || excluded.size === 0) return false;
+    if (!context.startsWith('header:')) return false;
+    const name = context.slice('header:'.length).replace(/:embedded_json$/, '');
+    return excluded.has(name.trim().toLowerCase());
+  }
+
   private checkSemanticThreats(
     processedContent: string,
     rawContent: string,
@@ -685,6 +697,7 @@ export class SusPatternsManager {
     options?: {
       skipCategories?: ReadonlySet<string>;
       scanTime?: ScanTimeBudget;
+      semanticExcludedHeaders?: ReadonlySet<string>;
     },
   ): Promise<DetectionResult> {
     const startTime = performance.now();
@@ -758,7 +771,15 @@ export class SusPatternsManager {
       timeouts.push(...additivePass.timeouts);
     }
 
-    const { threats: semanticThreats } = this.checkSemanticThreats(processedContent, content);
+    // Opt-in semantic-only header exclusion (reference
+    // _context_header_is_semantic_excluded): the regex passes above already
+    // ran on this value, only the semantic analyzer is skipped.
+    const semanticThreats = SusPatternsManager.contextHeaderIsSemanticExcluded(
+      context,
+      options?.semanticExcludedHeaders,
+    )
+      ? []
+      : this.checkSemanticThreats(processedContent, content).threats;
 
     // Excluded-header category skip (the reference's
     // _scan_excluded_header_component effective categories): threats whose
