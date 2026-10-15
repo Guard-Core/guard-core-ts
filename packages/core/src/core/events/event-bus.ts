@@ -1,4 +1,5 @@
 import type { ResolvedSecurityConfig } from '../../models/config.js';
+import { extractClientIp } from '../../utils.js';
 import type { Logger } from '../../models/logger.js';
 import type { AgentHandlerProtocol } from '../../protocols/agent.js';
 import type { GeoIPHandler } from '../../protocols/geo-ip.js';
@@ -26,7 +27,7 @@ export class SecurityEventBus {
     if (!this.agentHandler || !this.config.agentEnableEvents) return;
 
     try {
-      const clientIp = request.clientHost ?? 'unknown';
+      const clientIp = await extractClientIp(request, this.config, this.agentHandler);
       let country: string | null = null;
 
       if (this.geoIpHandler) {

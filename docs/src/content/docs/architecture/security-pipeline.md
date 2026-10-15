@@ -93,7 +93,7 @@ class GeoFencingCheck extends SecurityCheck {
     const geoIp = this.middleware.geoIpHandler;
     if (!geoIp) return null;
 
-    const clientIp = request.clientHost;
+    const clientIp = resolvedClientIp(request);
     if (!clientIp) return null;
 
     const country = geoIp.getCountry(clientIp);

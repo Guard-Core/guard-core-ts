@@ -3,6 +3,7 @@ import type { RouteConfig } from '../../models/route-config.js';
 import type { Logger } from '../../models/logger.js';
 import { defaultLogger } from '../../models/logger.js';
 import { UNKNOWN_CLIENT_IDENTITY } from '../client-identity.js';
+import { extractClientIp } from '../../utils.js';
 import { fireBlockHook } from '../block-events.js';
 import type { GuardRequest } from '../../protocols/request.js';
 import type { GuardResponse } from '../../protocols/response.js';
@@ -46,7 +47,9 @@ export class BypassHandler {
     }
 
     if (!request.clientHost) {
-      request.state['client_ip'] = UNKNOWN_CLIENT_IDENTITY;
+      const clientIp = await extractClientIp(request, this.config);
+      request.state['client_ip'] = clientIp;
+      if (clientIp === UNKNOWN_CLIENT_IDENTITY) {
       this.warnNoClientAddress();
       if (this.config.failSecure) {
         const response = await this.responseFactory.createErrorResponse(
@@ -62,6 +65,7 @@ export class BypassHandler {
           this.config.logSensitiveHeaders,
         );
         return response;
+      }
       }
     }
 

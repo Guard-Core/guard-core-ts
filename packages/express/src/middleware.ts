@@ -10,7 +10,7 @@ import type {
   RouteConfig,
   PathRouteConfigEntry,
 } from '@guardcore/core';
-import { SecurityConfigSchema, resolveConfiguredLogger, initializeSecurityMiddleware } from '@guardcore/core';
+import { SecurityConfigSchema, resolveConfiguredLogger, initializeSecurityMiddleware, requestClientIp } from '@guardcore/core';
 import { ExpressGuardRequest, ExpressResponseFactory, sendGuardResponse } from './adapters.js';
 import { resolveExpressRouteId, resolveExpressEndpointId } from './route-id.js';
 import { resolveAgentHandler } from './agent.js';
@@ -138,7 +138,7 @@ export function createSecurityMiddleware(options: SecurityMiddlewareOptions) {
       }
 
       if (routeConfig && routeConfig.behaviorRules.length > 0) {
-        const clientIp = guardReq.clientHost ?? 'unknown';
+        const clientIp = requestClientIp(guardReq);
         await components.behavioralProcessor.processUsageRules(guardReq, clientIp, routeConfig);
       }
 

@@ -51,6 +51,7 @@ export type { HandlerRegistry } from './middleware-support.js';
 
 export { BaseSecurityDecorator, SecurityDecorator, getRouteDecoratorConfig } from './decorators/index.js';
 
+export { requestClientIp } from './core/client-identity.js';
 export { extractClientIp, isIpAllowed, isUserAgentAllowed, checkIpCountry,
   detectPenetrationAttempt, sanitizeForLog, logActivity, sendAgentEvent,
 } from './utils.js';

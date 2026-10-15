@@ -21,8 +21,8 @@ const resolved = SecurityConfigSchema.parse(config);
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `trustedProxies` | `string[]` | `[]` | IP addresses or CIDR ranges of trusted reverse proxies |
-| `trustedProxyDepth` | `number` | `1` | How many `X-Forwarded-For` hops to trust |
+| `trustedProxies` | `string[]` | `[]` | IP addresses or CIDR ranges of trusted reverse proxies, plus the literal `unix` token that lets `X-Forwarded-For` resolve the client for a request with no peer address (Unix socket). The connecting address is compared as the server reports it |
+| `trustedProxyDepth` | `number` | `1` | The `X-Forwarded-For` position counted from the right that names the client. The header is honored only when the connecting peer is a trusted proxy; from any other peer it is ignored and reported as a `suspicious_request` event |
 | `trustXForwardedProto` | `boolean` | `false` | Trust `X-Forwarded-Proto` header for HTTPS detection |
 | `passiveMode` | `boolean` | `false` | Log violations without blocking requests |
 

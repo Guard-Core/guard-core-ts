@@ -11,7 +11,7 @@ import type {
   RouteConfig,
   PathRouteConfigEntry,
 } from '@guardcore/core';
-import { SecurityConfigSchema, resolveConfiguredLogger, initializeSecurityMiddleware } from '@guardcore/core';
+import { SecurityConfigSchema, resolveConfiguredLogger, initializeSecurityMiddleware, requestClientIp } from '@guardcore/core';
 import { resolveAgentHandler } from './agent.js';
 import { HonoGuardRequest, HonoResponseFactory } from './adapters.js';
 import { resolveHonoClientAddress } from './client-address.js';
@@ -135,7 +135,7 @@ export function createGuardMiddleware(options: GuardMiddlewareOptions): Middlewa
     if (blockResponse) return sendHonoResponse(c, blockResponse);
 
     if (routeConfig && routeConfig.behaviorRules.length > 0) {
-      const clientIp = guardReq.clientHost ?? 'unknown';
+      const clientIp = requestClientIp(guardReq);
       await components.behavioralProcessor.processUsageRules(guardReq, clientIp, routeConfig);
     }
 

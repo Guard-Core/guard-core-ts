@@ -4,6 +4,8 @@ import ipaddr from 'ipaddr.js';
 import { multipartPartEntries, parseFormPairs, parseMediaTypeParams, parseMultipartParts } from './detection-engine/body-form-scan.js';
 import type { ResolvedSecurityConfig } from './models/config.js';
 import { defaultLogger } from './models/logger.js';
+import { requestClientIp } from './core/client-identity.js';
+import { canonicalIpText, canonicalizeIp, ipInList } from './ip-identity.js';
 import type { Logger } from './models/logger.js';
 import type { AgentHandlerProtocol } from './protocols/agent.js';
 import type { GeoIPHandler } from './protocols/geo-ip.js';
@@ -162,79 +164,210 @@ export async function sendAgentEvent(
   /* v8 ignore stop */
 }
 
-function isTrustedProxy(connectingIp: string, trustedProxies: string[]): boolean {
-  for (const proxy of trustedProxies) {
-    /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
-    if (!proxy.includes('/')) {
-    /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
-      /* v8 ignore next -- exact proxy IP match; tests use CIDR proxies */
-      /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
-      if (connectingIp === proxy) return true;
-      /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
-    } else {
-      try {
-        const parsed = ipaddr.parse(connectingIp);
-        const [addr, prefixLen] = ipaddr.parseCIDR(proxy);
-        if (parsed.kind() === addr.kind() && parsed.match([addr, prefixLen])) return true;
-      /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
-      } catch { continue; }
-      /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
+/* _is_trusted_proxy: the connecting address is compared as given (no
+   canonicalization), a CIDR entry by network membership of the same family.
+   Any unparseable address or entry makes the whole answer false, like the
+   reference's ValueError arm. */
+function isTrustedProxy(connectingIp: string, trustedProxies: readonly string[]): boolean {
+  try {
+    if (isIP(connectingIp) === 0) return false;
+    const parsed = ipaddr.parse(connectingIp);
+    return trustedProxies.some((proxy) => {
+      if (!proxy.includes('/')) return connectingIp === proxy;
+      const [addr, prefixLen] = ipaddr.parseCIDR(proxy);
+      return parsed.kind() === addr.kind() && parsed.match([addr, prefixLen]);
+    });
+  } catch {
+    return false;
+  }
+}
+
+const FORWARDED_METACHARS = ['*', '?', '[', ']', '\\'];
+
+/* _forwarded_header_candidate_addr + metachar guard + _canonical_ip_text. */
+function canonicalForwardedEntry(entry: string): string | null {
+  const canonical = canonicalIpText(entry);
+  if (canonical === null || FORWARDED_METACHARS.some((m) => entry.includes(m))) return null;
+  return canonical;
+}
+
+/* _forwarded_header_ips: no empty-entry filtering, so depth counts the
+   header's real positions. */
+function forwardedHeaderIps(forwardedFor: string): string[] {
+  return forwardedFor.split(',').map((ip) => stripForwardedEntryPort(ip.trim()));
+}
+
+/* _extract_from_forwarded_header (the caller already rejects an empty header and a chain shorter than the depth). */
+function extractFromForwardedHeader(forwardedFor: string, proxyDepth: number): string | null {
+  const ips = forwardedHeaderIps(forwardedFor);
+  return canonicalForwardedEntry(ips[ips.length - proxyDepth]);
+}
+
+/* _display_forwarded_chain: entries that are not addresses are redacted
+   before the header reaches a log line or an event. */
+function displayForwardedChain(value: string): string {
+  return value.split(',')
+    .map((part) => (isIP(stripForwardedEntryPort(part.trim())) !== 0 ? part : '[REDACTED]'))
+    .join(',');
+}
+
+/* The reference warns once per process per condition. */
+const warnedIpExtraction = new Set<string>();
+function warnOnce(key: string, message: string): void {
+  if (warnedIpExtraction.has(key)) return;
+  warnedIpExtraction.add(key);
+  defaultLogger.warn(message);
+}
+export function resetIpExtractionWarnings(): void { warnedIpExtraction.clear(); }
+
+function warnForwardedHeaderPreempted(connectingIp: string, forwardedFor: string | null): void {
+  if (!forwardedFor) return;
+  if (!forwardedFor.split(',').map((ip) => ip.trim()).includes(connectingIp)) return;
+  warnOnce(
+    'preempted',
+    `The connecting IP (${sanitizeForLog(connectingIp)}) already appears inside its own `
+    + 'X-Forwarded-For chain: the application server resolved the client from that header '
+    + 'before guard-core ran, most likely because the server\'s own forwarded-header handling '
+    + 'is enabled. Disable it and declare the proxy via trustedProxies / trustedProxyDepth so '
+    + 'guard-core is the single authority. This warning is logged once.',
+  );
+}
+
+function isPrivateOrLoopback(ip: string): boolean {
+  if (isIP(ip) === 0) return false;
+  const range = ipaddr.parse(ip).range();
+  return ['private', 'loopback', 'linkLocal', 'uniqueLocal'].includes(range);
+}
+
+/* _handle_untrusted_proxy: an X-Forwarded-For header from a source that is
+   not a trusted proxy (including when no proxies are configured) never
+   resolves to the forwarded value; the preempted header reports
+   EVENT_SUSPICIOUS_REQUEST through the direct send_agent_event path. */
+async function handleUntrustedProxy(
+  request: GuardRequest,
+  connectingIp: string,
+  canonicalConnectingIp: string,
+  forwardedFor: string | null,
+  agentHandler: AgentHandlerProtocol | null,
+): Promise<string> {
+  if (forwardedFor) {
+    warnForwardedHeaderPreempted(connectingIp, forwardedFor);
+    const display = displayForwardedChain(forwardedFor);
+    defaultLogger[isPrivateOrLoopback(connectingIp) ? 'debug' : 'warn'](
+      `Potential IP spoof attempt: X-Forwarded-For header (${sanitizeForLog(display)}) `
+      + `received from untrusted IP ${sanitizeForLog(connectingIp)}`,
+    );
+    await sendAgentEvent(
+      agentHandler, 'suspicious_request', canonicalConnectingIp,
+      'spoofing_detected', `Potential IP spoof attempt: X-Forwarded-For header ${display}`,
+      request,
+    );
+  }
+  return canonicalConnectingIp;
+}
+
+/* _resolve_forwarded_chain_right_to_left: walk the chain from the right,
+   skipping trusted proxies, and take the first address that is not one. */
+function resolveForwardedChainRightToLeft(
+  ips: readonly string[],
+  trustedProxies: readonly string[],
+): string | null {
+  const entry = [...ips].reverse().find((e) => !isTrustedProxy(canonicalizeIp(e), trustedProxies));
+  return entry === undefined ? null : canonicalForwardedEntry(entry);
+}
+
+/* _resolve_client_ip_from_forwarded_chain. */
+function resolveClientIpFromForwardedChain(
+  canonicalConnectingIp: string,
+  forwardedFor: string | null,
+  proxyDepth: number,
+  trustedProxies: readonly string[],
+): string {
+  if (!forwardedFor) return canonicalConnectingIp;
+  const ips = forwardedHeaderIps(forwardedFor);
+  const display = sanitizeForLog(displayForwardedChain(forwardedFor));
+
+  if (ips.length < proxyDepth) {
+    warnOnce(
+      'chain-too-short',
+      `The X-Forwarded-For chain has only ${ips.length} entries, fewer than the configured `
+      + `trustedProxyDepth; chain was ${display}; falling back to the connecting peer as the `
+      + 'client. This warning is logged once.',
+    );
+    return canonicalConnectingIp;
+  }
+
+  if (trustedProxies.length > 0) {
+    const unlisted = ips.slice(ips.length - proxyDepth + 1)
+      .filter((entry) => !isTrustedProxy(canonicalizeIp(entry), trustedProxies)).length;
+    if (unlisted > 0) {
+      warnOnce(
+        'depth-overcounts',
+        `trustedProxyDepth selected an entry from the X-Forwarded-For chain with ${unlisted} `
+        + `entry/entries to its right that are not listed in trustedProxies; chain was ${display}; `
+        + 'the declared depth over-counts the real proxy hops. Set trustedProxyDepth to the number '
+        + 'of proxies that append to X-Forwarded-For. This warning is logged once.',
+      );
+      return resolveForwardedChainRightToLeft(ips, trustedProxies) ?? canonicalConnectingIp;
     }
   }
-  /* v8 ignore start -- isTrustedProxy default return; tests always match a proxy */
-  return false;
-}
-/* v8 ignore stop */
 
-function extractFromForwardedHeader(forwardedFor: string, proxyDepth: number): string | null {
-  const ips = forwardedFor.split(',').map((ip) => ip.trim()).filter(Boolean);
-  /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
-  if (ips.length === 0) return null;
-  /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
-  const targetIndex = ips.length - proxyDepth;
-  /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
-  if (targetIndex < 0) return ips[0];
-  /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
-  return ips[targetIndex];
+  const clientIp = extractFromForwardedHeader(forwardedFor, proxyDepth);
+  if (clientIp) {
+    if (isTrustedProxy(clientIp, trustedProxies)) {
+      warnOnce(
+        'selected-trusted',
+        `trustedProxyDepth selected ${sanitizeForLog(clientIp)} from the X-Forwarded-For chain, but `
+        + 'that address is itself listed in trustedProxies; the chain likely has more proxy hops '
+        + 'than trustedProxyDepth accounts for. This warning is logged once.',
+      );
+    }
+    return clientIp;
+  }
+  return canonicalConnectingIp;
 }
 
+/* The twin of extract_client_ip (guard_core/_utils/ip_extraction.py): the
+   resolved identity is the canonical client address (IPv4-mapped IPv6 maps to
+   IPv4), X-Forwarded-For is honored only from a trusted connecting peer at
+   trustedProxyDepth, and the result is cached on request.state.client_ip,
+   the value every check, ban, rate-limit key and event reads. */
 export async function extractClientIp(
   request: GuardRequest,
   config: ResolvedSecurityConfig,
   agentHandler?: AgentHandlerProtocol | null,
 ): Promise<string> {
-  const connectingIp = request.clientHost;
-  if (!connectingIp) return 'unknown';
+  const cached = request.state['client_ip'];
+  if (typeof cached === 'string' && cached) return cached;
 
   const forwardedFor = request.headers['x-forwarded-for'] ?? null;
+  const connectingIp = request.clientHost;
 
-  /* Reference _handle_untrusted_proxy (ip_extraction.py): an X-Forwarded-For
-     header from a source that is not a trusted proxy (including when no
-     proxies are configured) never resolves to the forwarded value, and the
-     preempted header reports EVENT_SUSPICIOUS_REQUEST through the direct
-     send_agent_event path (the ip_extraction handler contract). */
-  if (
-    forwardedFor &&
-    !(config.trustedProxies.length > 0 && isTrustedProxy(connectingIp, config.trustedProxies))
-  ) {
-    await sendAgentEvent(
-      agentHandler ?? null, 'suspicious_request', connectingIp,
-      'spoofing_detected', `Potential IP spoof attempt: X-Forwarded-For header ${forwardedFor}`,
-      request,
+  if (!connectingIp) {
+    if (config.trustedProxies.includes('unix')) {
+      return resolveClientIpFromForwardedChain(
+        'unknown', forwardedFor, config.trustedProxyDepth, config.trustedProxies,
+      );
+    }
+    return 'unknown';
+  }
+
+  const canonicalConnectingIp = canonicalizeIp(connectingIp);
+
+  if (config.trustedProxies.length === 0) {
+    warnForwardedHeaderPreempted(connectingIp, forwardedFor);
+    return canonicalConnectingIp;
+  }
+
+  if (!isTrustedProxy(connectingIp, config.trustedProxies)) {
+    return handleUntrustedProxy(
+      request, connectingIp, canonicalConnectingIp, forwardedFor, agentHandler ?? null,
     );
-    return connectingIp;
   }
 
-  if (
-    forwardedFor &&
-    config.trustedProxies.length > 0 &&
-    isTrustedProxy(connectingIp, config.trustedProxies)
-  ) {
-    const extracted = extractFromForwardedHeader(forwardedFor, config.trustedProxyDepth);
-    if (extracted && ipaddr.isValid(extracted)) return extracted;
-  }
-
-  return connectingIp;
+  return resolveClientIpFromForwardedChain(
+    canonicalConnectingIp, forwardedFor, config.trustedProxyDepth, config.trustedProxies,
+  );
 }
 
 export async function isUserAgentAllowed(
@@ -338,31 +471,11 @@ export async function isIpAllowed(
   geoIpHandler?: GeoIPHandler | null,
 ): Promise<boolean> {
   try {
-    const parsed = ipaddr.parse(ip);
+    if (canonicalIpText(ip) === null) return false;
 
-    for (const blocked of config.blacklist) {
-      if (blocked.includes('/')) {
-        const [addr, prefixLen] = ipaddr.parseCIDR(blocked);
-        if (parsed.kind() === addr.kind() && parsed.match([addr, prefixLen])) return false;
-      } else if (ip === blocked) {
-        return false;
-      }
-    }
+    if (ipInList(ip, config.blacklist)) return false;
 
-    if (config.whitelist && config.whitelist.length > 0) {
-      let found = false;
-      for (const allowed of config.whitelist) {
-        /* v8 ignore start -- whitelist CIDR parse + match; tests use exact IPs not CIDR in whitelist */
-        if (allowed.includes('/')) {
-          const [addr, prefixLen] = ipaddr.parseCIDR(allowed);
-          if (parsed.kind() === addr.kind() && parsed.match([addr, prefixLen])) { found = true; break; }
-        /* v8 ignore stop */
-        } else if (ip === allowed) {
-          found = true; break;
-        }
-      }
-      if (!found) return false;
-    }
+    if (config.whitelist && config.whitelist.length > 0 && !ipInList(ip, config.whitelist)) return false;
 
     /* v8 ignore start -- geoIpHandler branch unreachable in recursive JSON check because dangerousPatterns check returns first */
     if (geoIpHandler) {
@@ -577,7 +690,7 @@ export async function scanRequestWithManager(
   resolvedExclusions?: ResolvedDetectionExclusions,
 ): Promise<[boolean, string, string[]]> {
   /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
-  const clientIp = request.clientHost ?? 'unknown';
+  const clientIp = requestClientIp(request);
   /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
   const exclusions = resolveScanExclusions(config, resolvedExclusions);
   const budget: ScanBudget = {
@@ -1038,7 +1151,7 @@ export function logActivity(
   if (!level) return;
 
   /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
-  const clientIp = request.clientHost ?? 'unknown';
+  const clientIp = requestClientIp(request);
   /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
   const method = request.method;
   const url = sanitizeForLog(request.urlPath);

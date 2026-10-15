@@ -44,7 +44,7 @@ What `@guardcore/core` provides:
 - Framework adapter packages MUST NOT contain security logic. They contain no detection, rate limiting, IP ban, or header logic; they adapt native request/response types and call into core
 - Adapters wire framework types to core: each exposes an adapters.ts that implements `GuardRequest` and a `GuardResponseFactory` for its framework (ExpressGuardRequest, FastifyGuardRequest, HonoGuardRequest, NestGuardRequest plus the matching response factories), then calls core's `initializeSecurityMiddleware`
 - Adapters re-export core symbols (SecurityConfigSchema, SecurityDecorator, defaultLogger, and core types) for consumer convenience; they add no security behavior of their own
-- IP extraction is delegated to core's `extractClientIp`: adapters supply `request.clientHost` (the connecting socket address) and core handles X-Forwarded-For, trusted proxies, and spoofing detection
+- IP extraction is delegated to core's `extractClientIp` (a port of the reference `ip_extraction.py`): adapters supply `request.clientHost` (the connecting socket address) and core canonicalizes it (an IPv4-mapped IPv6 address becomes IPv4) and handles X-Forwarded-For, trusted proxies, depth and spoofing detection. The route_config check stores the result on `request.state.client_ip`, and every check, ban, rate-limit key and event reads that, never raw `clientHost`. IP list entries and CIDRs are compared in canonical form (`ip-identity.ts`)
 - Core protocol types MUST use Uint8Array for binary data, never Buffer, so the engine runs on edge runtimes (Cloudflare Workers, Deno, Vercel Edge)
 - New security logic belongs in core; adapter packages only grow framework wiring (hooks, middleware registration, DI modules)
 - NEVER git-add node_modules, dist output, or .turbo cache directories
@@ -225,7 +225,7 @@ From tsconfig.base.json and CONTRIBUTING.md (both enforced by CI):
 - Sanitize anything logged with sanitizeForLog; never log raw secrets or unsanitized attacker input
 - Use Redis Lua scripts (existing pattern in RateLimitManager) for atomic multi-step Redis operations instead of read-then-write races
 - Treat the 75 pattern definitions and their context sets as security-critical: they mirror the Python upstream, so do not modify regex strings without cross-validating behavior against the upstream project
-- Respect trusted-proxy rules in extractClientIp: X-Forwarded-For is ignored (and raises a suspicious_request agent event) unless the peer is in config.trustedProxies
+- Respect trusted-proxy rules in extractClientIp: X-Forwarded-For is ignored (and raises a suspicious_request agent event) unless the peer is in config.trustedProxies, and never read request.clientHost in a check, read request.state.client_ip
 - No global singletons: HandlerInitializer builds a fresh HandlerRegistry per middleware instance; tests create fresh registries per case
 - Keep the public API surface in packages/core/src/index.ts deliberate; do not barrel-re-export internals
 - Never commit node_modules, dist, or .turbo; `make prune` clears them locally

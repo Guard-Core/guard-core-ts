@@ -8,7 +8,7 @@ import type { GuardRequest } from '../protocols/request.js';
 import type { Logger } from '../models/logger.js';
 
 import { redactUrlForDisplay } from '../redaction.js';
-import { UNKNOWN_CLIENT_IDENTITY } from './client-identity.js';
+import { requestClientIp } from './client-identity.js';
 
 /* The twin of ON_BLOCK_EXCLUDED_CHECK_NAMES: application-authored checks the app
    already knows about, plus the HTTPS-enforcement redirect (a redirect is not a
@@ -57,10 +57,7 @@ export function buildBlockPayload(
   sensitiveHeaders: Iterable<string> | null | undefined,
 ): Record<string, unknown> {
   const state = request.state as Record<string, unknown>;
-  const cachedIp = state['client_ip'];
-  const clientIp = typeof cachedIp === 'string' && cachedIp
-    ? cachedIp
-    : (request.clientHost ?? UNKNOWN_CLIENT_IDENTITY);
+  const clientIp = requestClientIp(request);
 
   return {
     check_name: checkName,

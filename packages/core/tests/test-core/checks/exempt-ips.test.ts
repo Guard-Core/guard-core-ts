@@ -109,13 +109,13 @@ describe('exemptIps flag resolution (real pipeline)', () => {
     expect(request.state.isExempt).toBe(false);
   });
 
-  it('matches IPv4-mapped and IPv6 forms exactly like the whitelist matcher', async () => {
+  it('matches IPv4-mapped and IPv6 forms exactly like the whitelist matcher (canonical form)', async () => {
     const cases: Array<[string, string, boolean]> = [
       ['2001:db8::1', '2001:db8::1', true],
       ['2001:db8::1', '2001:db8::2', false],
       ['::ffff:198.51.100.7', '::ffff:198.51.100.7', true],
       ['2001:db8::/32', '2001:db8:ffff::1', true],
-      [EXEMPT_IP, '::ffff:198.51.100.7', false],
+      [EXEMPT_IP, '::ffff:198.51.100.7', true],
     ];
 
     for (const [entry, ip, expected] of cases) {

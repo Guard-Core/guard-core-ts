@@ -11,7 +11,7 @@ import type {
   RouteConfig,
   PathRouteConfigEntry,
 } from '@guardcore/core';
-import { SecurityConfigSchema, resolveConfiguredLogger, initializeSecurityMiddleware } from '@guardcore/core';
+import { SecurityConfigSchema, resolveConfiguredLogger, initializeSecurityMiddleware, requestClientIp } from '@guardcore/core';
 import { resolveAgentHandler } from './agent.js';
 import { NestGuardRequest, NestResponseFactory } from './adapters.js';
 import { resolveNestRouteId, resolveNestEndpointId } from './route-id.js';
@@ -139,7 +139,7 @@ export class SecurityMiddlewareNest implements NestMiddleware, GuardSurface {
     }
 
     if (routeConfig && routeConfig.behaviorRules.length > 0) {
-      const clientIp = guardReq.clientHost ?? 'unknown';
+      const clientIp = requestClientIp(guardReq);
       await this.components.behavioralProcessor.processUsageRules(guardReq, clientIp, routeConfig);
     }
 

@@ -1,4 +1,5 @@
 import type { GuardMiddlewareProtocol } from '../../../protocols/middleware.js';
+import { resolvedClientIp } from '../../client-identity.js';
 import type { GuardRequest } from '../../../protocols/request.js';
 import type { GuardResponse } from '../../../protocols/response.js';
 import type { RouteConfig } from '../../../models/route-config.js';
@@ -26,7 +27,7 @@ export class CloudProviderCheck extends SecurityCheck {
        (reference CloudProviderCheck.check). */
     if (request.state.isWhitelisted === true || request.state.isExempt === true) return null;
 
-    const clientIp = request.clientHost;
+    const clientIp = resolvedClientIp(request);
     if (!clientIp) return null;
 
     const routeConfig = (request.state as Record<string, unknown>)['_routeConfig'] as RouteConfig | undefined;

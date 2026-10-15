@@ -1,4 +1,4 @@
-import ipaddr from 'ipaddr.js';
+import { canonicalizeIp } from '../ip-identity.js';
 
 import type { Logger } from '../models/logger.js';
 import type { AgentHandlerProtocol } from '../protocols/agent.js';
@@ -14,21 +14,7 @@ interface BanEntry {
    brackets, parse, map an IPv4-mapped IPv6 to its IPv4 text, otherwise the
    normalized compressed text; unparseable input answers unchanged (the
    legacy key survives migration untouched). */
-export function canonicalizeIp(value: string): string {
-  const stripped = value.startsWith('[') && value.endsWith(']')
-    ? value.slice(1, -1)
-    : value;
-  try {
-    const addr = ipaddr.parse(stripped);
-    if (addr.kind() === 'ipv6') {
-      const v6 = addr as ipaddr.IPv6;
-      if (v6.isIPv4MappedAddress()) return v6.toIPv4Address().toString();
-    }
-    return addr.toString();
-  } catch {
-    return value;
-  }
-}
+export { canonicalizeIp };
 
 export class IPBanManager {
   private bannedIps = new Map<string, BanEntry>();

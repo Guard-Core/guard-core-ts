@@ -188,7 +188,7 @@ async function runCase(c: PipelineCase): Promise<string[]> {
     const want = c.expected[index];
 
     const urlPath = drive.url_path ?? '/api';
-    const state: Record<string, unknown> = { clientIp: drive.client_ip };
+    const state: Record<string, unknown> = { client_ip: drive.client_ip };
     if (c.routes?.[urlPath]) state["guardRouteConfig"] = buildRoute(c.routes[urlPath]);
     const encoder = new TextEncoder();
     const bodyBytes = drive.body ? encoder.encode(drive.body) : new Uint8Array(0);

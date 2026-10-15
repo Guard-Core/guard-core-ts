@@ -1,4 +1,5 @@
 import type { GuardMiddlewareProtocol } from '../../../protocols/middleware.js';
+import { resolvedClientIp } from '../../client-identity.js';
 import type { GuardRequest } from '../../../protocols/request.js';
 import type { GuardResponse } from '../../../protocols/response.js';
 import type { SusPatternsManager } from '../../../handlers/sus-patterns.js';
@@ -40,7 +41,7 @@ export class SuspiciousActivityCheck extends SecurityCheck {
 
     if (!this.config.enablePenetrationDetection) return null;
 
-    const clientIp = request.clientHost;
+    const clientIp = resolvedClientIp(request);
     if (!clientIp) return null;
 
     const routeConfig = (request.state as Record<string, unknown>)['_routeConfig'] as RouteConfig | undefined;
