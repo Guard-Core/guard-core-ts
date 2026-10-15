@@ -32,7 +32,7 @@ interface GuardRequest {
 | `urlFull` | Full URL including scheme, host, path, and query |
 | `urlReplaceScheme(scheme)` | Returns the full URL with a replaced scheme |
 | `method` | HTTP method (`GET`, `POST`, etc.) |
-| `clientHost` | Client IP address from the socket (before proxy resolution) |
+| `clientHost` | Connecting socket address exactly as the server reports it (before proxy resolution; on a dual-stack listener an IPv4 client appears as `::ffff:a.b.c.d`). The engine resolves the client identity from it once, in the `route_config` check, and stores the result on `state.client_ip` |
 | `headers` | Request headers as a readonly string map |
 | `queryParams` | Query parameters as a readonly string map |
 | `body()` | Returns the request body as `Uint8Array` (edge-safe, no Buffer) |

@@ -1,8 +1,7 @@
-import ipaddr from 'ipaddr.js';
-
 import type { ResolvedSecurityConfig } from '../../models/config.js';
 import type { GeoIPHandler } from '../../protocols/geo-ip.js';
 import { UNKNOWN_CLIENT_IDENTITY } from '../client-identity.js';
+import { canonicalIpText, ipInList } from '../../ip-identity.js';
 import { checkIpCountry } from '../../utils.js';
 import type { CloudHandler } from '../../handlers/cloud.js';
 
@@ -40,18 +39,6 @@ function blockedResult(reason: string): IpAccessResult {
 
 function genericListBlockReason(ip: string): string {
   return `IP ${ip} not in global allowlist/blocklist`;
-}
-
-function ipInList(parsed: ipaddr.IPv4 | ipaddr.IPv6, ip: string, entries: readonly string[]): boolean {
-  for (const entry of entries) {
-    if (entry.includes('/')) {
-      const [addr, prefixLen] = ipaddr.parseCIDR(entry);
-      if (parsed.kind() === addr.kind() && parsed.match([addr, prefixLen])) return true;
-    } else if (ip === entry) {
-      return true;
-    }
-  }
-  return false;
 }
 
 /* The cloud-provider detail tier (the _check_cloud_providers_detail twin). */
@@ -108,17 +95,17 @@ export async function checkIpAccess(
   let skipCountryVerdict = skipCountries;
 
   try {
-    const parsed = ipaddr.parse(ip);
+    if (canonicalIpText(ip) === null) throw new Error(`invalid IP address: ${ip}`);
 
     if (!skipIpLists) {
       if (config.whitelist && config.whitelist.length > 0) {
-        if (!ipInList(parsed, ip, config.whitelist)) {
+        if (!ipInList(ip, config.whitelist)) {
           return blockedResult(genericListBlockReason(ip));
         }
         /* A whitelist match skips the country verdict (the reference
            _check_ip_lists_detail's skip_countries propagation). */
         skipCountryVerdict = true;
-      } else if (ipInList(parsed, ip, config.blacklist)) {
+      } else if (ipInList(ip, config.blacklist)) {
         return blockedResult(genericListBlockReason(ip));
       }
     }

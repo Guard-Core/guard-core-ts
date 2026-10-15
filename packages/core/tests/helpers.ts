@@ -1,3 +1,4 @@
+import { canonicalizeIp } from '../src/handlers/ip-ban.js';
 import { SecurityConfigSchema } from '../src/models/config.js';
 import type { ResolvedSecurityConfig } from '../src/models/config.js';
 import { defaultLogger } from '../src/models/logger.js';
@@ -10,18 +11,22 @@ export function createTestConfig(overrides: Record<string, unknown> = {}): Resol
   return SecurityConfigSchema.parse(overrides);
 }
 
+/* The mock models a request after RouteConfigCheck ran: state.client_ip holds
+   the resolved identity (the canonical connecting address). Pass an explicit
+   state to model a request the check has not seen yet. */
 export function createMockRequest(overrides: Partial<GuardRequest> = {}): GuardRequest {
+  const clientHost = overrides.clientHost === undefined ? '1.2.3.4' : overrides.clientHost;
   return {
     urlPath: '/api/test',
     urlScheme: 'https',
     urlFull: 'https://example.com/api/test',
     urlReplaceScheme: (s: string) => `${s}://example.com/api/test`,
     method: 'GET',
-    clientHost: '1.2.3.4',
+    clientHost,
     headers: { 'user-agent': 'TestAgent/1.0' },
     queryParams: {},
     body: async () => new Uint8Array(0),
-    state: {} as GuardRequestState,
+    state: (clientHost ? { client_ip: canonicalizeIp(clientHost) } : {}) as GuardRequestState,
     scope: {},
     ...overrides,
   };

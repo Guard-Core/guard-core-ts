@@ -1,4 +1,5 @@
 import type { GuardMiddlewareProtocol } from '../../../protocols/middleware.js';
+import { resolvedClientIp } from '../../client-identity.js';
 import type { GuardRequest } from '../../../protocols/request.js';
 import type { GuardResponse } from '../../../protocols/response.js';
 import type { RouteConfig } from '../../../models/route-config.js';
@@ -51,7 +52,7 @@ export class RateLimitCheck extends SecurityCheck {
 
     if (!this.config.enableRateLimiting) return null;
 
-    const clientIp = request.clientHost;
+    const clientIp = resolvedClientIp(request);
     if (!clientIp) return null;
 
     const routeConfig = (request.state as Record<string, unknown>)['_routeConfig'] as RouteConfig | undefined;

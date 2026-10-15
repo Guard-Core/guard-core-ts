@@ -1,4 +1,5 @@
 import type { ResolvedSecurityConfig } from '../../models/config.js';
+import { extractClientIp } from '../../utils.js';
 import type { Logger } from '../../models/logger.js';
 import type { RouteConfig } from '../../models/route-config.js';
 import type { AgentHandlerProtocol } from '../../protocols/agent.js';
@@ -90,7 +91,7 @@ export class ErrorResponseFactory {
        the route rules; the global rules always run through it when
        configured. */
     /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
-    const clientIp = request.clientHost ?? 'unknown';
+    const clientIp = await extractClientIp(request, this.config, this.agentHandler);
     /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
     if (routeConfig && routeConfig.behaviorRules.length > 0) {
       if (processBehavioralRules) {

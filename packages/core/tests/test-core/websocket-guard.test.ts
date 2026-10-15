@@ -37,7 +37,7 @@ describe('guardWebSocketUpgrade', () => {
     const request = wsRequest();
     const verdict = await guardWebSocketUpgrade(request, components);
     expect(verdict).toEqual({ allowed: true, clientIp: '8.8.4.4' });
-    expect(request.state['clientIp']).toBe('8.8.4.4');
+    expect(request.state['client_ip']).toBe('8.8.4.4');
     expect(request.state.isWhitelisted).toBe(false);
   });
 

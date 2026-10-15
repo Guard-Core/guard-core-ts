@@ -11,7 +11,7 @@ import type {
   PathRouteConfigEntry,
 } from '@guardcore/core';
 import { RouteConfig as RouteConfigClass } from '@guardcore/core';
-import { SecurityConfigSchema, resolveConfiguredLogger, initializeSecurityMiddleware } from '@guardcore/core';
+import { SecurityConfigSchema, resolveConfiguredLogger, initializeSecurityMiddleware, requestClientIp } from '@guardcore/core';
 import { resolveAgentHandler } from './agent.js';
 import type { ResolvedAgentHandler } from './agent.js';
 
@@ -226,7 +226,7 @@ export const guardPlugin = fp(async function guardPlugin(fastify: FastifyInstanc
     }
 
     if (routeConfig && routeConfig.behaviorRules.length > 0) {
-      const clientIp = guardReq.clientHost ?? 'unknown';
+      const clientIp = requestClientIp(guardReq);
       await components.behavioralProcessor.processUsageRules(guardReq, clientIp, routeConfig);
     }
   });

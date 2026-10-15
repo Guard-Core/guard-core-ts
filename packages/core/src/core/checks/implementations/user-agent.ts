@@ -1,4 +1,5 @@
 import type { GuardMiddlewareProtocol } from '../../../protocols/middleware.js';
+import { resolvedClientIp } from '../../client-identity.js';
 import type { GuardRequest } from '../../../protocols/request.js';
 import type { GuardResponse } from '../../../protocols/response.js';
 import type { RouteConfig } from '../../../models/route-config.js';
@@ -87,8 +88,7 @@ export class UserAgentCheck extends SecurityCheck {
     if (!this.config.passiveMode) {
       /* Reference UserAgentCheck: the active deny escalates the identity
          violation (re-detect + counter + threshold ban) before the 403. */
-      const clientIp = ((request.state as Record<string, unknown>)['clientIp'] as string | undefined)
-        ?? request.clientHost;
+      const clientIp = resolvedClientIp(request);
       if (clientIp) {
         await escalateIdentityViolation(
           this.middleware, this.config, this.ipBanManager,

@@ -1,5 +1,7 @@
 import type { GuardRequest } from '../../../protocols/request.js';
 import type { GuardResponse } from '../../../protocols/response.js';
+import { extractClientIp } from '../../../utils.js';
+import { requestClientIp } from '../../client-identity.js';
 import { fireBlockHook } from '../../block-events.js';
 import { SecurityCheck } from '../base.js';
 
@@ -19,7 +21,7 @@ export class RouteConfigCheck extends SecurityCheck {
   private async handleUnresolvedRoute(request: GuardRequest): Promise<GuardResponse | null> {
     const config = this.config;
     /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
-    this.logger.warn(`Suspicious request from ${request.clientHost ?? 'unknown'}: `
+    this.logger.warn(`Suspicious request from ${requestClientIp(request)}: `
     /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
       + `${request.method} ${request.urlPath} - ${UNRESOLVED_ROUTE_REASON}`);
 
@@ -59,6 +61,10 @@ export class RouteConfigCheck extends SecurityCheck {
     if (routeConfig) {
       (request.state as Record<string, unknown>)['_routeConfig'] = routeConfig;
     }
+
+    request.state['client_ip'] = await extractClientIp(
+      request, this.config, this.middleware.agentHandler,
+    );
 
     if (this.config.routeResolutionStrict
       && (request.state as Record<string, unknown>)['guard_route_unresolved'] === true) {

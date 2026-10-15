@@ -9,6 +9,8 @@ import { logActivity } from '../../../utils.js';
 import { checkRouteIpAccess, escalateIdentityViolation, isIpInWhitelist } from '../helpers.js';
 import { SecurityCheck } from '../base.js';
 import ipaddr from 'ipaddr.js';
+import { ipInList } from '../../../ip-identity.js';
+import { resolvedClientIp } from '../../client-identity.js';
 
 /* The twin of IpAccessResult (guard_core/_utils/access_control.py): the
    deny verdict plus the reference log-format reason (and optional cloud
@@ -207,38 +209,20 @@ export class IpSecurityCheck extends SecurityCheck {
     return { allowed: true, reason: '' };
   }
 
+  /* A client or list entry that cannot be parsed is denied, like the
+     reference ValueError arm of check_ip_access. */
   private ipInList(ip: string, entries: readonly string[]): boolean {
-    let parsed: ipaddr.IPv4 | ipaddr.IPv6;
     try {
-      parsed = ipaddr.parse(ip);
+      return ipInList(ip, entries);
+    /* v8 ignore start -- measured-unreachable path, the resolved identity is a valid address */
     } catch {
-      /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
       return true;
-      /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
     }
-    for (const entry of entries) {
-      /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
-      if (entry.includes('/')) {
-      /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
-        /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
-        try {
-        /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
-          /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
-          const [addr, prefixLen] = ipaddr.parseCIDR(entry);
-          /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
-          /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
-          if (parsed.kind() === addr.kind() && parsed.match([addr, prefixLen])) return true;
-          /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
-        } catch { /* malformed CIDR entries never match */ }
-      } else if (ip === entry) {
-        return true;
-      }
-    }
-    return false;
+    /* v8 ignore stop */
   }
 
   async check(request: GuardRequest): Promise<GuardResponse | null> {
-    const clientIp = request.clientHost;
+    const clientIp = resolvedClientIp(request);
     if (!clientIp) return null;
 
     const stateRouteConfig = (request.state as Record<string, unknown>)['_routeConfig'] as RouteConfig | undefined;

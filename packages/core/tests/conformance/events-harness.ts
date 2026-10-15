@@ -157,7 +157,7 @@ function corpusRequest(
   if (bodyBytes.length > 0 && !('content-length' in headers)) {
     headers['content-length'] = String(bodyBytes.length);
   }
-  const state: Record<string, unknown> = { clientIp: overrides.client_ip };
+  const state: Record<string, unknown> = { client_ip: overrides.client_ip };
   if (routes[urlPath]) state['guardRouteConfig'] = corpusRoutesToRouteConfig(routes[urlPath]);
   return {
     urlPath,
@@ -316,9 +316,9 @@ export class EventsCaseRun {
        drop_cached_client_ip deletes the preset identity first, modeling the
        first request. */
     if (drive.drop_cached_client_ip) {
-      delete (request.state as Record<string, unknown>).clientIp;
+      delete (request.state as Record<string, unknown>).client_ip;
     }
-    (request.state as Record<string, unknown>).clientIp = await extractClientIp(request, config, agent);
+    (request.state as Record<string, unknown>).client_ip = await extractClientIp(request, config, agent);
     await components.pipeline.execute(request);
   }
 

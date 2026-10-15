@@ -1,4 +1,5 @@
 import ipaddr from 'ipaddr.js';
+import { isIP } from 'node:net';
 import { z } from 'zod';
 
 import { PATTERN_DEFINITIONS } from '../detection-engine/patterns/pattern-table.js';
@@ -17,7 +18,7 @@ function isValidIpOrCidr(value: string): boolean {
       return false;
     }
   }
-  return ipaddr.isValid(value);
+  return isIP(value) !== 0;
 }
 
 const VALID_CLOUD_PROVIDERS = ['AWS', 'GCP', 'Azure'] as const;
@@ -66,10 +67,18 @@ export function returnPatternRequiresResponseBody(pattern: string): boolean {
 
 const IpOrCidrSchema = z.string().refine(isValidIpOrCidr, 'Invalid IP or CIDR');
 
+/* trusted_proxies additionally accepts the literal "unix" token (reference
+   _validate_ip_or_cidr_list allow_unix): it authorizes X-Forwarded-For for a
+   request that has no peer address, for example over a Unix domain socket. */
+const TrustedProxySchema = z.string().refine(
+  (value) => value === 'unix' || isValidIpOrCidr(value),
+  'Invalid proxy IP or CIDR',
+);
+
 const LogLevel = z.enum(['INFO', 'DEBUG', 'WARNING', 'ERROR', 'CRITICAL']);
 
 export const SecurityConfigSchema = z.object({
-  trustedProxies: z.array(IpOrCidrSchema).default([]),
+  trustedProxies: z.array(TrustedProxySchema).default([]),
   trustedProxyDepth: z.number().int().min(1).default(1),
   trustXForwardedProto: z.boolean().default(false),
 

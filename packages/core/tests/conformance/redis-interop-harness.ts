@@ -140,7 +140,7 @@ function corpusRequest(clientIp: string, urlPath: string): GuardRequest {
     headers: {},
     queryParams: {},
     body: async () => new Uint8Array(0),
-    state: { clientIp } as never,
+    state: { client_ip: clientIp } as never,
     scope: {},
   } as unknown as GuardRequest;
 }

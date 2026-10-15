@@ -1,5 +1,3 @@
-import ipaddr from 'ipaddr.js';
-
 import type { ResolvedSecurityConfig } from '../../models/config.js';
 import type { RouteConfig } from '../../models/route-config.js';
 import type { IPBanManager } from '../../handlers/ip-ban.js';
@@ -8,42 +6,28 @@ import type { Logger } from '../../models/logger.js';
 import type { GeoIPHandler } from '../../protocols/geo-ip.js';
 import type { GuardMiddlewareProtocol } from '../../protocols/middleware.js';
 import type { GuardRequest } from '../../protocols/request.js';
+import { ipInList } from '../../ip-identity.js';
 import { logActivity } from '../../utils.js';
 
 export function isIpInBlacklist(clientIp: string, blacklist: string[]): boolean {
-  for (const blocked of blacklist) {
-    if (blocked.includes('/')) {
-      try {
-        const parsed = ipaddr.parse(clientIp);
-        const [addr, prefixLen] = ipaddr.parseCIDR(blocked);
-        if (parsed.kind() === addr.kind() && parsed.match([addr, prefixLen])) return true;
-      /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
-      } catch { continue; }
-      /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
-    } else if (clientIp === blocked) {
-      return true;
-    }
+  try {
+    return ipInList(clientIp, blacklist);
+  /* v8 ignore start -- an unparseable client or CIDR entry; the callers pass a validated identity */
+  } catch {
+    return false;
   }
-  return false;
+  /* v8 ignore stop */
 }
 
 export function isIpInWhitelist(clientIp: string, whitelist: string[]): boolean | null {
   if (whitelist.length === 0) return null;
-
-  for (const allowed of whitelist) {
-    if (allowed.includes('/')) {
-      try {
-        const parsed = ipaddr.parse(clientIp);
-        const [addr, prefixLen] = ipaddr.parseCIDR(allowed);
-        if (parsed.kind() === addr.kind() && parsed.match([addr, prefixLen])) return true;
-      /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
-      } catch { continue; }
-      /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
-    } else if (clientIp === allowed) {
-      return true;
-    }
+  try {
+    return ipInList(clientIp, whitelist);
+  /* v8 ignore start -- an unparseable client or CIDR entry; the callers pass a validated identity */
+  } catch {
+    return false;
   }
-  return false;
+  /* v8 ignore stop */
 }
 
 export function checkCountryAccess(

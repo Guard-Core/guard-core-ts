@@ -28,6 +28,7 @@ import type { SecurityMiddlewareComponents } from '../middleware-support.js';
 import type { RateLimitManager } from '../handlers/rate-limit.js';
 import { UNKNOWN_CLIENT_IDENTITY } from './client-identity.js';
 import { extractClientIp, isIpAllowed } from '../utils.js';
+import { requestClientIp } from './client-identity.js';
 import { SecurityCheckPipeline } from './checks/pipeline.js';
 import { SuspiciousActivityCheck } from './checks/implementations/suspicious-activity.js';
 import { GuardRedisError } from '../errors.js';
@@ -61,7 +62,7 @@ export async function guardWebSocketUpgrade(
   const clientIp = await extractClientIp(
     request, config, components.middlewareProtocol.agentHandler,
   );
-  (request.state as Record<string, unknown>)['clientIp'] = clientIp;
+  request.state['client_ip'] = clientIp;
 
   if (clientIp === UNKNOWN_CLIENT_IDENTITY && config.failSecure) {
     return reject(WS_CLOSE_CLIENT_ADDRESS_UNKNOWN);
@@ -112,14 +113,14 @@ async function runPenetrationDetection(
   components: SecurityMiddlewareComponents,
   config: ResolvedSecurityConfig,
 ): Promise<WebSocketGuardVerdict> {
-  if (!config.enablePenetrationDetection) return { allowed: true, clientIp: request.clientHost ?? '' };
+  if (!config.enablePenetrationDetection) return { allowed: true, clientIp: requestClientIp(request) };
 
   /* Path exclusions skip detection entirely, mirroring the HTTP pipeline
      where excluded paths pass through the bypass handler unchecked (the
      reference WS path sets guard_exclusion_scoped for the same effect). */
   if (await components.validator.isPathExcluded(request)) {
     (request.state as Record<string, unknown>)['guardExclusionScoped'] = true;
-    return { allowed: true, clientIp: request.clientHost ?? '' };
+    return { allowed: true, clientIp: requestClientIp(request) };
   }
 
   const pipeline = new SecurityCheckPipeline(
@@ -135,7 +136,7 @@ async function runPenetrationDetection(
      500 sentinel; redisFailOpen skips the check); anything that still throws
      propagates to the adapter's fail-closed rejection. */
   const response = await pipeline.execute(request);
-  if (response === null) return { allowed: true, clientIp: request.clientHost ?? '' };
+  if (response === null) return { allowed: true, clientIp: requestClientIp(request) };
 
   if (response.statusCode === 500) return reject(WS_CLOSE_SECURITY_CHECK_FAILED);
   return reject(WS_CLOSE_SUSPICIOUS_ACTIVITY);
