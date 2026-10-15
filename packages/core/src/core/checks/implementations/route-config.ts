@@ -9,6 +9,7 @@ export const UNRESOLVED_ROUTE_REASON =
   'Route resolution failed; per-route decorator config could not be applied';
 
 export class RouteConfigCheck extends SecurityCheck {
+  override readonly enforcedOnExcludedPaths = true;
   get checkName(): string { return 'route_config'; }
 
   /* The twin of _handle_unresolved_route: under route_resolution_strict an

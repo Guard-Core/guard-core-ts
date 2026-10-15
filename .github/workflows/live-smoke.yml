@@ -81,9 +81,12 @@ jobs:
           echo "ok: XSS query param -> 400 suspicious block"
 
           # Global rate limit: 30 requests per 60 seconds; the 31st request
-          # is rejected by the engine with the default 429 body. Two requests
-          # above already counted, so 28 benign requests stay within limits.
-          for _ in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28; do
+          # is rejected by the engine with the default 429 body. Four requests
+          # above already counted (the readiness probe and the check of the
+          # excluded /health path, since rate limiting still applies on an
+          # excluded path like the reference, plus / and the XSS request),
+          # so 26 benign requests stay within limits.
+          for _ in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26; do
             code=$(curl -sS --max-time 30 -o /dev/null -w '%{http_code}' "$base/basic")
             if [ "$code" != "200" ]; then
               echo "FAIL: /basic within global limit (expected 200, got $code)"; exit 1

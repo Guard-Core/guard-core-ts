@@ -63,11 +63,24 @@ The Hono adapter is designed for edge runtimes:
 
 ## Client IP on Edge
 
-Hono does not expose `req.ip` like other frameworks. The adapter reads client IP from `c.env.remoteAddr` if available:
+Hono does not expose `req.ip` like other frameworks. The adapter resolves the connecting peer address from what the runtime hands the app (`resolveHonoClientAddress`, also exported):
+
+| Runtime | Source |
+|---------|--------|
+| Node (`@hono/node-server`) | `c.env.incoming.socket.remoteAddress` |
+| Deno (`Deno.serve(app.fetch)`) | `c.env.remoteAddr.hostname` |
+| Bun (`Bun.serve({ fetch: app.fetch })`) | `c.env.requestIP(req).address` |
+| Cloudflare Workers | the `cf-connecting-ip` header (only read when running on Workers, where the platform sets it) |
+
+A request whose address cannot be resolved (a Unix socket, `app.request()` in a test) is rejected with `403` under the default `failSecure: true`, and continues as identity `unknown` with `failSecure: false`. For any other runtime pass `connectingIpResolver`:
 
 ```typescript
-const connectingIp = c.env?.remoteAddr ?? null;
-const guardReq = new HonoGuardRequest(c.req, connectingIp);
+import { getConnInfo } from 'hono/bun';
+
+app.use('*', createGuardMiddleware({
+  config,
+  connectingIpResolver: (c) => getConnInfo(c).remote.address ?? null,
+}));
 ```
 
 For Cloudflare Workers, use the `geoResolver` config option to read from `cf.country`:
@@ -138,11 +151,7 @@ serve({ fetch: app.fetch, port: 3000 });
 import { Hono } from 'hono';
 import { createGuardMiddleware } from '@guardcore/hono';
 
-type Env = {
-  remoteAddr: string;
-};
-
-const app = new Hono<{ Bindings: Env }>();
+const app = new Hono();
 
 app.use('*', createGuardMiddleware({
   config: {

@@ -25,6 +25,7 @@ function genericListBlockReason(ip: string): string {
 }
 
 export class IpSecurityCheck extends SecurityCheck {
+  override readonly enforcedOnExcludedPaths = true;
   private readonly ipBanManager: IPBanManager | null;
 
   constructor(middleware: GuardMiddlewareProtocol, ipBanManager?: IPBanManager | null) {
@@ -240,14 +241,21 @@ export class IpSecurityCheck extends SecurityCheck {
     const clientIp = request.clientHost;
     if (!clientIp) return null;
 
-    const routeConfig = (request.state as Record<string, unknown>)['_routeConfig'] as RouteConfig | undefined;
+    const stateRouteConfig = (request.state as Record<string, unknown>)['_routeConfig'] as RouteConfig | undefined;
 
-    const banResponse = await this.checkBannedIp(request, clientIp, routeConfig);
+    const banResponse = await this.checkBannedIp(request, clientIp, stateRouteConfig);
     if (banResponse) return banResponse;
+
+    /* Reference scoped branch: an excluded path keeps the ban check and the
+       global ip/country restrictions only, with no route config, no route
+       'ip' bypass and no ban escalation (the pipeline already skips every
+       other check for the scoped request). */
+    const scoped = request.state.guardExclusionScoped === true;
+    const routeConfig = scoped ? undefined : stateRouteConfig;
 
     const resolver = this.middleware.routeResolver as RouteConfigResolver;
     /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
-    if (resolver.shouldBypassCheck('ip', routeConfig ?? null)) return null;
+    if (!scoped && resolver.shouldBypassCheck('ip', routeConfig ?? null)) return null;
     /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
 
     /* Mirror of the reference _resolve_is_whitelisted/_resolve_is_exempt:
@@ -289,11 +297,13 @@ export class IpSecurityCheck extends SecurityCheck {
         { ipAddress: clientIp, filterType: 'global' });
 
       if (!this.config.passiveMode) {
-        await escalateIdentityViolation(
-          this.middleware, this.config, this.ipBanManager,
-          request, clientIp, this.logger,
-          'ip_blocked', access.reason,
-        );
+        if (!scoped) {
+          await escalateIdentityViolation(
+            this.middleware, this.config, this.ipBanManager,
+            request, clientIp, this.logger,
+            'ip_blocked', access.reason,
+          );
+        }
         return this.createErrorResponse(403, 'Forbidden');
       }
       return null;

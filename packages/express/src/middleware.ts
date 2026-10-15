@@ -114,10 +114,7 @@ export function createSecurityMiddleware(options: SecurityMiddlewareOptions) {
       const endpointId = resolveExpressEndpointId(req);
       if (endpointId !== null) guardReq.state.guardEndpointId = endpointId;
 
-      const passthrough = await components.bypassHandler.handlePassthrough(
-        guardReq,
-        async () => createPassthroughResponse(),
-      );
+      const passthrough = await components.bypassHandler.handlePassthrough(guardReq);
       if (passthrough) {
         sendGuardResponse(res, passthrough);
         return;
@@ -125,13 +122,12 @@ export function createSecurityMiddleware(options: SecurityMiddlewareOptions) {
 
       const routeConfig = components.routeResolver.getRouteConfig(guardReq);
 
-      const bypass = await components.bypassHandler.handleSecurityBypass(
-        guardReq,
-        async () => createPassthroughResponse(),
-        routeConfig,
-      );
-      if (bypass) {
-        sendGuardResponse(res, bypass);
+      /* An all-checks bypass route continues to the real downstream handler
+         (reference handle_security_bypass): only the response modifier runs on
+         the real response, no pipeline and no response pass. */
+      if (await components.bypassHandler.beginSecurityBypass(guardReq, routeConfig)) {
+        interceptResponse(guardReq, res, startTime, components, routeConfig ?? null, true);
+        next();
         return;
       }
 
@@ -203,6 +199,7 @@ function interceptResponse(
   startTime: number,
   components: SecurityMiddlewareComponents,
   routeConfig: RouteConfig | null,
+  modifierOnly = false,
 ): void {
   const originalEnd = res.end;
   const originalWrite = res.write;
@@ -250,26 +247,16 @@ function interceptResponse(
 
     /* Header mutations must complete before the response ends, or they are lost
        (headers are flushed by the original end call). */
-    components.errorResponseFactory.processResponse(
-      guardReq, capturedResponse, responseTime, routeConfig,
-      routeConfig ? async (request: GuardRequest, response: GuardResponse, clientIp: string, rc: RouteConfig) => {
-        await components.behavioralProcessor.processReturnRules(request, response, clientIp, rc);
-      } : undefined,
-    ).then(finish, finish);
+    const pass = modifierOnly
+      ? components.errorResponseFactory.applyModifier(capturedResponse)
+      : components.errorResponseFactory.processResponse(
+        guardReq, capturedResponse, responseTime, routeConfig,
+        routeConfig ? async (request: GuardRequest, response: GuardResponse, clientIp: string, rc: RouteConfig) => {
+          await components.behavioralProcessor.processReturnRules(request, response, clientIp, rc);
+        } : undefined,
+      );
+    pass.then(finish, finish);
 
     return res;
   } as unknown as typeof res.end;
-}
-
-function createPassthroughResponse(): GuardResponse {
-  /* Passthrough responses never carry headers; the noop only satisfies the
-     GuardResponse interface. */
-  return {
-    statusCode: 200,
-    headers: {},
-    /* v8 ignore next */
-    setHeader() {},
-    body: null,
-    bodyText: null,
-  };
 }

@@ -5,6 +5,10 @@ import type { Logger } from '../../models/logger.js';
 import type { ResolvedSecurityConfig } from '../../models/config.js';
 
 export abstract class SecurityCheck {
+  /* The twin of SecurityCheck.enforced_on_excluded_paths: the checks that
+     still run when the request is exclusion-scoped (an excluded path). */
+  readonly enforcedOnExcludedPaths: boolean = false;
+
   constructor(protected readonly middleware: GuardMiddlewareProtocol) {}
 
   /* Public read access for the pipeline's failure policy, the twin of the

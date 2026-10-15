@@ -6,6 +6,8 @@ export interface GuardRequestState {
   isWhitelisted?: boolean;
   /** Set by IpSecurityCheck: the client IP matched the config exemptIps list. */
   isExempt?: boolean;
+  /** Set by BypassHandler.handlePassthrough for an excluded path: only the checks with enforcedOnExcludedPaths run. */
+  guardExclusionScoped?: boolean;
   [key: string]: unknown;
 }
 

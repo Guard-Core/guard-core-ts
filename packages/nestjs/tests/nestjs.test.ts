@@ -12,10 +12,10 @@ vi.mock('@guardcore/core', async () => {
     ...(actual as Record<string, unknown>),
     initializeSecurityMiddleware: vi.fn().mockResolvedValue({
       pipeline: { execute: vi.fn() },
-      bypassHandler: { handlePassthrough: vi.fn(), handleSecurityBypass: vi.fn() },
+      bypassHandler: { handlePassthrough: vi.fn(), handleSecurityBypass: vi.fn(), beginSecurityBypass: vi.fn() },
       routeResolver: { getRouteConfig: vi.fn() },
       behavioralProcessor: { processUsageRules: vi.fn(), processReturnRules: vi.fn() },
-      errorResponseFactory: { processResponse: vi.fn() },
+      errorResponseFactory: { processResponse: vi.fn(), applyModifier: vi.fn() },
       middlewareProtocol: {},
       registry: {},
       eventBus: {},
@@ -205,10 +205,11 @@ describe('SecurityMiddlewareNest', () => {
       bypassHandler: {
         handlePassthrough: vi.fn().mockResolvedValue(null),
         handleSecurityBypass: vi.fn().mockResolvedValue(null),
+      beginSecurityBypass: vi.fn().mockResolvedValue(false),
       },
       routeResolver: { getRouteConfig: vi.fn().mockReturnValue(null) },
       behavioralProcessor: { processUsageRules: vi.fn(), processReturnRules: vi.fn() },
-      errorResponseFactory: { processResponse: vi.fn().mockResolvedValue(undefined) },
+      errorResponseFactory: { processResponse: vi.fn().mockResolvedValue(undefined), applyModifier: vi.fn().mockResolvedValue(undefined) },
       middlewareProtocol: {},
       registry: {},
       eventBus: {},
@@ -261,6 +262,20 @@ describe('SecurityMiddlewareNest', () => {
     expect(next).toHaveBeenCalled();
   });
 
+  it('sends an empty body when the passthrough response has no body', async () => {
+    const { SecurityMiddlewareNest } = await import('../src/guard-module.js');
+    const components = createMockComponents();
+    const middleware = new SecurityMiddlewareNest(components);
+    (components.bypassHandler.handlePassthrough as ReturnType<typeof vi.fn>).mockImplementationOnce(
+      async () => ({ statusCode: 403, headers: {}, setHeader() {}, body: null, bodyText: null }),
+    );
+
+    const res = createMockRes();
+    await middleware.use(createMockReq(), res as never, vi.fn());
+
+    expect(res.send).toHaveBeenCalledWith('');
+  });
+
   it('sends response when passthrough returns', async () => {
     const { SecurityMiddlewareNest } = await import('../src/guard-module.js');
     const components = createMockComponents();
@@ -274,10 +289,7 @@ describe('SecurityMiddlewareNest', () => {
       bodyText: 'pass',
     };
     (components.bypassHandler.handlePassthrough as ReturnType<typeof vi.fn>).mockImplementationOnce(
-      async (_req: unknown, factory: () => GuardResponse) => {
-        factory();
-        return passthroughResponse;
-      },
+      async () => passthroughResponse,
     );
 
     const req = createMockReq();
@@ -291,24 +303,11 @@ describe('SecurityMiddlewareNest', () => {
     expect(res.send).toHaveBeenCalledWith('pass');
   });
 
-  it('sends response when security bypass returns', async () => {
+  it('continues to the downstream handler on an all-checks bypass route', async () => {
     const { SecurityMiddlewareNest } = await import('../src/guard-module.js');
     const components = createMockComponents();
     const middleware = new SecurityMiddlewareNest(components);
-
-    const bypassResponse: GuardResponse = {
-      statusCode: 200,
-      headers: {},
-      setHeader() {},
-      body: null,
-      bodyText: null,
-    };
-    (components.bypassHandler.handleSecurityBypass as ReturnType<typeof vi.fn>).mockImplementationOnce(
-      async (_req: unknown, factory: () => GuardResponse) => {
-        factory();
-        return bypassResponse;
-      },
-    );
+    (components.bypassHandler.beginSecurityBypass as ReturnType<typeof vi.fn>).mockResolvedValueOnce(true);
 
     const req = createMockReq();
     const res = createMockRes();
@@ -316,7 +315,8 @@ describe('SecurityMiddlewareNest', () => {
 
     await middleware.use(req, res as never, next);
 
-    expect(next).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(components.pipeline.execute).not.toHaveBeenCalled();
   });
 
   it('sends response when pipeline blocks', async () => {

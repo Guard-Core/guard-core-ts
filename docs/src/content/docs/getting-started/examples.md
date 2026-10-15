@@ -67,5 +67,5 @@ an application-level header gate, which apply to every request today.
 
 `.github/workflows/live-smoke.yml` builds the Express and advanced example
 images, brings up the compose stacks, and asserts real engine behavior
-(benign requests pass, excluded paths bypass the pipeline, XSS query
+(benign requests pass, excluded paths skip the penetration scan but still reach the app, XSS query
 parameters are blocked, and rate limits return 429 with the expected bodies).

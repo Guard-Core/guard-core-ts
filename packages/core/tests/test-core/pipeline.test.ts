@@ -108,4 +108,22 @@ describe('SecurityCheckPipeline', () => {
     const pipeline = new SecurityCheckPipeline([], defaultLogger);
     expect(pipeline.remove('nonexistent')).toBe(false);
   });
+
+  it('skips checks not enforced on excluded paths for an exclusion-scoped request', async () => {
+    class EnforcedBlock extends BlockCheck {
+      override readonly enforcedOnExcludedPaths = true;
+      override get checkName() { return 'enforced_block'; }
+    }
+    const scoped = { state: { guardExclusionScoped: true } } as unknown as GuardRequest;
+    const unscoped = { state: {} } as unknown as GuardRequest;
+
+    const onlyUnenforced = new SecurityCheckPipeline([new BlockCheck(mockMiddleware)], defaultLogger);
+    expect(await onlyUnenforced.execute(scoped)).toBeNull();
+    expect((await onlyUnenforced.execute(unscoped))!.statusCode).toBe(403);
+
+    const withEnforced = new SecurityCheckPipeline(
+      [new BlockCheck(mockMiddleware), new EnforcedBlock(mockMiddleware)], defaultLogger,
+    );
+    expect((await withEnforced.execute(scoped))!.statusCode).toBe(403);
+  });
 });

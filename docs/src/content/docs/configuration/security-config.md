@@ -179,7 +179,7 @@ Every penetration-detection violation increments the source IP's counter for the
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `excludePaths` | `string[]` | `[]` | URL paths to skip all security checks |
+| `excludePaths` | `string[]` | `[]` | URL paths excluded from security checks. The request still reaches your handler. The IP ban check, the global IP blacklist/whitelist and country rules, and rate limiting still apply; the penetration scan, route rules, user-agent, header and other checks are skipped. The response still gets security headers, CORS headers and request metrics, and behavior rules are not tracked |
 | `customErrorResponses` | `Record<number, string>` | `{}` | Custom error messages by status code |
 | `customRequestCheck` | `(req: GuardRequest) => Promise<GuardResponse \| null>` | `undefined` | Custom check function run at the end of the pipeline |
 | `customResponseModifier` | `(res: GuardResponse) => Promise<GuardResponse>` | `undefined` | Modify responses before sending |

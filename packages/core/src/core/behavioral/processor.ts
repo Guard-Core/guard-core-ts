@@ -53,7 +53,10 @@ export class BehavioralProcessor {
     this.suspiciousCounts = reader;
   }
 
-  private trackerFor(): BehaviorTracker | null {
+  /* The reference _behavior_tracker: an exclusion-scoped request (an
+     excluded path) never reaches the behavior tracker. */
+  private trackerFor(request: GuardRequest): BehaviorTracker | null {
+    if (request.state?.guardExclusionScoped === true) return null;
     if (this.guardDecorator) return this.guardDecorator.behaviorTracker;
     return this.defaultTracker;
   }
@@ -63,7 +66,7 @@ export class BehavioralProcessor {
     clientIp: string,
     routeConfig: RouteConfig,
   ): Promise<void> {
-    const tracker = this.trackerFor();
+    const tracker = this.trackerFor(request);
     if (!tracker) return;
 
     const endpointId = this.getEndpointId(request);
@@ -97,7 +100,7 @@ export class BehavioralProcessor {
     clientIp: string,
     routeConfig: RouteConfig,
   ): Promise<void> {
-    const tracker = this.trackerFor();
+    const tracker = this.trackerFor(request);
     if (!tracker) return;
 
     const endpointId = this.getEndpointId(request);
@@ -135,7 +138,7 @@ export class BehavioralProcessor {
     clientIp: string,
     rules: readonly BehaviorRule[],
   ): Promise<void> {
-    const tracker = this.trackerFor();
+    const tracker = this.trackerFor(request);
     /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
     if (!tracker) return;
     /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */

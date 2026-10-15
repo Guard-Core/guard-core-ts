@@ -82,7 +82,7 @@ export async function initializeSecurityMiddleware(
     registry.securityHeadersHandler, telemetry,
   );
   const bypassHandler = new BypassHandler(
-    config, eventBus, routeResolver, errorResponseFactory, validator,
+    config, eventBus, routeResolver, errorResponseFactory, validator, logger,
   );
   const behavioralProcessor = new BehavioralProcessor(logger, eventBus);
   /* The engine-owned tracker backs the global behavior rules (and route

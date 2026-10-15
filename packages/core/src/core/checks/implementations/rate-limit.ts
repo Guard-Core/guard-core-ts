@@ -9,6 +9,7 @@ import { logActivity } from '../../../utils.js';
 import { SecurityCheck } from '../base.js';
 
 export class RateLimitCheck extends SecurityCheck {
+  override readonly enforcedOnExcludedPaths = true;
   private readonly ipBanManager: IPBanManager | null;
 
   constructor(middleware: GuardMiddlewareProtocol, ipBanManager?: IPBanManager | null) {

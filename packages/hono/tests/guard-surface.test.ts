@@ -21,6 +21,7 @@ describe('guard surface (hono)', () => {
   it('exposes the surface members on the middleware handler', async () => {
     const guard = createGuardMiddleware({
       config: { enableRedis: false, enableRateLimiting: true, rateLimit: 1000, rateLimitWindow: 60 },
+      connectingIpResolver: () => '203.0.113.30',
     }) as unknown as GuardSurface & { (c: unknown, n: () => Promise<void>): Promise<unknown> };
 
     const before = guard.getInitializationStatus();

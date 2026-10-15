@@ -52,26 +52,33 @@ await configureCors(app, config);
 
 ## Hook Architecture
 
-The plugin registers two Fastify hooks:
+The plugin registers three Fastify hooks:
 
 ### `onRequest` Hook
 
-Runs before route handlers. Performs the full security pipeline:
+Runs before body parsing:
 
 1. Creates a `FastifyGuardRequest` from the Fastify request
-2. Checks passthrough conditions (excluded paths)
+2. Checks passthrough conditions: a request with no client address is answered `403` (default `failSecure`); an excluded path is marked exclusion-scoped and continues
 3. Resolves route configuration from decorators
-4. Checks security bypass conditions
-5. Executes the 17-check security pipeline
-6. Processes behavioral usage rules
-7. Stores guard state on the request for the `onSend` hook
+4. Checks the all-checks bypass: a bypass route skips the pipeline and reaches the route handler
+5. Stores guard state on the request for the other hooks
+
+### `preValidation` Hook
+
+Runs once the body is parsed, before validation and the route handler:
+
+1. Executes the 17-check security pipeline (an excluded path runs only the checks that stay enforced there)
+2. Processes behavioral usage rules
+
+A blocked request is answered here and does not reach the `onSend` response pass.
 
 ### `onSend` Hook
 
 Runs after route handlers, before the response is sent:
 
 1. Retrieves guard state from the request
-2. Captures the response as a `GuardResponse`
+2. Captures the response as a `GuardResponse` (string and Buffer bodies, capped at 10000 bytes)
 3. Processes response through the error response factory (applies security headers, collects metrics)
 4. Runs behavioral return rules if configured
 
