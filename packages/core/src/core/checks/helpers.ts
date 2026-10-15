@@ -59,13 +59,13 @@ export async function checkRouteIpAccess(
   middleware: GuardMiddlewareProtocol,
 ): Promise<boolean | null> {
   try {
-    if (routeConfig.ipBlacklist && routeConfig.ipBlacklist.length > 0) {
-      if (isIpInBlacklist(clientIp, routeConfig.ipBlacklist)) return false;
-    }
-
+    /* Reference check_route_ip_access: a configured route whitelist alone
+       decides; the route blacklist is consulted only when it is absent. */
     if (routeConfig.ipWhitelist && routeConfig.ipWhitelist.length > 0) {
       const whitelistResult = isIpInWhitelist(clientIp, routeConfig.ipWhitelist);
       if (whitelistResult !== null) return whitelistResult;
+    } else if (routeConfig.ipBlacklist && routeConfig.ipBlacklist.length > 0) {
+      if (isIpInBlacklist(clientIp, routeConfig.ipBlacklist)) return false;
     }
 
     const countryResult = checkCountryAccess(clientIp, routeConfig, middleware.geoIpHandler);
