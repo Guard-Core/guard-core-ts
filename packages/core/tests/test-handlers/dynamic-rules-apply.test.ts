@@ -234,3 +234,30 @@ describe('rule lifecycle on the live config', () => {
     expect(live.autoBanThreshold).toBe(3);
   });
 });
+
+describe('update loop start', () => {
+  it('fetches immediately in the background instead of waiting one interval', async () => {
+    const config = createTestConfig({ enableRedis: false, enableDynamicRules: true, enableAgent: true, agentApiKey: 'test-key-123456' });
+    const manager = new DynamicRuleManager(config, defaultLogger);
+    let release: (v: unknown) => void = () => {};
+    const getDynamicRules = vi.fn(() => new Promise((resolve) => { release = resolve; }));
+    // A hanging first fetch must not block initialization.
+    await manager.initializeAgent({ getDynamicRules, sendEvent: vi.fn() } as never);
+    expect(getDynamicRules).toHaveBeenCalledTimes(1);
+    release({ ...BASE_RULE, globalRateLimit: 5 });
+    await vi.waitFor(() => expect(config.rateLimit).toBe(5));
+    await manager.stop();
+  });
+});
+
+describe('overlapping updates', () => {
+  it('share one run so a rule applies once', async () => {
+    const config = createTestConfig({ enableRedis: false });
+    const manager = new DynamicRuleManager(config, defaultLogger);
+    const getDynamicRules = vi.fn(async () => ({ ...BASE_RULE, emergencyMode: true }));
+    await manager.initializeAgent({ getDynamicRules, sendEvent: vi.fn() } as never);
+    await Promise.all([manager.updateRules(), manager.updateRules()]);
+    expect(getDynamicRules).toHaveBeenCalledTimes(1);
+    expect(config.autoBanThreshold).toBe(5);
+  });
+});

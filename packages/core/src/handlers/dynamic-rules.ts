@@ -93,6 +93,7 @@ export class DynamicRuleManager {
   /* The pre-rule config values, kept from the first applied rule until it
      expires (the reference _active_base_snapshot). */
   private activeBaseSnapshot: ConfigSnapshot | null = null;
+  private updateInFlight: Promise<void> | null = null;
 
   constructor(
     private readonly config: ResolvedSecurityConfig,
@@ -265,15 +266,16 @@ export class DynamicRuleManager {
     }
   }
 
+  /* The reference _rule_update_loop fetches immediately and then sleeps one
+     interval per cycle: the first fetch runs in the background (the
+     reference creates a task), so initialization never waits on the SaaS. */
   private startUpdateLoop(): void {
     if (this.updateTimer) return;
-    /* v8 ignore next -- setInterval timer assignment; already tested via initializeAgent */
-    this.updateTimer = setInterval(
-      /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
-      () => { this.updateRules().catch((e) => this.logger.error(`Rule update failed: ${e}`)); },
-      /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
-      this.config.dynamicRuleInterval * 1000,
-    );
+    /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
+    const tick = () => { this.updateRules().catch((e) => this.logger.error(`Rule update failed: ${e}`)); };
+    /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
+    this.updateTimer = setInterval(tick, this.config.dynamicRuleInterval * 1000);
+    tick();
   }
 
   /* The twin of _send_rule_event (guard_core/handlers/_dynamic_rule_events.py):
@@ -299,7 +301,16 @@ export class DynamicRuleManager {
     } catch { /* never throw */ }
   }
 
+  /* Overlapping updates share one run (the background first fetch and a
+     forced update must not apply the same rule twice, which would halve the
+     emergency auto-ban threshold twice). */
   async updateRules(): Promise<void> {
+    if (this.updateInFlight !== null) return this.updateInFlight;
+    this.updateInFlight = this.runUpdate().finally(() => { this.updateInFlight = null; });
+    return this.updateInFlight;
+  }
+
+  private async runUpdate(): Promise<void> {
     if (!this.agentHandler) return;
 
     try {
