@@ -1,18 +1,127 @@
 name: Release
 
+# Publishes the five @guardcore npm packages for a release tag. Nothing is
+# linted or tested here: the tagged commit must already have passed the push
+# workflows listed in REQUIRED_WORKFLOWS (ci.yml runs lint, the node 18/20/22
+# tests, coverage, conformance and the build; ecosystem-gate.yml and
+# live-smoke.yml run the monorepo and the dockerized example). A release can
+# therefore never fail on a check its pull request did not run.
+#
+# Re-drive: run this workflow by hand (Actions > Release > Run workflow) with
+# the tag, for example v4.4.0. It checks out that tag, so a fixed workflow on
+# master can publish an existing tag. A package version already on the npm
+# registry is skipped.
+
 on:
   release:
     types: [created]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to publish, for example v4.4.0'
+        required: true
 
+permissions: {}
+
+concurrency:
+  group: release-${{ inputs.tag || github.event.release.tag_name }}
+  cancel-in-progress: false
+
+env:
+  REQUIRED_WORKFLOWS: >-
+    .github/workflows/ci.yml
+    .github/workflows/ecosystem-gate.yml
+    .github/workflows/live-smoke.yml
 jobs:
+  verify:
+    name: Tagged commit passed CI
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - name: Resolve the tag
+        id: tag
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          tag="${INPUT_TAG:-$RELEASE_TAG}"
+          if ! printf '%s' "$tag" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::tag '$tag' is not of the form v1.2.3"
+            exit 1
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout the tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: refs/tags/${{ steps.tag.outputs.tag }}
+          persist-credentials: false
+
+      - name: Verify the tag equals the package versions
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          for pkg in core express fastify nestjs hono; do
+            version=$(jq -r .version "packages/$pkg/package.json")
+            if [ "${TAG#v}" != "$version" ]; then
+              echo "::error::tag $TAG does not match packages/$pkg version $version"
+              exit 1
+            fi
+            echo "ok: $TAG matches packages/$pkg $version"
+          done
+
+      # The newest push run of each required workflow on the tagged commit
+      # must have succeeded. A release created right after a merge waits for
+      # them (up to an hour) instead of failing.
+      - name: Require green CI on the tagged commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          sha=$(git rev-parse HEAD)
+          for _ in $(seq 1 60); do
+            runs=$(gh api "repos/$REPO/actions/runs?head_sha=$sha&event=push&per_page=100" \
+              --jq '[.workflow_runs | group_by(.path)[] | max_by(.run_number) | {path, status, conclusion}]')
+            waiting=0
+            for wf in $REQUIRED_WORKFLOWS; do
+              run=$(jq -c --arg p "$wf" '.[] | select(.path == $p)' <<< "$runs")
+              if [ -z "$run" ]; then
+                echo "$wf: no push run on $sha yet"; waiting=1; continue
+              fi
+              status=$(jq -r .status <<< "$run"); conclusion=$(jq -r .conclusion <<< "$run")
+              if [ "$status" != "completed" ]; then
+                echo "$wf: $status"; waiting=1
+              elif [ "$conclusion" != "success" ]; then
+                echo "::error::$wf concluded $conclusion on $sha; fix master and release a new tag"
+                exit 1
+              else
+                echo "ok: $wf success on $sha"
+              fi
+            done
+            [ "$waiting" = "0" ] && exit 0
+            sleep 60
+          done
+          echo "::error::required workflows did not finish on $sha within an hour"
+          exit 1
+
   publish:
+    name: Publish to npm (trusted publishing)
+    needs: verify
     runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout the tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: refs/tags/${{ needs.verify.outputs.tag }}
+          persist-credentials: false
+
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
@@ -26,9 +135,9 @@ jobs:
           npm --version
       - run: pnpm build
 
-      # Version-bump only the packages that ship in this release; a package
-      # whose version is already on the npm registry is skipped by the
-      # per-package check below (the registry rejects duplicate versions).
+      # A package whose version is already on the npm registry is skipped by
+      # the per-package check below (the registry rejects duplicate versions),
+      # so a re-drive after a partial failure is safe.
       - name: Resolve versions to publish
         id: versions
         run: |

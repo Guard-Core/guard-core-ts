@@ -36,7 +36,7 @@ What `@guardcore/core` provides:
 
 - Adapters depend on core with `@guardcore/core: workspace:*`, so core must be built before adapters (turbo enforces this with `dependsOn: ["^build"]`)
 - This repo ports guard-core (https://github.com/Guard-Core/guard-core), the Python engine; when in doubt about intended behavior, the Python project is the upstream reference
-- Publishing is lock-step: all packages carry the same version, bumped together with `make bump-version VERSION=x.y.z`; a GitHub Release triggers .github/workflows/release.yml, which publishes each package to npm with provenance
+- Publishing is lock-step: all packages carry the same version, bumped together with `make bump-version VERSION=x.y.z`; a GitHub Release triggers .github/workflows/release.yml, which publishes each package to npm with provenance. The release workflow runs no lint or test of its own: it requires the tagged commit's push runs of ci.yml, ecosystem-gate.yml and live-smoke.yml to have passed (waiting up to an hour), then publishes each package not already on npm. To re-drive an existing tag (for example after a partial failure), run Actions > Release > Run workflow with the tag input.
 
 ## Boundary Rules
 

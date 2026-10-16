@@ -1,17 +1,10 @@
 name: CI
 
 on:
+  # No paths filter on push: release.yml requires a push run of this workflow on
+  # the tagged commit, and a docs-only commit (a changelog fix) must still get one.
   push:
     branches: [master, main]
-    paths:
-      - 'packages/**'
-      - 'conformance/**'
-      - 'package.json'
-      - 'pnpm-lock.yaml'
-      - 'pnpm-workspace.yaml'
-      - 'turbo.json'
-      - 'tsconfig.base.json'
-      - '.github/workflows/ci.yml'
   pull_request:
     branches: [master, main]
 
