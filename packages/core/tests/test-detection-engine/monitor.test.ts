@@ -137,7 +137,7 @@ describe('PerformanceMonitor', () => {
     const callback = vi.fn();
     monitor.registerAnomalyCallback(callback);
 
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 35; i++) {
       await monitor.recordMetric('pattern-x', 0.01, 100, false);
     }
 
@@ -147,6 +147,52 @@ describe('PerformanceMonitor', () => {
       (c) => (c[0] as Record<string, unknown>)['type'] === 'statistical_anomaly',
     );
     expect(statisticalCalls.length).toBeGreaterThan(0);
+  });
+
+  it('does not flag a faster-than-average sample as a statistical anomaly', async () => {
+    const monitor = new PerformanceMonitor(2.0, 10);
+    const callback = vi.fn();
+    monitor.registerAnomalyCallback(callback);
+
+    for (let i = 0; i < 40; i++) {
+      await monitor.recordMetric('pattern-y', 1.0 + (i % 2) * 0.01, 100, false);
+    }
+    await monitor.recordMetric('pattern-y', 0.0, 100, false);
+    expect(callback).not.toHaveBeenCalled();
+
+    await monitor.recordMetric('pattern-y', 5.0, 100, false);
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect((callback.mock.calls[0]![0] as Record<string, unknown>)['type']).toBe(
+      'statistical_anomaly',
+    );
+  });
+
+  it('skips the statistical check when the recorded samples have no spread', async () => {
+    const monitor = new PerformanceMonitor(2.0, 10);
+    const callback = vi.fn();
+    monitor.registerAnomalyCallback(callback);
+
+    for (let i = 0; i < 35; i++) {
+      await monitor.recordMetric('pattern-flat', 0.5, 100, false);
+    }
+    await monitor.recordMetric('pattern-flat', 5.0, 100, false, true);
+
+    const statisticalCalls = callback.mock.calls.filter(
+      (c) => (c[0] as Record<string, unknown>)['type'] === 'statistical_anomaly',
+    );
+    expect(statisticalCalls).toHaveLength(0);
+  });
+
+  it('waits for the configured minimum sample count', async () => {
+    const monitor = new PerformanceMonitor(2.0, 10, 1000, 1000, 60, 50);
+    const callback = vi.fn();
+    monitor.registerAnomalyCallback(callback);
+
+    for (let i = 0; i < 40; i++) {
+      await monitor.recordMetric('pattern-z', 0.01 + (i % 2) * 0.001, 100, false);
+    }
+    await monitor.recordMetric('pattern-z', 5.0, 100, false);
+    expect(callback).not.toHaveBeenCalled();
   });
 
   it('sends anomaly event to agent handler', async () => {
