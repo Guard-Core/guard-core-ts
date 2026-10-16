@@ -247,6 +247,8 @@ export class PerformanceMonitor {
       }
     }
 
+    if (this.anomalyCallbacks.length === 0) return;
+
     for (const anomaly of anomalies) {
       const safe: Record<string, unknown> = { ...anomaly };
       if (typeof safe['pattern'] === 'string') {
