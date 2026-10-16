@@ -10,7 +10,7 @@
     "@guardcore/core": "workspace:*",
     "@guardcore/express": "workspace:*",
     "cors": "^2.8.5",
-    "express": "^5.1.0"
+    "express": "^5.3.0"
   },
   "devDependencies": {
     "tsx": "^4.20.6"
