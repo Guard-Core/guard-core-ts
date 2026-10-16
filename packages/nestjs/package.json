@@ -32,7 +32,7 @@
     "@nestjs/core": "^12",
     "@types/express": "^5",
     "@types/cors": "^2",
-    "@vitest/coverage-v8": "^5.0.2",
+    "@vitest/coverage-v8": "^5.0.4",
     "express": "^4.21.2",
     "reflect-metadata": "^0.2",
     "rxjs": "^7",
