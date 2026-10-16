@@ -353,10 +353,25 @@ export class SusPatternsManager {
       ipAddress?: string;
     } = {},
   ): Promise<{ threats: InternalRegexThreat[]; matchedPatterns: string[]; timeouts: string[] }> {
-    const { rawViewOnly = null, urlDecodedViewOnly = null } = options;
     // Without a request budget (standalone detectPatternMatch) the scan still
-    // yields between slices, it just has no cap.
+    // yields between slices, it just has no cap. The CPU is charged per pass.
     const scanTime = options.scanTime ?? new ScanTimeBudget();
+    scanTime.openPass();
+    try {
+      return await this.scanPatternTable(content, context, correlationId, options, scanTime);
+    } finally {
+      scanTime.closePass();
+    }
+  }
+
+  private async scanPatternTable(
+    content: string,
+    context: string,
+    correlationId: string | null,
+    options: { rawViewOnly?: boolean | null; urlDecodedViewOnly?: boolean | null; ipAddress?: string },
+    scanTime: ScanTimeBudget,
+  ): Promise<{ threats: InternalRegexThreat[]; matchedPatterns: string[]; timeouts: string[] }> {
+    const { rawViewOnly = null, urlDecodedViewOnly = null } = options;
     const threats: InternalRegexThreat[] = [];
     const matchedPatterns: string[] = [];
     const timeouts: string[] = [];
@@ -506,19 +521,16 @@ export class SusPatternsManager {
     if (!this.scanWorkerPoolEnabled || SusPatternsManager.hasStructuralMatcher(pattern.source)) {
       return this.scanPool.run(
         pattern.source,
-        () => scanTime.measure(
-          () => this.checkRegexPattern(pattern, content, pattern.category, validatorContext, binaryPrefix),
-        ),
+        () => this.checkRegexPattern(pattern, content, pattern.category, validatorContext, binaryPrefix),
       );
     }
 
-    const pool = await this.ensureWorkerPool();
+    // Only the first scan builds the pool (a real suspension); later scans reuse it.
+    const pool = this.workerPool ?? await scanTime.suspended(this.ensureWorkerPool());
     if (pool === null) {
       return this.scanPool.run(
         pattern.source,
-        () => scanTime.measure(
-          () => this.checkRegexPattern(pattern, content, pattern.category, validatorContext, binaryPrefix),
-        ),
+        () => this.checkRegexPattern(pattern, content, pattern.category, validatorContext, binaryPrefix),
       );
     }
 
@@ -530,7 +542,7 @@ export class SusPatternsManager {
       ? pattern.compiled.re.flags.replace('y', 'gm')
       : pattern.compiled.re.flags.replace('y', 'g');
     // The worker's CPU is not observable from here, so its wall time is charged.
-    const outcome = await pool.run(
+    const outcome = await scanTime.suspended(pool.run(
       pattern.source,
       { patternSource: pattern.compiled.re.source, flags, content },
       (candidates) =>
@@ -541,7 +553,7 @@ export class SusPatternsManager {
           validatorContext,
           binaryPrefix,
         ),
-    );
+    ));
     scanTime.record(outcome.elapsedMs / 1000);
     return outcome;
   }
@@ -554,11 +566,11 @@ export class SusPatternsManager {
     );
   }
 
-  /* Lazily built on the first worker-path scan; a runtime without
-     worker_threads falls back to the inline path with a single warning
-     (the knob is opt-in and edge runtimes have no pool to run). */
+  /* Lazily built on the first worker-path scan (the caller reuses a built
+     pool without a suspension); a runtime without worker_threads falls back
+     to the inline path with a single warning (the knob is opt-in and edge
+     runtimes have no pool to run). */
   private async ensureWorkerPool(): Promise<WorkerScanPool | null> {
-    if (this.workerPool !== null) return this.workerPool;
     if (this.workerPoolUnavailable) return null;
     const pool = await createWorkerScanPool(this.scanPool.deadline, { logger: this.logger });
     if (pool === null) {

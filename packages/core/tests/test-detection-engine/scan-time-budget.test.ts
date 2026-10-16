@@ -168,19 +168,95 @@ describe('the budget counts CPU time, not wall time', () => {
 
   it('CPU-heavy scanning still exhausts the budget', async () => {
     const m = manager();
+    // Charged at slice boundaries now, so make each scan wall-slow (1 ms) to
+    // cross them; the injected CPU clock jumps 1 s on every read.
+    vi.spyOn(m as unknown as { checkRegexPattern: () => null }, 'checkRegexPattern').mockImplementation(() => {
+      const end = performance.now() + 1;
+      while (performance.now() < end) { /* busy wait */ }
+      return null;
+    });
     let cpu = 0;
     const scanTime = new ScanTimeBudget(0.1, () => (cpu += 1));
     const result = await m.detect('hello world', '127.0.0.1', 'query_param:q', null, { scanTime });
     expect(result.threats.some((t) => t.pattern === BUDGET_PATTERN)).toBe(true);
   });
 
-  it('measure charges the clock delta even when the scan throws', () => {
+  it('a pass charges the clock delta at close even when the scan throws', async () => {
     let cpu = 0;
     const scanTime = new ScanTimeBudget(1.0, () => (cpu += 0.6));
-    expect(() => scanTime.measure(() => { throw new Error('boom'); })).toThrow('boom');
+    scanTime.openPass();
+    try {
+      throw new Error('boom');
+    } catch {
+      // the engine closes the pass from a finally block
+    } finally {
+      scanTime.closePass();
+    }
     expect(scanTime.exhausted).toBe(false);
-    scanTime.measure(() => 1);
+    scanTime.openPass();
+    scanTime.closePass();
     expect(scanTime.exhausted).toBe(true);
+  });
+
+  it('never reads the CPU clock without a cap', async () => {
+    const clock = vi.fn(() => 0);
+    const scanTime = new ScanTimeBudget(Infinity, clock);
+    scanTime.openPass();
+    await scanTime.suspended(Promise.resolve());
+    scanTime.closePass();
+    expect(clock).not.toHaveBeenCalled();
+  });
+
+  it('reads the CPU clock a few times per pass, not per pattern', async () => {
+    const m = manager();
+    const scanned = vi.spyOn(m as unknown as { checkRegexPattern: () => null }, 'checkRegexPattern');
+    const clock = vi.fn(() => 0);
+    const scanTime = new ScanTimeBudget(5, clock);
+    await m.detect('hello world', '127.0.0.1', 'query_param:q', null, { scanTime });
+    expect(scanned.mock.calls.length).toBeGreaterThan(100);
+    expect(clock.mock.calls.length).toBeLessThanOrEqual(2 * 4 + 2 * 4);
+    expect(clock.mock.calls.length * 10).toBeLessThan(scanned.mock.calls.length);
+  });
+
+  it('a long pass stops within about one slice of the budget', async () => {
+    const m = manager();
+    let cpu = 0;
+    // Each pattern costs 0.5 ms of wall and of fake CPU.
+    vi.spyOn(m as unknown as { checkRegexPattern: () => null }, 'checkRegexPattern').mockImplementation(() => {
+      const end = performance.now() + 0.5;
+      while (performance.now() < end) { /* busy wait */ }
+      cpu += 0.0005;
+      return null;
+    });
+    const cap = 0.02;
+    const scanTime = new ScanTimeBudget(cap, () => cpu);
+    const result = await m.detect('hello world', '127.0.0.1', 'query_param:q', null, { scanTime });
+    expect(result.threats.some((t) => t.pattern === BUDGET_PATTERN)).toBe(true);
+    // One slice (2 ms) plus one pattern (0.5 ms) of lag, with slack for timer jitter.
+    expect(cpu - cap).toBeGreaterThanOrEqual(0);
+    expect(cpu - cap).toBeLessThan(0.008);
+  });
+
+  it('does not charge another task\'s CPU burned while the pass is suspended', async () => {
+    const burn = (ms: number): Promise<void> => new Promise((resolve) => {
+      setImmediate(() => {
+        const end = performance.now() + ms;
+        while (performance.now() < end) { /* busy wait */ }
+        resolve();
+      });
+    });
+    const suspendedBudget = new ScanTimeBudget(0.03);
+    suspendedBudget.openPass();
+    await suspendedBudget.suspended(burn(120));
+    suspendedBudget.closePass();
+    expect(suspendedBudget.exhausted).toBe(false);
+
+    // Control: the same burn awaited without suspended() is charged.
+    const plainBudget = new ScanTimeBudget(0.03);
+    plainBudget.openPass();
+    await burn(120);
+    plainBudget.closePass();
+    expect(plainBudget.exhausted).toBe(true);
   });
 
   it('cpuSeconds reads process CPU time and falls back to wall time without process', () => {
