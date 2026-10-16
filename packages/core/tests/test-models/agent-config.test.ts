@@ -93,7 +93,7 @@ describe('toAgentConfig (the reference to_agent_config seam)', () => {
     const result = toAgentConfig(config({ onError }));
     expect(result?.onError).toBe(onError);
     expect(result?.guardCoreVersion).toBe(ENGINE_VERSION);
-    expect(result?.guardCoreVersion).toBe('4.4.0');
+    expect(result?.guardCoreVersion).toBe('4.4.1');
   });
 
   it('rejects an out-of-range status interval and overflow policy at the schema', () => {

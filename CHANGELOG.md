@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.4.1] - 2026-10-16
+
+The per-request CPU patch: the scan time budget and the performance monitor stop spending CPU on bookkeeping for every pattern. Lockstep release with the core engines at 4.4.1.
+
+### Changed
+
+- **Behavior to know before upgrading.** `detectionMinSamplesForAnomaly` is now validated as an integer from 10 to 1000 with a default of 30, as in the reference engine. It used to accept any positive integer, defaulted to 10 and had no effect, so a config that sets it below 10 now fails validation. The per-pattern recent-times window is `max(min samples, 100)`.
+
+### Fixed
+
+- The scan time budget charges CPU once per pass instead of once per pattern (issue #151, PR #152). `ScanTimeBudget.measure` called `process.cpuUsage()` twice for every pattern check. A pass now reads the clock once when it opens, charges at each `yieldIfDue` slice boundary (before the yield, restarting after it, so another task's CPU is never charged) and around the opt-in worker pool's awaits, and makes a final charge when it closes. A budget without a cap never reads the clock. Detect CPU on a ~1 KB JSON-like value plus 10 short headers went from 5.11 ms to 4.05 ms.
+- The performance monitor now matches the reference engine. It flags only slower-than-average samples (it used `Math.abs` on the z-score, so faster-than-average samples also fired statistical anomalies), honours `detectionMinSamplesForAnomaly` (it was ignored and a fixed 10 was used), computes the mean once and the deviation in one allocation-free loop, and skips the sanitized anomaly copy when no callback is registered.
+
 ## [4.4.0] - 2026-10-15
 
 The scan-budget release, with client IP, IP list and dynamic rule parity with the reference engine and adapters that reach the real handler. Lockstep release with the core engines at 4.4.0.
