@@ -109,4 +109,4 @@ Use `make bump-version VERSION=x.y.z` to update all package versions simultaneou
 4. Update CHANGELOG.md
 5. Create a PR with the version bump
 6. After merge, create a GitHub Release with the tag `vx.y.z`
-7. The release workflow automatically publishes all packages to npm
+7. The release workflow automatically publishes all packages to npm once the tagged commit's push CI (ci.yml, ecosystem-gate.yml, live-smoke.yml) has passed, skipping versions already on npm. To re-drive an existing tag, run the Release workflow by hand with the `tag` input.
