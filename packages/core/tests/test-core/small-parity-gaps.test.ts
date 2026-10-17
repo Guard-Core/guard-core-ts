@@ -289,7 +289,7 @@ describe('lazyInit + scan tunable config keys (gaps 19, 97)', () => {
     expect(config.detectionMaxScanValues).toBe(512);
     expect(config.detectionMaxScanChars).toBe(65536);
     expect(config.detectionMaxJsonDepth).toBe(32);
-    expect(config.detectionMinSamplesForAnomaly).toBe(10);
+    expect(config.detectionMinSamplesForAnomaly).toBe(30);
   });
 
   it('carries the lazyInit default', () => {

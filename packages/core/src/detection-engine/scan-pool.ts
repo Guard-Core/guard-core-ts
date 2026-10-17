@@ -192,9 +192,15 @@ export class ScanPoolSupervisor {
  * contextvars; here one instance rides the request scan explicitly.
  *
  * The budget counts CPU time actually spent scanning (process.cpuUsage()
- * deltas around each synchronous scan, user plus system), not wall time, so a
- * busy or CPU-starved host does not push ordinary requests over the cap. The
- * clock falls back to wall time on runtimes without process.cpuUsage (edge).
+ * deltas, user plus system), not wall time, so a busy or CPU-starved host
+ * does not push ordinary requests over the cap. The CPU is charged per pass
+ * (one loop over the pattern table), not per pattern: `openPass()` reads the
+ * clock once, `yieldIfDue()` charges at each EVENT_LOOP_SLICE_MS boundary
+ * (before the yield, restarting after, so other tasks' CPU is never
+ * charged), `suspended()` does the same around any await inside the pass,
+ * and `closePass()` makes the final charge. A budget without a cap never
+ * reads the CPU clock. The clock falls back to wall time on runtimes without
+ * process.cpuUsage (edge).
  * A synchronous RegExp cannot be preempted, so the budget is enforced
  * between patterns: once the summed per-pattern scan time reaches the cap
  * the remaining patterns are skipped and the caller records the exhaustion
@@ -224,6 +230,7 @@ export class ScanTimeBudget {
   private spentMs = 0;
   private sliceStartMs = performance.now();
   private warned = false;
+  private markSeconds: number | null = null;
 
   /** capSeconds Infinity means no cap (the reference's None). */
   constructor(
@@ -243,13 +250,36 @@ export class ScanTimeBudget {
     this.spentMs += elapsedSeconds * 1000;
   }
 
-  /** Runs one synchronous scan and charges its CPU time to the budget. */
-  measure<T>(scan: () => T): T {
-    const start = this.clock();
+  /** Opens a pass: one CPU clock read, none without a cap. */
+  openPass(): void {
+    this.markSeconds = Number.isFinite(this.capSeconds) ? this.clock() : null;
+  }
+
+  /** Charges the CPU spent since the last mark; a no-op outside a pass. */
+  charge(): void {
+    if (this.markSeconds === null) return;
+    const now = this.clock();
+    this.record(now - this.markSeconds);
+    this.markSeconds = now;
+  }
+
+  /** Restarts the mark after a suspension so the gap is not charged. */
+  restart(): void {
+    if (this.markSeconds !== null) this.markSeconds = this.clock();
+  }
+
+  closePass(): void {
+    this.charge();
+    this.markSeconds = null;
+  }
+
+  /** Awaits work that suspends the pass, charging before and restarting after. */
+  async suspended<T>(work: Promise<T>): Promise<T> {
+    this.charge();
     try {
-      return scan();
+      return await work;
     } finally {
-      this.record(this.clock() - start);
+      this.restart();
     }
   }
 
@@ -262,7 +292,9 @@ export class ScanTimeBudget {
 
   async yieldIfDue(): Promise<void> {
     if (performance.now() - this.sliceStartMs < EVENT_LOOP_SLICE_MS) return;
+    this.charge();
     await yieldToEventLoop();
+    this.restart();
     this.sliceStartMs = performance.now();
   }
 }

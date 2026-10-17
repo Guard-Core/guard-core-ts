@@ -395,6 +395,8 @@ export class EventsCaseRun {
           (drive['slow_pattern_threshold'] as number) ?? 0.1,
           1000,
           1000,
+          60,
+          (drive['min_samples_for_anomaly'] as number) ?? 30,
         );
         for (const sample of (drive['samples'] as Array<Record<string, unknown>>) ?? []) {
           await monitor.recordMetric(

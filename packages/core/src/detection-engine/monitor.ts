@@ -40,22 +40,12 @@ export type PoolEventType = 'quarantined' | 'released';
 
 const MAX_RECENT_TIMES = 100;
 const MAX_PATTERN_LENGTH = 100;
-const MIN_SAMPLES_FOR_STATS = 10;
 
 function mean(values: number[]): number {
   /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
   if (values.length === 0) return 0;
   /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
   return values.reduce((a, b) => a + b, 0) / values.length;
-}
-
-function stdev(values: number[]): number {
-  /* v8 ignore start -- measured-unreachable path, see the coverage PR notes */
-  if (values.length <= 1) return 0;
-  /* v8 ignore stop -- measured-unreachable path, see the coverage PR notes */
-  const avg = mean(values);
-  const squareDiffs = values.map((v) => (v - avg) ** 2);
-  return Math.sqrt(squareDiffs.reduce((a, b) => a + b, 0) / (values.length - 1));
 }
 
 function truncatePattern(pattern: string): string {
@@ -75,6 +65,8 @@ export class PerformanceMonitor {
   private readonly anomalyThreshold: number;
   private readonly slowPatternThreshold: number;
   private readonly historySize: number;
+  private readonly minSamplesForAnomaly: number;
+  private readonly recentTimesWindow: number;
   private readonly maxTrackedPatterns: number;
   /* The reference detection_anomaly_emission_cooldown: minimum seconds
      between anomaly events for the same pattern. */
@@ -91,12 +83,15 @@ export class PerformanceMonitor {
     historySize = 1000,
     maxTrackedPatterns = 1000,
     emissionCooldownSeconds = 60,
+    minSamplesForAnomaly = 30,
   ) {
     this.anomalyThreshold = Math.max(1.0, Math.min(10.0, anomalyThreshold));
     this.slowPatternThreshold = Math.max(0.01, Math.min(10.0, slowPatternThreshold));
     this.historySize = Math.max(100, Math.min(10000, historySize));
     this.maxTrackedPatterns = Math.max(100, Math.min(5000, maxTrackedPatterns));
     this.emissionCooldownSeconds = Math.max(1.0, Math.min(3600.0, emissionCooldownSeconds));
+    this.minSamplesForAnomaly = Math.max(10, Math.min(1000, Math.trunc(minSamplesForAnomaly)));
+    this.recentTimesWindow = Math.max(this.minSamplesForAnomaly, MAX_RECENT_TIMES);
   }
 
   async recordMetric(
@@ -158,7 +153,7 @@ export class PerformanceMonitor {
 
     if (!timeout) {
       stats.recentTimes.push(executionTime);
-      if (stats.recentTimes.length > MAX_RECENT_TIMES) {
+      if (stats.recentTimes.length > this.recentTimesWindow) {
         stats.recentTimes.shift();
       }
       stats.maxExecutionTime = Math.max(stats.maxExecutionTime, executionTime);
@@ -169,6 +164,36 @@ export class PerformanceMonitor {
     }
 
     await this.checkAnomalies(metric, agentHandler, correlationId);
+  }
+
+  private detectStatisticalAnomaly(
+    metric: PerformanceMetric,
+    stats: PatternStats | undefined,
+  ): Record<string, unknown> | null {
+    if (!stats || stats.recentTimes.length < this.minSamplesForAnomaly) return null;
+    const times = stats.recentTimes;
+    const count = times.length;
+    let sum = 0;
+    for (let i = 0; i < count; i++) sum += times[i]!;
+    const avgTime = sum / count;
+    if (this.anomalyThreshold >= 0 && metric.executionTime <= avgTime) return null;
+    let squares = 0;
+    for (let i = 0; i < count; i++) {
+      const diff = times[i]! - avgTime;
+      squares += diff * diff;
+    }
+    const stdTime = Math.sqrt(squares / (count - 1));
+    if (stdTime <= 0) return null;
+    const zScore = (metric.executionTime - avgTime) / stdTime;
+    if (zScore <= this.anomalyThreshold) return null;
+    return {
+      type: 'statistical_anomaly',
+      pattern: metric.pattern,
+      executionTime: metric.executionTime,
+      zScore,
+      avgTime,
+      stdTime,
+    };
   }
 
   private async checkAnomalies(
@@ -194,23 +219,8 @@ export class PerformanceMonitor {
     }
 
     const stats = this.patternStats.get(metric.pattern);
-    if (stats && stats.recentTimes.length >= MIN_SAMPLES_FOR_STATS) {
-      const avgTime = mean(stats.recentTimes);
-      const stdTime = stdev(stats.recentTimes);
-      if (stdTime > 0) {
-        const zScore = (metric.executionTime - avgTime) / stdTime;
-        if (Math.abs(zScore) > this.anomalyThreshold) {
-          anomalies.push({
-            type: 'statistical_anomaly',
-            pattern: metric.pattern,
-            executionTime: metric.executionTime,
-            zScore,
-            avgTime,
-            stdTime,
-          });
-        }
-      }
-    }
+    const statistical = this.detectStatisticalAnomaly(metric, stats);
+    if (statistical) anomalies.push(statistical);
 
     if (agentHandler && anomalies.length > 0) {
       /* The reference emission cooldown: at most one anomaly event batch per
@@ -236,6 +246,8 @@ export class PerformanceMonitor {
         }
       }
     }
+
+    if (this.anomalyCallbacks.length === 0) return;
 
     for (const anomaly of anomalies) {
       const safe: Record<string, unknown> = { ...anomaly };

@@ -349,7 +349,7 @@ export const SecurityConfigSchema = z.object({
   detectionMaxScanValues: z.number().int().positive().default(512),
   detectionMaxScanChars: z.number().int().positive().default(65536),
   detectionMaxJsonDepth: z.number().int().positive().default(32),
-  detectionMinSamplesForAnomaly: z.number().int().positive().default(10),
+  detectionMinSamplesForAnomaly: z.number().int().min(10).max(1000).default(30),
   /* The GeoIP manager surface (reference ipinfo_token / ipinfo_db_path /
      geo_ip_db_max_age): the token authenticates the ipinfo.io download, the
      path is the local MMDB file and the max age is the mtime freshness gate
