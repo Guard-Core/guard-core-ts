@@ -7,7 +7,7 @@ guardcore-ts is the TypeScript implementation of guard-core, the framework-agnos
 
 - Root package: `guardcore-ts` 1.0.0 (private, never published)
 - Published packages: `@guardcore/core`, `@guardcore/express`, `@guardcore/fastify`, `@guardcore/hono`, `@guardcore/nestjs` (all 1.0.0, MIT)
-- Node >= 18 (CI tests 18, 20, and 22), TypeScript ~5.9 in strict mode
+- Node >= 18 (CI tests 18, 20, and 22); `@guardcore/fastify` needs Node >= 20, like fastify v5. TypeScript ~5.9 in strict mode
 - pnpm 10 workspaces (packageManager pnpm@10.25.0) orchestrated by Turborepo
 - Targets ES2022; builds dual ESM + CJS output with tsup
 
@@ -91,7 +91,7 @@ Makefile targets (verified in ./Makefile):
 - `make serve-docs` / `make build-docs` - run the Astro docs site in docs/ (astro dev / astro build)
 - `make stop` / `make restart` - docker compose down / up -d (compose.yml)
 
-CI runs (verified in .github/workflows/ci.yml): pnpm install --frozen-lockfile, pnpm build, pnpm lint on node 22, and pnpm test on a node 18/20/22 matrix with a redis service (REDIS_URL=redis://localhost:6379).
+CI runs (verified in .github/workflows/ci.yml): pnpm install --frozen-lockfile, pnpm build, pnpm lint on node 22, and pnpm test on a node 18/20/22 matrix with a redis service (REDIS_URL=redis://localhost:6379); node 18 skips @guardcore/fastify, which needs node 20+.
 
 ## Project Structure
 
@@ -155,7 +155,7 @@ Toolchain:
 - typescript ~5.9, tsconfig.base.json: target ES2022, module ESNext, moduleResolution bundler, strict, exactOptionalPropertyTypes, declaration + declarationMap, isolatedModules
 - tsup ^8 - dual ESM/CJS builds (dist/index.js, dist/index.cjs, dist/index.d.ts)
 - vitest ^4 + @vitest/coverage-v8 - test runner and coverage
-- Node >= 18 (engines field on every package; CI matrix 18/20/22)
+- Node >= 18 (engines field on every package, >= 20 for @guardcore/fastify; CI matrix 18/20/22)
 
 ## Testing & Conformance
 

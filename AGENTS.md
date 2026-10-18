@@ -7,7 +7,7 @@ guardcore-ts is the TypeScript implementation of guard-core, the framework-agnos
 
 - Root package: `guardcore-ts` 1.0.0 (private, never published)
 - Published packages: `@guardcore/core`, `@guardcore/express`, `@guardcore/fastify`, `@guardcore/hono`, `@guardcore/nestjs` (all 1.0.0, MIT)
-- Node >= 18 (CI tests 18, 20, and 22), TypeScript ~5.9 in strict mode
+- Node >= 18 (CI tests 18, 20, and 22); `@guardcore/fastify` needs Node >= 20, like fastify v5. TypeScript ~5.9 in strict mode
 - pnpm 10 workspaces (packageManager pnpm@10.25.0) orchestrated by Turborepo
 - Targets ES2022; builds dual ESM + CJS output with tsup
 
@@ -99,7 +99,7 @@ docker compose -p guard-core-ts-live-smoke -f examples/express/docker-compose.ym
 ```
 - `make stop` / `make restart` - docker compose down / up -d (compose.yml)
 
-CI runs (verified in .github/workflows/ci.yml): pnpm install --frozen-lockfile, pnpm build, pnpm lint on node 22, and pnpm test on a node 18/20/22 matrix with a redis service (REDIS_URL=redis://localhost:6379). Other Actions: .github/workflows/issue-link.yml enforces a "Closes #N" link (or the no-issue label) on PRs, .github/workflows/live-smoke.yml runs dockerized compose smokes of the Express and advanced examples, and .github/workflows/ecosystem-gate.yml gates the monorepo (turbo build + test + conformance, plus a pnpm pack + install smoke of @guardcore/core into a scratch project).
+CI runs (verified in .github/workflows/ci.yml): pnpm install --frozen-lockfile, pnpm build, pnpm lint on node 22, and pnpm test on a node 18/20/22 matrix with a redis service (REDIS_URL=redis://localhost:6379); node 18 skips @guardcore/fastify, which needs node 20+. Other Actions: .github/workflows/issue-link.yml enforces a "Closes #N" link (or the no-issue label) on PRs, .github/workflows/live-smoke.yml runs dockerized compose smokes of the Express and advanced examples, and .github/workflows/ecosystem-gate.yml gates the monorepo (turbo build + test + conformance, plus a pnpm pack + install smoke of @guardcore/core into a scratch project).
 
 ## Project Structure
 
@@ -163,7 +163,7 @@ Toolchain:
 - typescript ~5.9, tsconfig.base.json: target ES2022, module ESNext, moduleResolution bundler, strict, exactOptionalPropertyTypes, declaration + declarationMap, isolatedModules
 - tsup ^8 - dual ESM/CJS builds (dist/index.js, dist/index.cjs, dist/index.d.ts)
 - vitest ^4 + @vitest/coverage-v8 - test runner and coverage
-- Node >= 18 (engines field on every package; CI matrix 18/20/22)
+- Node >= 18 (engines field on every package, >= 20 for @guardcore/fastify; CI matrix 18/20/22)
 
 ## Testing & Conformance
 
@@ -235,3 +235,14 @@ From tsconfig.base.json and CONTRIBUTING.md (both enforced by CI):
 - guard-core (https://github.com/Guard-Core/guard-core) - the Python engine this repo ports; upstream reference for behavior and patterns
 - In-repo adapters: @guardcore/express, @guardcore/fastify, @guardcore/hono, @guardcore/nestjs (each under packages/ with its own tests and examples/ apps)
 - examples/ contains a runnable app per adapter (express, fastify, hono, nestjs) plus examples/advanced/ (env-driven SecurityConfig, endpointRateLimits with a custom 429 body, admin header gate); each example is a pnpm workspace member with a Dockerfile and docker-compose.yml; adapter middleware does not populate request.state.guardRouteId yet, so per-route SecurityDecorator configs are not resolved through the middleware at runtime
+
+<!-- BEGIN:turborepo-agent-rules -->
+
+# This is NOT the Turborepo you know
+
+Turborepo configuration, task behavior, and CLI commands can vary between installed versions and may differ from your training data. Resolve the `turbo` package from this file's directory or relevant workspace; in monorepos, it may not be visible from the repository root. For example, run `node -p "require.resolve('turbo/package.json')"` from a workspace that depends on `turbo`.
+
+Read `docs/README.md` inside that installed package first, then read the relevant pages from its `docs/` directory before changing Turborepo configuration or commands. Heed deprecation notices. These bundled docs match the installed package version and are available without network access.
+
+This block is written and re-added by `turbo` before repository-scoped commands when an AI agent is detected. In the Turborepo source repository, its template is defined in `crates/turborepo-cli/src/cli/agent_guidance.rs`. Removing the managed block while updates are enabled means a later qualifying invocation will add it again. Set `"agentGuidance": false` in the root `turbo.json` or `turbo.jsonc` to opt out; this does not remove an existing block. Keep the block committed with your work to avoid an uncommitted change on the next agent invocation.
+<!-- END:turborepo-agent-rules -->
