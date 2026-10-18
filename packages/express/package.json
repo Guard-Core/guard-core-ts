@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@guardcore/core": "workspace:^",
-    "guardagent": "^3.2.1"
+    "guardagent": "^3.2.3"
   },
   "devDependencies": {
     "@types/express": "^5",

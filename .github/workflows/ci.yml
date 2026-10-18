@@ -46,7 +46,15 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
-      - run: pnpm test
+      - if: matrix.node-version != 18
+        run: pnpm test
+        env:
+          REDIS_URL: redis://localhost:6379
+      # @guardcore/fastify supports node 20+, like fastify v5 itself: fastify's
+      # inject() loads the ESM-only cookie 2 through require(), which node 18
+      # does not provide.
+      - if: matrix.node-version == 18
+        run: pnpm test --filter='!@guardcore/fastify'
         env:
           REDIS_URL: redis://localhost:6379
       # The coverage gate runs once on the newest node: vitest 5.x coverage

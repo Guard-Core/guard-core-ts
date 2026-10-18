@@ -54,7 +54,7 @@ pnpm test
 
 ### Prerequisites
 
-- Node.js 18+ (22 recommended)
+- Node.js 18+ (22 recommended); `@guardcore/fastify` needs 20+, like fastify v5
 - pnpm 10+
 - Redis (for integration tests)
 
