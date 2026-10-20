@@ -5,7 +5,7 @@ prev: false
 title: "Logger"
 ---
 
-Defined in: [core/src/models/logger.ts:1](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/logger.ts#L1)
+Defined in: [packages/core/src/models/logger.ts:1](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/models/logger.ts#L1)
 
 ## Methods
 
@@ -13,7 +13,7 @@ Defined in: [core/src/models/logger.ts:1](https://github.com/Guard-Core/guard-co
 
 > **debug**(`message`, ...`args`): `void`
 
-Defined in: [core/src/models/logger.ts:5](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/logger.ts#L5)
+Defined in: [packages/core/src/models/logger.ts:5](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/models/logger.ts#L5)
 
 #### Parameters
 
@@ -35,7 +35,7 @@ Defined in: [core/src/models/logger.ts:5](https://github.com/Guard-Core/guard-co
 
 > **error**(`message`, ...`args`): `void`
 
-Defined in: [core/src/models/logger.ts:4](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/logger.ts#L4)
+Defined in: [packages/core/src/models/logger.ts:4](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/models/logger.ts#L4)
 
 #### Parameters
 
@@ -57,7 +57,7 @@ Defined in: [core/src/models/logger.ts:4](https://github.com/Guard-Core/guard-co
 
 > **info**(`message`, ...`args`): `void`
 
-Defined in: [core/src/models/logger.ts:2](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/logger.ts#L2)
+Defined in: [packages/core/src/models/logger.ts:2](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/models/logger.ts#L2)
 
 #### Parameters
 
@@ -79,7 +79,7 @@ Defined in: [core/src/models/logger.ts:2](https://github.com/Guard-Core/guard-co
 
 > **warn**(`message`, ...`args`): `void`
 
-Defined in: [core/src/models/logger.ts:3](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/models/logger.ts#L3)
+Defined in: [packages/core/src/models/logger.ts:3](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/models/logger.ts#L3)
 
 #### Parameters
 

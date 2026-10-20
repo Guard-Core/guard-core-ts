@@ -5,7 +5,7 @@ prev: false
 title: "ExpressResponseFactory"
 ---
 
-Defined in: [express/src/adapters.ts:50](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L50)
+Defined in: [packages/express/src/adapters.ts:91](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/express/src/adapters.ts#L91)
 
 ## Implements
 
@@ -27,7 +27,7 @@ Defined in: [express/src/adapters.ts:50](https://github.com/Guard-Core/guard-cor
 
 > **createRedirectResponse**(`url`, `statusCode`): [`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/)
 
-Defined in: [express/src/adapters.ts:55](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L55)
+Defined in: [packages/express/src/adapters.ts:96](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/express/src/adapters.ts#L96)
 
 #### Parameters
 
@@ -53,7 +53,7 @@ Defined in: [express/src/adapters.ts:55](https://github.com/Guard-Core/guard-cor
 
 > **createResponse**(`content`, `statusCode`): [`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/)
 
-Defined in: [express/src/adapters.ts:51](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/express/src/adapters.ts#L51)
+Defined in: [packages/express/src/adapters.ts:92](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/express/src/adapters.ts#L92)
 
 #### Parameters
 

@@ -5,7 +5,7 @@ prev: false
 title: "RedisHandlerProtocol"
 ---
 
-Defined in: [core/src/protocols/redis.ts:1](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/redis.ts#L1)
+Defined in: [packages/core/src/protocols/redis.ts:1](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/redis.ts#L1)
 
 ## Methods
 
@@ -13,7 +13,7 @@ Defined in: [core/src/protocols/redis.ts:1](https://github.com/Guard-Core/guard-
 
 > **delete**(`namespace`, `key`): `Promise`\<`number` \| `null`\>
 
-Defined in: [core/src/protocols/redis.ts:4](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/redis.ts#L4)
+Defined in: [packages/core/src/protocols/redis.ts:4](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/redis.ts#L4)
 
 #### Parameters
 
@@ -35,7 +35,7 @@ Defined in: [core/src/protocols/redis.ts:4](https://github.com/Guard-Core/guard-
 
 > **getConnection**(): `AsyncDisposable`
 
-Defined in: [core/src/protocols/redis.ts:7](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/redis.ts#L7)
+Defined in: [packages/core/src/protocols/redis.ts:7](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/redis.ts#L7)
 
 #### Returns
 
@@ -47,7 +47,7 @@ Defined in: [core/src/protocols/redis.ts:7](https://github.com/Guard-Core/guard-
 
 > **getKey**(`namespace`, `key`): `Promise`\<`unknown`\>
 
-Defined in: [core/src/protocols/redis.ts:2](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/redis.ts#L2)
+Defined in: [packages/core/src/protocols/redis.ts:2](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/redis.ts#L2)
 
 #### Parameters
 
@@ -69,7 +69,7 @@ Defined in: [core/src/protocols/redis.ts:2](https://github.com/Guard-Core/guard-
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [core/src/protocols/redis.ts:6](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/redis.ts#L6)
+Defined in: [packages/core/src/protocols/redis.ts:6](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/redis.ts#L6)
 
 #### Returns
 
@@ -81,7 +81,7 @@ Defined in: [core/src/protocols/redis.ts:6](https://github.com/Guard-Core/guard-
 
 > **keys**(`pattern`): `Promise`\<`string`[] \| `null`\>
 
-Defined in: [core/src/protocols/redis.ts:5](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/redis.ts#L5)
+Defined in: [packages/core/src/protocols/redis.ts:5](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/redis.ts#L5)
 
 #### Parameters
 
@@ -99,7 +99,7 @@ Defined in: [core/src/protocols/redis.ts:5](https://github.com/Guard-Core/guard-
 
 > **setKey**(`namespace`, `key`, `value`, `ttl?`): `Promise`\<`boolean` \| `null`\>
 
-Defined in: [core/src/protocols/redis.ts:3](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/redis.ts#L3)
+Defined in: [packages/core/src/protocols/redis.ts:3](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/redis.ts#L3)
 
 #### Parameters
 

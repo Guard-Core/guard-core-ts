@@ -5,7 +5,7 @@ prev: false
 title: "GeoIPHandler"
 ---
 
-Defined in: [core/src/protocols/geo-ip.ts:4](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/geo-ip.ts#L4)
+Defined in: [packages/core/src/protocols/geo-ip.ts:4](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/geo-ip.ts#L4)
 
 ## Properties
 
@@ -13,15 +13,29 @@ Defined in: [core/src/protocols/geo-ip.ts:4](https://github.com/Guard-Core/guard
 
 > `readonly` **isInitialized**: `boolean`
 
-Defined in: [core/src/protocols/geo-ip.ts:5](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/geo-ip.ts#L5)
+Defined in: [packages/core/src/protocols/geo-ip.ts:5](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/geo-ip.ts#L5)
 
 ## Methods
+
+### close()
+
+> **close**(): `void`
+
+Defined in: [packages/core/src/protocols/geo-ip.ts:13](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/geo-ip.ts#L13)
+
+The reference close: release the reader.
+
+#### Returns
+
+`void`
+
+***
 
 ### getCountry()
 
 > **getCountry**(`ip`): `string` \| `null`
 
-Defined in: [core/src/protocols/geo-ip.ts:9](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/geo-ip.ts#L9)
+Defined in: [packages/core/src/protocols/geo-ip.ts:9](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/geo-ip.ts#L9)
 
 #### Parameters
 
@@ -39,7 +53,7 @@ Defined in: [core/src/protocols/geo-ip.ts:9](https://github.com/Guard-Core/guard
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [core/src/protocols/geo-ip.ts:6](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/geo-ip.ts#L6)
+Defined in: [packages/core/src/protocols/geo-ip.ts:6](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/geo-ip.ts#L6)
 
 #### Returns
 
@@ -51,7 +65,7 @@ Defined in: [core/src/protocols/geo-ip.ts:6](https://github.com/Guard-Core/guard
 
 > **initializeAgent**(`agentHandler`): `Promise`\<`void`\>
 
-Defined in: [core/src/protocols/geo-ip.ts:8](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/geo-ip.ts#L8)
+Defined in: [packages/core/src/protocols/geo-ip.ts:8](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/geo-ip.ts#L8)
 
 #### Parameters
 
@@ -69,13 +83,27 @@ Defined in: [core/src/protocols/geo-ip.ts:8](https://github.com/Guard-Core/guard
 
 > **initializeRedis**(`redisHandler`): `Promise`\<`void`\>
 
-Defined in: [core/src/protocols/geo-ip.ts:7](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/geo-ip.ts#L7)
+Defined in: [packages/core/src/protocols/geo-ip.ts:7](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/geo-ip.ts#L7)
 
 #### Parameters
 
 ##### redisHandler
 
 [`RedisHandlerProtocol`](/guard-core-ts/api/core/src/interfaces/redishandlerprotocol/)
+
+#### Returns
+
+`Promise`\<`void`\>
+
+***
+
+### refresh()
+
+> **refresh**(): `Promise`\<`void`\>
+
+Defined in: [packages/core/src/protocols/geo-ip.ts:11](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/geo-ip.ts#L11)
+
+The reference refresh: re-download and swap the reader.
 
 #### Returns
 

@@ -5,7 +5,7 @@ prev: false
 title: "HonoResponseFactory"
 ---
 
-Defined in: [hono/src/adapters.ts:40](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/hono/src/adapters.ts#L40)
+Defined in: [packages/hono/src/adapters.ts:43](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/hono/src/adapters.ts#L43)
 
 ## Implements
 
@@ -27,7 +27,7 @@ Defined in: [hono/src/adapters.ts:40](https://github.com/Guard-Core/guard-core-t
 
 > **createRedirectResponse**(`url`, `statusCode`): [`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/)
 
-Defined in: [hono/src/adapters.ts:45](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/hono/src/adapters.ts#L45)
+Defined in: [packages/hono/src/adapters.ts:48](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/hono/src/adapters.ts#L48)
 
 #### Parameters
 
@@ -53,7 +53,7 @@ Defined in: [hono/src/adapters.ts:45](https://github.com/Guard-Core/guard-core-t
 
 > **createResponse**(`content`, `statusCode`): [`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/)
 
-Defined in: [hono/src/adapters.ts:41](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/hono/src/adapters.ts#L41)
+Defined in: [packages/hono/src/adapters.ts:44](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/hono/src/adapters.ts#L44)
 
 #### Parameters
 

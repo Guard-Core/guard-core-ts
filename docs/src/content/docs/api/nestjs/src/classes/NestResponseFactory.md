@@ -5,7 +5,7 @@ prev: false
 title: "NestResponseFactory"
 ---
 
-Defined in: [nestjs/src/adapters.ts:42](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L42)
+Defined in: [packages/nestjs/src/adapters.ts:81](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/nestjs/src/adapters.ts#L81)
 
 ## Implements
 
@@ -27,7 +27,7 @@ Defined in: [nestjs/src/adapters.ts:42](https://github.com/Guard-Core/guard-core
 
 > **createRedirectResponse**(`url`, `statusCode`): [`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/)
 
-Defined in: [nestjs/src/adapters.ts:47](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L47)
+Defined in: [packages/nestjs/src/adapters.ts:86](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/nestjs/src/adapters.ts#L86)
 
 #### Parameters
 
@@ -53,7 +53,7 @@ Defined in: [nestjs/src/adapters.ts:47](https://github.com/Guard-Core/guard-core
 
 > **createResponse**(`content`, `statusCode`): [`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/)
 
-Defined in: [nestjs/src/adapters.ts:43](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L43)
+Defined in: [packages/nestjs/src/adapters.ts:82](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/nestjs/src/adapters.ts#L82)
 
 #### Parameters
 

@@ -5,7 +5,7 @@ prev: false
 title: "FastifyGuardResponse"
 ---
 
-Defined in: [fastify/src/adapters.ts:28](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L28)
+Defined in: [packages/fastify/src/adapters.ts:68](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/fastify/src/adapters.ts#L68)
 
 ## Implements
 
@@ -17,7 +17,7 @@ Defined in: [fastify/src/adapters.ts:28](https://github.com/Guard-Core/guard-cor
 
 > **new FastifyGuardResponse**(`statusCode`, `content`): `FastifyGuardResponse`
 
-Defined in: [fastify/src/adapters.ts:32](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L32)
+Defined in: [packages/fastify/src/adapters.ts:72](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/fastify/src/adapters.ts#L72)
 
 #### Parameters
 
@@ -39,7 +39,7 @@ Defined in: [fastify/src/adapters.ts:32](https://github.com/Guard-Core/guard-cor
 
 > `readonly` **statusCode**: `number`
 
-Defined in: [fastify/src/adapters.ts:32](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L32)
+Defined in: [packages/fastify/src/adapters.ts:72](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/fastify/src/adapters.ts#L72)
 
 #### Implementation of
 
@@ -53,7 +53,7 @@ Defined in: [fastify/src/adapters.ts:32](https://github.com/Guard-Core/guard-cor
 
 > **get** **body**(): `Uint8Array`\<`ArrayBufferLike`\> \| `null`
 
-Defined in: [fastify/src/adapters.ts:39](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L39)
+Defined in: [packages/fastify/src/adapters.ts:82](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/fastify/src/adapters.ts#L82)
 
 ##### Returns
 
@@ -71,7 +71,7 @@ Defined in: [fastify/src/adapters.ts:39](https://github.com/Guard-Core/guard-cor
 
 > **get** **bodyText**(): `string` \| `null`
 
-Defined in: [fastify/src/adapters.ts:40](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L40)
+Defined in: [packages/fastify/src/adapters.ts:83](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/fastify/src/adapters.ts#L83)
 
 ##### Returns
 
@@ -89,7 +89,7 @@ Defined in: [fastify/src/adapters.ts:40](https://github.com/Guard-Core/guard-cor
 
 > **get** **headers**(): `Record`\<`string`, `string`\>
 
-Defined in: [fastify/src/adapters.ts:37](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L37)
+Defined in: [packages/fastify/src/adapters.ts:80](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/fastify/src/adapters.ts#L80)
 
 ##### Returns
 
@@ -105,7 +105,7 @@ Defined in: [fastify/src/adapters.ts:37](https://github.com/Guard-Core/guard-cor
 
 > **setHeader**(`name`, `value`): `void`
 
-Defined in: [fastify/src/adapters.ts:38](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/adapters.ts#L38)
+Defined in: [packages/fastify/src/adapters.ts:81](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/fastify/src/adapters.ts#L81)
 
 #### Parameters
 

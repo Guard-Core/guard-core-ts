@@ -5,15 +5,15 @@ prev: false
 title: "ContentPreprocessor"
 ---
 
-Defined in: [core/src/detection-engine/preprocessor.ts:52](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/preprocessor.ts#L52)
+Defined in: [packages/core/src/detection-engine/preprocessor.ts:106](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/preprocessor.ts#L106)
 
 ## Constructors
 
 ### Constructor
 
-> **new ContentPreprocessor**(`maxContentLength?`, `preserveAttackPatterns?`): `ContentPreprocessor`
+> **new ContentPreprocessor**(`maxContentLength?`, `preserveAttackPatterns?`, `maxFullScanBytes?`): `ContentPreprocessor`
 
-Defined in: [core/src/detection-engine/preprocessor.ts:56](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/preprocessor.ts#L56)
+Defined in: [packages/core/src/detection-engine/preprocessor.ts:114](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/preprocessor.ts#L114)
 
 #### Parameters
 
@@ -25,17 +25,53 @@ Defined in: [core/src/detection-engine/preprocessor.ts:56](https://github.com/Gu
 
 `boolean` = `true`
 
+##### maxFullScanBytes?
+
+`number` \| `null`
+
 #### Returns
 
 `ContentPreprocessor`
+
+## Properties
+
+### compiledIndicators
+
+> `readonly` **compiledIndicators**: `RegExp`[]
+
+Defined in: [packages/core/src/detection-engine/preprocessor.ts:110](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/preprocessor.ts#L110)
+
+***
+
+### maxContentLength
+
+> `readonly` **maxContentLength**: `number`
+
+Defined in: [packages/core/src/detection-engine/preprocessor.ts:107](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/preprocessor.ts#L107)
+
+***
+
+### maxFullScanBytes
+
+> `readonly` **maxFullScanBytes**: `number`
+
+Defined in: [packages/core/src/detection-engine/preprocessor.ts:109](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/preprocessor.ts#L109)
+
+***
+
+### preserveAttackPatterns
+
+> `readonly` **preserveAttackPatterns**: `boolean`
+
+Defined in: [packages/core/src/detection-engine/preprocessor.ts:108](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/preprocessor.ts#L108)
 
 ## Methods
 
 ### decodeCommonEncodings()
 
-> **decodeCommonEncodings**(`content`): `string`
+> **decodeCommonEncodings**(`content`, `decodeBudgetExhausted?`): `Promise`\<`string`\>
 
-Defined in: [core/src/detection-engine/preprocessor.ts:77](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/preprocessor.ts#L77)
+Defined in: [packages/core/src/detection-engine/preprocessor.ts:232](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/preprocessor.ts#L232)
 
 #### Parameters
 
@@ -43,9 +79,15 @@ Defined in: [core/src/detection-engine/preprocessor.ts:77](https://github.com/Gu
 
 `string`
 
+##### decodeBudgetExhausted?
+
+###### value
+
+`boolean`
+
 #### Returns
 
-`string`
+`Promise`\<`string`\>
 
 ***
 
@@ -53,7 +95,7 @@ Defined in: [core/src/detection-engine/preprocessor.ts:77](https://github.com/Gu
 
 > **extractAttackRegions**(`content`): \[`number`, `number`\][]
 
-Defined in: [core/src/detection-engine/preprocessor.ts:126](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/preprocessor.ts#L126)
+Defined in: [packages/core/src/detection-engine/preprocessor.ts:181](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/preprocessor.ts#L181)
 
 #### Parameters
 
@@ -71,7 +113,7 @@ Defined in: [core/src/detection-engine/preprocessor.ts:126](https://github.com/G
 
 > **normalizeUnicode**(`content`): `string`
 
-Defined in: [core/src/detection-engine/preprocessor.ts:61](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/preprocessor.ts#L61)
+Defined in: [packages/core/src/detection-engine/preprocessor.ts:162](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/preprocessor.ts#L162)
 
 #### Parameters
 
@@ -87,15 +129,21 @@ Defined in: [core/src/detection-engine/preprocessor.ts:61](https://github.com/Gu
 
 ### preprocess()
 
-> **preprocess**(`content`): `Promise`\<`string`\>
+> **preprocess**(`content`, `decodeBudgetExhausted?`): `Promise`\<`string`\>
 
-Defined in: [core/src/detection-engine/preprocessor.ts:205](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/preprocessor.ts#L205)
+Defined in: [packages/core/src/detection-engine/preprocessor.ts:297](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/preprocessor.ts#L297)
 
 #### Parameters
 
 ##### content
 
 `string`
+
+##### decodeBudgetExhausted?
+
+###### value
+
+`boolean`
 
 #### Returns
 
@@ -107,7 +155,7 @@ Defined in: [core/src/detection-engine/preprocessor.ts:205](https://github.com/G
 
 > **preprocessBatch**(`contents`): `Promise`\<`string`[]\>
 
-Defined in: [core/src/detection-engine/preprocessor.ts:217](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/preprocessor.ts#L217)
+Defined in: [packages/core/src/detection-engine/preprocessor.ts:328](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/preprocessor.ts#L328)
 
 #### Parameters
 
@@ -121,11 +169,95 @@ Defined in: [core/src/detection-engine/preprocessor.ts:217](https://github.com/G
 
 ***
 
+### preprocessShortBase64AdditiveView()
+
+> **preprocessShortBase64AdditiveView**(`content`): `string`
+
+Defined in: [packages/core/src/detection-engine/preprocessor.ts:324](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/preprocessor.ts#L324)
+
+#### Parameters
+
+##### content
+
+`string`
+
+#### Returns
+
+`string`
+
+***
+
+### preprocessSignalPreserving()
+
+> **preprocessSignalPreserving**(`content`): `string`
+
+Defined in: [packages/core/src/detection-engine/preprocessor.ts:302](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/preprocessor.ts#L302)
+
+#### Parameters
+
+##### content
+
+`string`
+
+#### Returns
+
+`string`
+
+***
+
+### preprocessUrlDecodedNewlinePreserving()
+
+> **preprocessUrlDecodedNewlinePreserving**(`content`, `decodeBudgetExhausted?`): `Promise`\<`string`\>
+
+Defined in: [packages/core/src/detection-engine/preprocessor.ts:308](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/preprocessor.ts#L308)
+
+#### Parameters
+
+##### content
+
+`string`
+
+##### decodeBudgetExhausted?
+
+###### value
+
+`boolean`
+
+#### Returns
+
+`Promise`\<`string`\>
+
+***
+
+### preprocessWithDecoded()
+
+> **preprocessWithDecoded**(`content`, `decodeBudgetExhausted?`): `Promise`\<\[`string`, `string`\]\>
+
+Defined in: [packages/core/src/detection-engine/preprocessor.ts:282](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/preprocessor.ts#L282)
+
+#### Parameters
+
+##### content
+
+`string`
+
+##### decodeBudgetExhausted?
+
+###### value
+
+`boolean`
+
+#### Returns
+
+`Promise`\<\[`string`, `string`\]\>
+
+***
+
 ### removeExcessiveWhitespace()
 
 > **removeExcessiveWhitespace**(`content`): `string`
 
-Defined in: [core/src/detection-engine/preprocessor.ts:73](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/preprocessor.ts#L73)
+Defined in: [packages/core/src/detection-engine/preprocessor.ts:174](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/preprocessor.ts#L174)
 
 #### Parameters
 
@@ -143,7 +275,47 @@ Defined in: [core/src/detection-engine/preprocessor.ts:73](https://github.com/Gu
 
 > **removeNullBytes**(`content`): `string`
 
-Defined in: [core/src/detection-engine/preprocessor.ts:69](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/preprocessor.ts#L69)
+Defined in: [packages/core/src/detection-engine/preprocessor.ts:170](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/preprocessor.ts#L170)
+
+#### Parameters
+
+##### content
+
+`string`
+
+#### Returns
+
+`string`
+
+***
+
+### setAgentHandler()
+
+> **setAgentHandler**(`agentHandler`, `correlationId?`): `void`
+
+Defined in: [packages/core/src/detection-engine/preprocessor.ts:128](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/preprocessor.ts#L128)
+
+#### Parameters
+
+##### agentHandler
+
+[`AgentHandlerProtocol`](/guard-core-ts/api/core/src/interfaces/agenthandlerprotocol/)
+
+##### correlationId?
+
+`string` \| `null`
+
+#### Returns
+
+`void`
+
+***
+
+### stripSqlComments()
+
+> **stripSqlComments**(`content`): `string`
+
+Defined in: [packages/core/src/detection-engine/preprocessor.ts:223](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/preprocessor.ts#L223)
 
 #### Parameters
 
@@ -161,7 +333,7 @@ Defined in: [core/src/detection-engine/preprocessor.ts:69](https://github.com/Gu
 
 > **truncateSafely**(`content`): `string`
 
-Defined in: [core/src/detection-engine/preprocessor.ts:162](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/preprocessor.ts#L162)
+Defined in: [packages/core/src/detection-engine/preprocessor.ts:201](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/preprocessor.ts#L201)
 
 #### Parameters
 

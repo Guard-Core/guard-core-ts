@@ -5,9 +5,9 @@ prev: false
 title: "guardPlugin"
 ---
 
-> **guardPlugin**(`fastify`, `options`): `Promise`\<`void`\>
+> `const` **guardPlugin**: (`fastify`, `options`) => `Promise`\<`void`\>
 
-Defined in: [fastify/src/plugin.ts:22](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/plugin.ts#L22)
+Defined in: [packages/fastify/src/plugin.ts:77](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/fastify/src/plugin.ts#L77)
 
 ## Parameters
 
