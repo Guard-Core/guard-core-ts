@@ -37,6 +37,7 @@
   "peerDependencies": {
     "hono": "^4"
   },
+  "author": "Renzo Franceschini <rennf93@guard-core.com>",
   "license": "MIT",
   "repository": {
     "type": "git",

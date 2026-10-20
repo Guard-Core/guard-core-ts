@@ -2,13 +2,12 @@
 
 ## Supported Versions
 
-| Package | Version | Supported |
-| --- | --- | --- |
-| @guardcore/core | 0.x | :white_check_mark: |
-| @guardcore/express | 0.x | :white_check_mark: |
-| @guardcore/fastify | 0.x | :white_check_mark: |
-| @guardcore/nestjs | 0.x | :white_check_mark: |
-| @guardcore/hono | 0.x | :white_check_mark: |
+All `@guardcore/*` packages share one version.
+
+| Version | Supported |
+| ------- | --------- |
+| 4.x | :white_check_mark: bug and security fixes |
+| < 4.0 | :x: |
 
 ## Reporting a Vulnerability
 
@@ -76,7 +75,7 @@ When deploying applications using @guardcore packages:
 
 ## Responsible Disclosure
 
-We follow a responsible disclosure process:
+I follow a responsible disclosure process:
 
 1. Reporter submits vulnerability via GitHub Security Advisory
 2. Maintainer acknowledges within 48 hours
@@ -85,7 +84,7 @@ We follow a responsible disclosure process:
 5. Security advisory is published with the fix release
 6. Reporter is credited (unless they prefer anonymity)
 
-We kindly ask that you:
+I ask that you:
 
 - Allow reasonable time for the vulnerability to be fixed before public disclosure
 - Make a good faith effort to avoid privacy violations, data destruction, or service disruption

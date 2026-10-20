@@ -1,8 +1,11 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Documentation
-    url: https://github.com/Guard-Core/guard-core-ts
-    about: Read the documentation and README
+  - name: Guard Core TS Documentation
+    url: https://guard-core.github.io/guard-core-ts/
+    about: Check the documentation for usage information and tutorials
   - name: Usage Questions
     url: https://github.com/Guard-Core/guard-core-ts/discussions
-    about: Ask usage questions in GitHub Discussions
+    about: Please ask and answer questions in GitHub Discussions
+  - name: Discord
+    url: https://discord.gg/ZW7ZJbjMkK
+    about: Questions and support in #help, new versions in #releases, development stream in #dev-feed
