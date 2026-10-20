@@ -12,7 +12,8 @@
   },
   "devDependencies": {
     "turbo": "^2",
-    "typescript": "~5.9"
+    "typescript": "~5.9",
+    "vite": "^7.3.7"
   },
   "packageManager": "pnpm@10.25.0"
 }
