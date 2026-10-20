@@ -44,6 +44,7 @@
       "optional": true
     }
   },
+  "author": "Renzo Franceschini <rennf93@guard-core.com>",
   "license": "MIT",
   "engines": {
     "node": ">=18"
