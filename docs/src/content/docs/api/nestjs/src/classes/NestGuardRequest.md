@@ -5,7 +5,7 @@ prev: false
 title: "NestGuardRequest"
 ---
 
-Defined in: [nestjs/src/adapters.ts:4](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L4)
+Defined in: [packages/nestjs/src/adapters.ts:31](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/nestjs/src/adapters.ts#L31)
 
 ## Implements
 
@@ -17,7 +17,7 @@ Defined in: [nestjs/src/adapters.ts:4](https://github.com/Guard-Core/guard-core-
 
 > **new NestGuardRequest**(`req`): `NestGuardRequest`
 
-Defined in: [nestjs/src/adapters.ts:7](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L7)
+Defined in: [packages/nestjs/src/adapters.ts:36](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/nestjs/src/adapters.ts#L36)
 
 #### Parameters
 
@@ -37,7 +37,7 @@ Defined in: [nestjs/src/adapters.ts:7](https://github.com/Guard-Core/guard-core-
 
 > **get** **clientHost**(): `string` \| `null`
 
-Defined in: [nestjs/src/adapters.ts:14](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L14)
+Defined in: [packages/nestjs/src/adapters.ts:46](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/nestjs/src/adapters.ts#L46)
 
 ##### Returns
 
@@ -55,7 +55,7 @@ Defined in: [nestjs/src/adapters.ts:14](https://github.com/Guard-Core/guard-core
 
 > **get** **headers**(): `Readonly`\<`Record`\<`string`, `string`\>\>
 
-Defined in: [nestjs/src/adapters.ts:15](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L15)
+Defined in: [packages/nestjs/src/adapters.ts:47](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/nestjs/src/adapters.ts#L47)
 
 ##### Returns
 
@@ -73,7 +73,7 @@ Defined in: [nestjs/src/adapters.ts:15](https://github.com/Guard-Core/guard-core
 
 > **get** **method**(): `string`
 
-Defined in: [nestjs/src/adapters.ts:13](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L13)
+Defined in: [packages/nestjs/src/adapters.ts:45](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/nestjs/src/adapters.ts#L45)
 
 ##### Returns
 
@@ -91,7 +91,7 @@ Defined in: [nestjs/src/adapters.ts:13](https://github.com/Guard-Core/guard-core
 
 > **get** **queryParams**(): `Readonly`\<`Record`\<`string`, `string`\>\>
 
-Defined in: [nestjs/src/adapters.ts:16](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L16)
+Defined in: [packages/nestjs/src/adapters.ts:48](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/nestjs/src/adapters.ts#L48)
 
 ##### Returns
 
@@ -109,7 +109,7 @@ Defined in: [nestjs/src/adapters.ts:16](https://github.com/Guard-Core/guard-core
 
 > **get** **scope**(): `Readonly`\<`Record`\<`string`, `unknown`\>\>
 
-Defined in: [nestjs/src/adapters.ts:24](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L24)
+Defined in: [packages/nestjs/src/adapters.ts:60](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/nestjs/src/adapters.ts#L60)
 
 ##### Returns
 
@@ -127,7 +127,7 @@ Defined in: [nestjs/src/adapters.ts:24](https://github.com/Guard-Core/guard-core
 
 > **get** **state**(): [`GuardRequestState`](/guard-core-ts/api/core/src/interfaces/guardrequeststate/)
 
-Defined in: [nestjs/src/adapters.ts:23](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L23)
+Defined in: [packages/nestjs/src/adapters.ts:59](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/nestjs/src/adapters.ts#L59)
 
 ##### Returns
 
@@ -145,7 +145,7 @@ Defined in: [nestjs/src/adapters.ts:23](https://github.com/Guard-Core/guard-core
 
 > **get** **urlFull**(): `string`
 
-Defined in: [nestjs/src/adapters.ts:11](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L11)
+Defined in: [packages/nestjs/src/adapters.ts:43](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/nestjs/src/adapters.ts#L43)
 
 ##### Returns
 
@@ -163,7 +163,7 @@ Defined in: [nestjs/src/adapters.ts:11](https://github.com/Guard-Core/guard-core
 
 > **get** **urlPath**(): `string`
 
-Defined in: [nestjs/src/adapters.ts:9](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L9)
+Defined in: [packages/nestjs/src/adapters.ts:41](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/nestjs/src/adapters.ts#L41)
 
 ##### Returns
 
@@ -181,7 +181,7 @@ Defined in: [nestjs/src/adapters.ts:9](https://github.com/Guard-Core/guard-core-
 
 > **get** **urlScheme**(): `string`
 
-Defined in: [nestjs/src/adapters.ts:10](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L10)
+Defined in: [packages/nestjs/src/adapters.ts:42](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/nestjs/src/adapters.ts#L42)
 
 ##### Returns
 
@@ -197,7 +197,7 @@ Defined in: [nestjs/src/adapters.ts:10](https://github.com/Guard-Core/guard-core
 
 > **body**(): `Promise`\<`Uint8Array`\<`ArrayBufferLike`\>\>
 
-Defined in: [nestjs/src/adapters.ts:17](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L17)
+Defined in: [packages/nestjs/src/adapters.ts:49](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/nestjs/src/adapters.ts#L49)
 
 #### Returns
 
@@ -213,7 +213,7 @@ Defined in: [nestjs/src/adapters.ts:17](https://github.com/Guard-Core/guard-core
 
 > **urlReplaceScheme**(`scheme`): `string`
 
-Defined in: [nestjs/src/adapters.ts:12](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/adapters.ts#L12)
+Defined in: [packages/nestjs/src/adapters.ts:44](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/nestjs/src/adapters.ts#L44)
 
 #### Parameters
 

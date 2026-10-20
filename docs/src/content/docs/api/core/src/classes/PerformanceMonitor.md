@@ -5,15 +5,15 @@ prev: false
 title: "PerformanceMonitor"
 ---
 
-Defined in: [core/src/detection-engine/monitor.ts:68](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L68)
+Defined in: [packages/core/src/detection-engine/monitor.ts:64](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/monitor.ts#L64)
 
 ## Constructors
 
 ### Constructor
 
-> **new PerformanceMonitor**(`anomalyThreshold?`, `slowPatternThreshold?`, `historySize?`, `maxTrackedPatterns?`): `PerformanceMonitor`
+> **new PerformanceMonitor**(`anomalyThreshold?`, `slowPatternThreshold?`, `historySize?`, `maxTrackedPatterns?`, `emissionCooldownSeconds?`, `minSamplesForAnomaly?`): `PerformanceMonitor`
 
-Defined in: [core/src/detection-engine/monitor.ts:78](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L78)
+Defined in: [packages/core/src/detection-engine/monitor.ts:80](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/monitor.ts#L80)
 
 #### Parameters
 
@@ -33,6 +33,14 @@ Defined in: [core/src/detection-engine/monitor.ts:78](https://github.com/Guard-C
 
 `number` = `1000`
 
+##### emissionCooldownSeconds?
+
+`number` = `60`
+
+##### minSamplesForAnomaly?
+
+`number` = `30`
+
 #### Returns
 
 `PerformanceMonitor`
@@ -43,7 +51,7 @@ Defined in: [core/src/detection-engine/monitor.ts:78](https://github.com/Guard-C
 
 > **clearStats**(): `Promise`\<`void`\>
 
-Defined in: [core/src/detection-engine/monitor.ts:323](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L323)
+Defined in: [packages/core/src/detection-engine/monitor.ts:433](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/monitor.ts#L433)
 
 #### Returns
 
@@ -55,7 +63,7 @@ Defined in: [core/src/detection-engine/monitor.ts:323](https://github.com/Guard-
 
 > **getPatternReport**(`pattern`): [`PatternReport`](/guard-core-ts/api/core/src/interfaces/patternreport/) \| `null`
 
-Defined in: [core/src/detection-engine/monitor.ts:232](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L232)
+Defined in: [packages/core/src/detection-engine/monitor.ts:334](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/monitor.ts#L334)
 
 #### Parameters
 
@@ -73,7 +81,7 @@ Defined in: [core/src/detection-engine/monitor.ts:232](https://github.com/Guard-
 
 > **getProblematicPatterns**(): [`PatternReport`](/guard-core-ts/api/core/src/interfaces/patternreport/)[]
 
-Defined in: [core/src/detection-engine/monitor.ts:271](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L271)
+Defined in: [packages/core/src/detection-engine/monitor.ts:373](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/monitor.ts#L373)
 
 #### Returns
 
@@ -85,7 +93,7 @@ Defined in: [core/src/detection-engine/monitor.ts:271](https://github.com/Guard-
 
 > **getSlowPatterns**(`limit?`): [`PatternReport`](/guard-core-ts/api/core/src/interfaces/patternreport/)[]
 
-Defined in: [core/src/detection-engine/monitor.ts:257](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L257)
+Defined in: [packages/core/src/detection-engine/monitor.ts:359](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/monitor.ts#L359)
 
 #### Parameters
 
@@ -103,7 +111,7 @@ Defined in: [core/src/detection-engine/monitor.ts:257](https://github.com/Guard-
 
 > **getSummaryStats**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [core/src/detection-engine/monitor.ts:296](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L296)
+Defined in: [packages/core/src/detection-engine/monitor.ts:400](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/monitor.ts#L400)
 
 #### Returns
 
@@ -115,7 +123,7 @@ Defined in: [core/src/detection-engine/monitor.ts:296](https://github.com/Guard-
 
 > **recordMetric**(`pattern`, `executionTime`, `contentLength`, `matched`, `timeout?`, `agentHandler?`, `correlationId?`): `Promise`\<`void`\>
 
-Defined in: [core/src/detection-engine/monitor.ts:90](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L90)
+Defined in: [packages/core/src/detection-engine/monitor.ts:97](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/monitor.ts#L97)
 
 #### Parameters
 
@@ -153,11 +161,48 @@ Defined in: [core/src/detection-engine/monitor.ts:90](https://github.com/Guard-C
 
 ***
 
+### recordPoolEvent()
+
+> **recordPoolEvent**(`type`, `pattern`, `agentHandler?`, `correlationId?`): `Promise`\<`void`\>
+
+Defined in: [packages/core/src/detection-engine/monitor.ts:300](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/monitor.ts#L300)
+
+Scan-pool lifecycle events from the native-regex deadline machinery
+(scan-pool.ts): quarantine replaces the reference's consecutive-timeout
+pool swap, release re-admits the pattern once its cooldown elapses.
+Emission mirrors the anomaly path: agent event plus sanitized callback
+data (pattern redacted to 50 chars plus an 8-char hash), and a failing
+callback or agent handler never propagates.
+
+#### Parameters
+
+##### type
+
+`PoolEventType`
+
+##### pattern
+
+`string`
+
+##### agentHandler?
+
+[`AgentHandlerProtocol`](/guard-core-ts/api/core/src/interfaces/agenthandlerprotocol/) \| `null`
+
+##### correlationId?
+
+`string` \| `null`
+
+#### Returns
+
+`Promise`\<`void`\>
+
+***
+
 ### registerAnomalyCallback()
 
 > **registerAnomalyCallback**(`callback`): `void`
 
-Defined in: [core/src/detection-engine/monitor.ts:319](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L319)
+Defined in: [packages/core/src/detection-engine/monitor.ts:429](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/monitor.ts#L429)
 
 #### Parameters
 
@@ -175,7 +220,7 @@ Defined in: [core/src/detection-engine/monitor.ts:319](https://github.com/Guard-
 
 > **removePatternStats**(`pattern`): `Promise`\<`void`\>
 
-Defined in: [core/src/detection-engine/monitor.ts:328](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/monitor.ts#L328)
+Defined in: [packages/core/src/detection-engine/monitor.ts:438](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/monitor.ts#L438)
 
 #### Parameters
 

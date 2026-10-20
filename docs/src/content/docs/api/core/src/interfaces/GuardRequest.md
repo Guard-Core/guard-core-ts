@@ -5,7 +5,7 @@ prev: false
 title: "GuardRequest"
 ---
 
-Defined in: [core/src/protocols/request.ts:8](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/request.ts#L8)
+Defined in: [packages/core/src/protocols/request.ts:14](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/request.ts#L14)
 
 ## Properties
 
@@ -13,7 +13,7 @@ Defined in: [core/src/protocols/request.ts:8](https://github.com/Guard-Core/guar
 
 > `readonly` **clientHost**: `string` \| `null`
 
-Defined in: [core/src/protocols/request.ts:14](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/request.ts#L14)
+Defined in: [packages/core/src/protocols/request.ts:20](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/request.ts#L20)
 
 ***
 
@@ -21,7 +21,7 @@ Defined in: [core/src/protocols/request.ts:14](https://github.com/Guard-Core/gua
 
 > `readonly` **headers**: `Readonly`\<`Record`\<`string`, `string`\>\>
 
-Defined in: [core/src/protocols/request.ts:15](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/request.ts#L15)
+Defined in: [packages/core/src/protocols/request.ts:21](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/request.ts#L21)
 
 ***
 
@@ -29,7 +29,7 @@ Defined in: [core/src/protocols/request.ts:15](https://github.com/Guard-Core/gua
 
 > `readonly` **method**: `string`
 
-Defined in: [core/src/protocols/request.ts:13](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/request.ts#L13)
+Defined in: [packages/core/src/protocols/request.ts:19](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/request.ts#L19)
 
 ***
 
@@ -37,7 +37,7 @@ Defined in: [core/src/protocols/request.ts:13](https://github.com/Guard-Core/gua
 
 > `readonly` **queryParams**: `Readonly`\<`Record`\<`string`, `string`\>\>
 
-Defined in: [core/src/protocols/request.ts:16](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/request.ts#L16)
+Defined in: [packages/core/src/protocols/request.ts:22](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/request.ts#L22)
 
 ***
 
@@ -45,7 +45,7 @@ Defined in: [core/src/protocols/request.ts:16](https://github.com/Guard-Core/gua
 
 > `readonly` **scope**: `Readonly`\<`Record`\<`string`, `unknown`\>\>
 
-Defined in: [core/src/protocols/request.ts:19](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/request.ts#L19)
+Defined in: [packages/core/src/protocols/request.ts:30](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/request.ts#L30)
 
 ***
 
@@ -53,7 +53,7 @@ Defined in: [core/src/protocols/request.ts:19](https://github.com/Guard-Core/gua
 
 > `readonly` **state**: [`GuardRequestState`](/guard-core-ts/api/core/src/interfaces/guardrequeststate/)
 
-Defined in: [core/src/protocols/request.ts:18](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/request.ts#L18)
+Defined in: [packages/core/src/protocols/request.ts:29](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/request.ts#L29)
 
 ***
 
@@ -61,7 +61,7 @@ Defined in: [core/src/protocols/request.ts:18](https://github.com/Guard-Core/gua
 
 > `readonly` **urlFull**: `string`
 
-Defined in: [core/src/protocols/request.ts:11](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/request.ts#L11)
+Defined in: [packages/core/src/protocols/request.ts:17](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/request.ts#L17)
 
 ***
 
@@ -69,7 +69,7 @@ Defined in: [core/src/protocols/request.ts:11](https://github.com/Guard-Core/gua
 
 > `readonly` **urlPath**: `string`
 
-Defined in: [core/src/protocols/request.ts:9](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/request.ts#L9)
+Defined in: [packages/core/src/protocols/request.ts:15](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/request.ts#L15)
 
 ***
 
@@ -77,7 +77,7 @@ Defined in: [core/src/protocols/request.ts:9](https://github.com/Guard-Core/guar
 
 > `readonly` **urlScheme**: `string`
 
-Defined in: [core/src/protocols/request.ts:10](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/request.ts#L10)
+Defined in: [packages/core/src/protocols/request.ts:16](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/request.ts#L16)
 
 ## Methods
 
@@ -85,7 +85,30 @@ Defined in: [core/src/protocols/request.ts:10](https://github.com/Guard-Core/gua
 
 > **body**(): `Promise`\<`Uint8Array`\<`ArrayBufferLike`\>\>
 
-Defined in: [core/src/protocols/request.ts:17](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/request.ts#L17)
+Defined in: [packages/core/src/protocols/request.ts:23](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/request.ts#L23)
+
+#### Returns
+
+`Promise`\<`Uint8Array`\<`ArrayBufferLike`\>\>
+
+***
+
+### readBodyPrefix()?
+
+> `optional` **readBodyPrefix**(`maxBytes`): `Promise`\<`Uint8Array`\<`ArrayBufferLike`\>\>
+
+Defined in: [packages/core/src/protocols/request.ts:28](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/request.ts#L28)
+
+Optional bounded read: return at most maxBytes of the body without
+ consuming the whole stream. Adapters that implement it let the bounded
+ body reader cap the fetch itself instead of trimming after the fact
+ (the reference's read_body_prefix protocol).
+
+#### Parameters
+
+##### maxBytes
+
+`number`
 
 #### Returns
 
@@ -97,7 +120,7 @@ Defined in: [core/src/protocols/request.ts:17](https://github.com/Guard-Core/gua
 
 > **urlReplaceScheme**(`scheme`): `string`
 
-Defined in: [core/src/protocols/request.ts:12](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/request.ts#L12)
+Defined in: [packages/core/src/protocols/request.ts:18](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/request.ts#L18)
 
 #### Parameters
 

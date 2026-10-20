@@ -5,7 +5,7 @@ prev: false
 title: "GuardPluginOptions"
 ---
 
-Defined in: [fastify/src/plugin.ts:15](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/plugin.ts#L15)
+Defined in: [packages/fastify/src/plugin.ts:41](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/fastify/src/plugin.ts#L41)
 
 ## Properties
 
@@ -13,7 +13,7 @@ Defined in: [fastify/src/plugin.ts:15](https://github.com/Guard-Core/guard-core-
 
 > `optional` **agentHandler?**: [`AgentHandlerProtocol`](/guard-core-ts/api/core/src/interfaces/agenthandlerprotocol/)
 
-Defined in: [fastify/src/plugin.ts:17](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/plugin.ts#L17)
+Defined in: [packages/fastify/src/plugin.ts:43](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/fastify/src/plugin.ts#L43)
 
 ***
 
@@ -21,15 +21,31 @@ Defined in: [fastify/src/plugin.ts:17](https://github.com/Guard-Core/guard-core-
 
 > **config**: `object`
 
-Defined in: [fastify/src/plugin.ts:16](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/plugin.ts#L16)
+Defined in: [packages/fastify/src/plugin.ts:42](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/fastify/src/plugin.ts#L42)
 
 #### agentApiKey?
 
 > `optional` **agentApiKey?**: `string` \| `null`
 
+#### agentBackoffFactor?
+
+> `optional` **agentBackoffFactor?**: `number` \| `null`
+
+#### agentBufferOverflowPolicy?
+
+> `optional` **agentBufferOverflowPolicy?**: `"drop"` \| `"block"` \| `"raise"` \| `null`
+
 #### agentBufferSize?
 
 > `optional` **agentBufferSize?**: `number`
+
+#### agentCompressionEnabled?
+
+> `optional` **agentCompressionEnabled?**: `boolean` \| `null`
+
+#### agentCompressionThreshold?
+
+> `optional` **agentCompressionThreshold?**: `number` \| `null`
 
 #### agentEnableEvents?
 
@@ -47,6 +63,34 @@ Defined in: [fastify/src/plugin.ts:16](https://github.com/Guard-Core/guard-core-
 
 > `optional` **agentFlushInterval?**: `number`
 
+#### agentGuardVersion?
+
+> `optional` **agentGuardVersion?**: `string` \| `null`
+
+#### agentHighWatermarkRatio?
+
+> `optional` **agentHighWatermarkRatio?**: `number` \| `null`
+
+#### agentInstallId?
+
+> `optional` **agentInstallId?**: `string` \| `null`
+
+#### agentMaxConcurrentFlushes?
+
+> `optional` **agentMaxConcurrentFlushes?**: `number` \| `null`
+
+#### agentMaxPayloadSize?
+
+> `optional` **agentMaxPayloadSize?**: `number` \| `null`
+
+#### agentPayloadSigningSecret?
+
+> `optional` **agentPayloadSigningSecret?**: `string` \| `null`
+
+#### agentProjectEncryptionKey?
+
+> `optional` **agentProjectEncryptionKey?**: `string` \| `null`
+
 #### agentProjectId?
 
 > `optional` **agentProjectId?**: `string` \| `null`
@@ -55,9 +99,39 @@ Defined in: [fastify/src/plugin.ts:16](https://github.com/Guard-Core/guard-core-
 
 > `optional` **agentRetryAttempts?**: `number`
 
+#### agentSensitiveHeaders?
+
+> `optional` **agentSensitiveHeaders?**: `string`[] \| `null`
+
+#### agentStatusInterval?
+
+> `optional` **agentStatusInterval?**: `number`
+
+#### agentStrict?
+
+> `optional` **agentStrict?**: `boolean`
+
 #### agentTimeout?
 
 > `optional` **agentTimeout?**: `number`
+
+#### authVerifier?
+
+> `optional` **authVerifier?**: (`request`, `credential`) => `unknown`
+
+##### Parameters
+
+###### request
+
+[`GuardRequest`](/guard-core-ts/api/core/src/interfaces/guardrequest/)
+
+###### credential
+
+`string`
+
+##### Returns
+
+`unknown`
 
 #### autoBanDuration?
 
@@ -66,6 +140,14 @@ Defined in: [fastify/src/plugin.ts:16](https://github.com/Guard-Core/guard-core-
 #### autoBanThreshold?
 
 > `optional` **autoBanThreshold?**: `number`
+
+#### behaviorMaxResponseBodyInspectBytes?
+
+> `optional` **behaviorMaxResponseBodyInspectBytes?**: `number`
+
+#### behaviorScanResponseBody?
+
+> `optional` **behaviorScanResponseBody?**: `boolean`
 
 #### blacklist?
 
@@ -82,6 +164,14 @@ Defined in: [fastify/src/plugin.ts:16](https://github.com/Guard-Core/guard-core-
 #### blockedUserAgents?
 
 > `optional` **blockedUserAgents?**: `string`[]
+
+#### bodyReadMaxConcurrent?
+
+> `optional` **bodyReadMaxConcurrent?**: `number`
+
+#### bodyReadTimeout?
+
+> `optional` **bodyReadTimeout?**: `number`
 
 #### cloudIpRefreshInterval?
 
@@ -147,29 +237,73 @@ Defined in: [fastify/src/plugin.ts:16](https://github.com/Guard-Core/guard-core-
 
 `Promise`\<[`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/)\>
 
+#### detectionAnomalyEmissionCooldown?
+
+> `optional` **detectionAnomalyEmissionCooldown?**: `number`
+
 #### detectionAnomalyThreshold?
 
 > `optional` **detectionAnomalyThreshold?**: `number`
+
+#### detectionBinaryMinRunLength?
+
+> `optional` **detectionBinaryMinRunLength?**: `number`
 
 #### detectionCompilerTimeout?
 
 > `optional` **detectionCompilerTimeout?**: `number`
 
+#### detectionMaxBodyInspectBytes?
+
+> `optional` **detectionMaxBodyInspectBytes?**: `number`
+
 #### detectionMaxContentLength?
 
 > `optional` **detectionMaxContentLength?**: `number`
+
+#### detectionMaxJsonDepth?
+
+> `optional` **detectionMaxJsonDepth?**: `number`
+
+#### detectionMaxScanChars?
+
+> `optional` **detectionMaxScanChars?**: `number`
+
+#### detectionMaxScanSeconds?
+
+> `optional` **detectionMaxScanSeconds?**: `number`
+
+#### detectionMaxScanValues?
+
+> `optional` **detectionMaxScanValues?**: `number`
 
 #### detectionMaxTrackedPatterns?
 
 > `optional` **detectionMaxTrackedPatterns?**: `number`
 
+#### detectionMinSamplesForAnomaly?
+
+> `optional` **detectionMinSamplesForAnomaly?**: `number`
+
 #### detectionMonitorHistorySize?
 
 > `optional` **detectionMonitorHistorySize?**: `number`
 
+#### detectionPatternValidationCachePath?
+
+> `optional` **detectionPatternValidationCachePath?**: `string` \| `null`
+
 #### detectionPreserveAttackPatterns?
 
 > `optional` **detectionPreserveAttackPatterns?**: `boolean`
+
+#### detectionScanBody?
+
+> `optional` **detectionScanBody?**: `boolean`
+
+#### detectionScanWorkerPool?
+
+> `optional` **detectionScanWorkerPool?**: `boolean`
 
 #### detectionSemanticThreshold?
 
@@ -179,9 +313,17 @@ Defined in: [fastify/src/plugin.ts:16](https://github.com/Guard-Core/guard-core-
 
 > `optional` **detectionSlowPatternThreshold?**: `number`
 
+#### detectionThreatScoreThreshold?
+
+> `optional` **detectionThreatScoreThreshold?**: `number`
+
 #### dynamicRuleInterval?
 
 > `optional` **dynamicRuleInterval?**: `number`
+
+#### dynamicRulesCachePath?
+
+> `optional` **dynamicRulesCachePath?**: `string` \| `null`
 
 #### emergencyMode?
 
@@ -199,17 +341,37 @@ Defined in: [fastify/src/plugin.ts:16](https://github.com/Guard-Core/guard-core-
 
 > `optional` **enableCors?**: `boolean`
 
+#### enabledDetectionCategories?
+
+> `optional` **enabledDetectionCategories?**: `string`[]
+
 #### enableDynamicRules?
 
 > `optional` **enableDynamicRules?**: `boolean`
+
+#### enableEnrichment?
+
+> `optional` **enableEnrichment?**: `boolean`
 
 #### enableIpBanning?
 
 > `optional` **enableIpBanning?**: `boolean`
 
+#### enableLogfire?
+
+> `optional` **enableLogfire?**: `boolean`
+
+#### enableOtel?
+
+> `optional` **enableOtel?**: `boolean`
+
 #### enablePenetrationDetection?
 
 > `optional` **enablePenetrationDetection?**: `boolean`
+
+#### enableRateLimitAutoBan?
+
+> `optional` **enableRateLimitAutoBan?**: `boolean`
 
 #### enableRateLimiting?
 
@@ -227,9 +389,37 @@ Defined in: [fastify/src/plugin.ts:16](https://github.com/Guard-Core/guard-core-
 
 > `optional` **enforceHttps?**: `boolean`
 
+#### excludedDetectionBodyFields?
+
+> `optional` **excludedDetectionBodyFields?**: `string`[]
+
+#### excludedDetectionHeaders?
+
+> `optional` **excludedDetectionHeaders?**: `string`[]
+
+#### excludedDetectionParams?
+
+> `optional` **excludedDetectionParams?**: `string`[]
+
+#### excludedSemanticDetectionHeaders?
+
+> `optional` **excludedSemanticDetectionHeaders?**: `string`[]
+
 #### excludePaths?
 
 > `optional` **excludePaths?**: `string`[]
+
+#### exemptIps?
+
+> `optional` **exemptIps?**: `string`[]
+
+#### failSecure?
+
+> `optional` **failSecure?**: `boolean`
+
+#### geoIpDbMaxAge?
+
+> `optional` **geoIpDbMaxAge?**: `number`
 
 #### geoIpHandler?
 
@@ -249,6 +439,30 @@ Defined in: [fastify/src/plugin.ts:16](https://github.com/Guard-Core/guard-core-
 
 `string` \| `null`
 
+#### globalBehaviorRules?
+
+> `optional` **globalBehaviorRules?**: `object`[]
+
+#### ipinfoDbPath?
+
+> `optional` **ipinfoDbPath?**: `string`
+
+#### ipinfoToken?
+
+> `optional` **ipinfoToken?**: `string` \| `null`
+
+#### lazyInit?
+
+> `optional` **lazyInit?**: `boolean`
+
+#### logCountryCheckLevel?
+
+> `optional` **logCountryCheckLevel?**: `"INFO"` \| `"DEBUG"` \| `"WARNING"` \| `"ERROR"` \| `"CRITICAL"` \| `null`
+
+#### logfireServiceName?
+
+> `optional` **logfireServiceName?**: `string`
+
 #### logFormat?
 
 > `optional` **logFormat?**: `"text"` \| `"json"`
@@ -261,9 +475,85 @@ Defined in: [fastify/src/plugin.ts:16](https://github.com/Guard-Core/guard-core-
 
 > `optional` **logRequestLevel?**: `"INFO"` \| `"DEBUG"` \| `"WARNING"` \| `"ERROR"` \| `"CRITICAL"` \| `null`
 
+#### logSensitiveBodyFields?
+
+> `optional` **logSensitiveBodyFields?**: `string`[]
+
+#### logSensitiveHeaders?
+
+> `optional` **logSensitiveHeaders?**: `string`[]
+
+#### logSensitiveParams?
+
+> `optional` **logSensitiveParams?**: `string`[]
+
 #### logSuspiciousLevel?
 
 > `optional` **logSuspiciousLevel?**: `"INFO"` \| `"DEBUG"` \| `"WARNING"` \| `"ERROR"` \| `"CRITICAL"` \| `null`
+
+#### mutedCheckLogs?
+
+> `optional` **mutedCheckLogs?**: `string`[]
+
+#### mutedEventTypes?
+
+> `optional` **mutedEventTypes?**: `string`[]
+
+#### mutedMetricTypes?
+
+> `optional` **mutedMetricTypes?**: `string`[]
+
+#### onBlock?
+
+> `optional` **onBlock?**: (`request`, `payload`) => `unknown`
+
+##### Parameters
+
+###### request
+
+[`GuardRequest`](/guard-core-ts/api/core/src/interfaces/guardrequest/)
+
+###### payload
+
+`Record`\<`string`, `unknown`\>
+
+##### Returns
+
+`unknown`
+
+#### onError?
+
+> `optional` **onError?**: (`stage`, `error`, `context`) => `void`
+
+##### Parameters
+
+###### stage
+
+`string`
+
+###### error
+
+`unknown`
+
+###### context
+
+`Record`\<`string`, `unknown`\>
+
+##### Returns
+
+`void`
+
+#### otelExporterEndpoint?
+
+> `optional` **otelExporterEndpoint?**: `string` \| `null`
+
+#### otelResourceAttributes?
+
+> `optional` **otelResourceAttributes?**: `Record`\<`string`, `string`\>
+
+#### otelServiceName?
+
+> `optional` **otelServiceName?**: `string`
 
 #### passiveMode?
 
@@ -277,17 +567,49 @@ Defined in: [fastify/src/plugin.ts:16](https://github.com/Guard-Core/guard-core-
 
 > `optional` **rateLimitWindow?**: `number`
 
+#### redisFailOpen?
+
+> `optional` **redisFailOpen?**: `boolean`
+
+#### redisHealthCheckInterval?
+
+> `optional` **redisHealthCheckInterval?**: `number`
+
+#### redisMaxConnections?
+
+> `optional` **redisMaxConnections?**: `number` \| `null`
+
 #### redisPrefix?
 
 > `optional` **redisPrefix?**: `string`
+
+#### redisRetries?
+
+> `optional` **redisRetries?**: `number`
+
+#### redisSocketConnectTimeout?
+
+> `optional` **redisSocketConnectTimeout?**: `number` \| `null`
+
+#### redisSocketTimeout?
+
+> `optional` **redisSocketTimeout?**: `number` \| `null`
 
 #### redisUrl?
 
 > `optional` **redisUrl?**: `string`
 
+#### routeResolutionStrict?
+
+> `optional` **routeResolutionStrict?**: `boolean`
+
 #### securityHeaders?
 
 > `optional` **securityHeaders?**: \{ `contentTypeOptions?`: `string`; `csp?`: `Record`\<`string`, `string`[]\> \| `null`; `custom?`: `Record`\<`string`, `string`\> \| `null`; `enabled?`: `boolean`; `frameOptions?`: `"DENY"` \| `"SAMEORIGIN"`; `hsts?`: \{ `includeSubdomains?`: `boolean`; `maxAge?`: `number`; `preload?`: `boolean`; \}; `permissionsPolicy?`: `string`; `referrerPolicy?`: `string`; `xssProtection?`: `string`; \} \| `null`
+
+#### threatBanConfig?
+
+> `optional` **threatBanConfig?**: `Record`\<`string`, \{ `duration`: `number`; `threshold`: `number`; \}\>
 
 #### trustedProxies?
 
@@ -315,7 +637,7 @@ Defined in: [fastify/src/plugin.ts:16](https://github.com/Guard-Core/guard-core-
 
 > `optional` **geoIpHandler?**: [`GeoIPHandler`](/guard-core-ts/api/core/src/interfaces/geoiphandler/)
 
-Defined in: [fastify/src/plugin.ts:18](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/plugin.ts#L18)
+Defined in: [packages/fastify/src/plugin.ts:44](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/fastify/src/plugin.ts#L44)
 
 ***
 
@@ -323,4 +645,12 @@ Defined in: [fastify/src/plugin.ts:18](https://github.com/Guard-Core/guard-core-
 
 > `optional` **guardDecorator?**: `unknown`
 
-Defined in: [fastify/src/plugin.ts:19](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/fastify/src/plugin.ts#L19)
+Defined in: [packages/fastify/src/plugin.ts:45](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/fastify/src/plugin.ts#L45)
+
+***
+
+### routeConfigs?
+
+> `optional` **routeConfigs?**: [`PathRouteConfigEntry`](/guard-core-ts/api/core/src/interfaces/pathrouteconfigentry/)[]
+
+Defined in: [packages/fastify/src/plugin.ts:50](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/fastify/src/plugin.ts#L50)

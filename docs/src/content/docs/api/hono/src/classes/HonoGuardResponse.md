@@ -5,7 +5,7 @@ prev: false
 title: "HonoGuardResponse"
 ---
 
-Defined in: [hono/src/adapters.ts:25](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/hono/src/adapters.ts#L25)
+Defined in: [packages/hono/src/adapters.ts:25](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/hono/src/adapters.ts#L25)
 
 ## Implements
 
@@ -17,7 +17,7 @@ Defined in: [hono/src/adapters.ts:25](https://github.com/Guard-Core/guard-core-t
 
 > **new HonoGuardResponse**(`statusCode`, `content`): `HonoGuardResponse`
 
-Defined in: [hono/src/adapters.ts:29](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/hono/src/adapters.ts#L29)
+Defined in: [packages/hono/src/adapters.ts:29](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/hono/src/adapters.ts#L29)
 
 #### Parameters
 
@@ -39,7 +39,7 @@ Defined in: [hono/src/adapters.ts:29](https://github.com/Guard-Core/guard-core-t
 
 > `readonly` **statusCode**: `number`
 
-Defined in: [hono/src/adapters.ts:29](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/hono/src/adapters.ts#L29)
+Defined in: [packages/hono/src/adapters.ts:29](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/hono/src/adapters.ts#L29)
 
 #### Implementation of
 
@@ -53,7 +53,7 @@ Defined in: [hono/src/adapters.ts:29](https://github.com/Guard-Core/guard-core-t
 
 > **get** **body**(): `Uint8Array`\<`ArrayBufferLike`\> \| `null`
 
-Defined in: [hono/src/adapters.ts:36](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/hono/src/adapters.ts#L36)
+Defined in: [packages/hono/src/adapters.ts:39](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/hono/src/adapters.ts#L39)
 
 ##### Returns
 
@@ -71,7 +71,7 @@ Defined in: [hono/src/adapters.ts:36](https://github.com/Guard-Core/guard-core-t
 
 > **get** **bodyText**(): `string` \| `null`
 
-Defined in: [hono/src/adapters.ts:37](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/hono/src/adapters.ts#L37)
+Defined in: [packages/hono/src/adapters.ts:40](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/hono/src/adapters.ts#L40)
 
 ##### Returns
 
@@ -89,7 +89,7 @@ Defined in: [hono/src/adapters.ts:37](https://github.com/Guard-Core/guard-core-t
 
 > **get** **headers**(): `Record`\<`string`, `string`\>
 
-Defined in: [hono/src/adapters.ts:34](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/hono/src/adapters.ts#L34)
+Defined in: [packages/hono/src/adapters.ts:37](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/hono/src/adapters.ts#L37)
 
 ##### Returns
 
@@ -105,7 +105,7 @@ Defined in: [hono/src/adapters.ts:34](https://github.com/Guard-Core/guard-core-t
 
 > **setHeader**(`name`, `value`): `void`
 
-Defined in: [hono/src/adapters.ts:35](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/hono/src/adapters.ts#L35)
+Defined in: [packages/hono/src/adapters.ts:38](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/hono/src/adapters.ts#L38)
 
 #### Parameters
 

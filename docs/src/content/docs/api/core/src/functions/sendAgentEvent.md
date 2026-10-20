@@ -7,7 +7,7 @@ title: "sendAgentEvent"
 
 > **sendAgentEvent**(`agentHandler`, `eventType`, `ipAddress`, `actionTaken`, `reason`, `request?`, `metadata?`): `Promise`\<`void`\>
 
-Defined in: [core/src/utils.ts:25](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/utils.ts#L25)
+Defined in: [packages/core/src/utils.ts:137](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/utils.ts#L137)
 
 ## Parameters
 

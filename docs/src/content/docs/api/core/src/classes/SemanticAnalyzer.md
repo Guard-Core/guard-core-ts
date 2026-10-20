@@ -5,7 +5,7 @@ prev: false
 title: "SemanticAnalyzer"
 ---
 
-Defined in: [core/src/detection-engine/semantic.ts:59](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L59)
+Defined in: [packages/core/src/detection-engine/semantic.ts:114](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/semantic.ts#L114)
 
 ## Constructors
 
@@ -23,7 +23,7 @@ Defined in: [core/src/detection-engine/semantic.ts:59](https://github.com/Guard-
 
 > **analyze**(`content`): [`SemanticAnalysis`](/guard-core-ts/api/core/src/interfaces/semanticanalysis/)
 
-Defined in: [core/src/detection-engine/semantic.ts:215](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L215)
+Defined in: [packages/core/src/detection-engine/semantic.ts:302](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/semantic.ts#L302)
 
 #### Parameters
 
@@ -41,7 +41,7 @@ Defined in: [core/src/detection-engine/semantic.ts:215](https://github.com/Guard
 
 > **analyzeAttackProbability**(`content`): `Record`\<`string`, `number`\>
 
-Defined in: [core/src/detection-engine/semantic.ts:123](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L123)
+Defined in: [packages/core/src/detection-engine/semantic.ts:215](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/semantic.ts#L215)
 
 #### Parameters
 
@@ -59,7 +59,7 @@ Defined in: [core/src/detection-engine/semantic.ts:123](https://github.com/Guard
 
 > **analyzeCodeInjectionRisk**(`content`): `number`
 
-Defined in: [core/src/detection-engine/semantic.ts:185](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L185)
+Defined in: [packages/core/src/detection-engine/semantic.ts:292](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/semantic.ts#L292)
 
 #### Parameters
 
@@ -77,7 +77,7 @@ Defined in: [core/src/detection-engine/semantic.ts:185](https://github.com/Guard
 
 > **calculateEntropy**(`content`): `number`
 
-Defined in: [core/src/detection-engine/semantic.ts:83](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L83)
+Defined in: [packages/core/src/detection-engine/semantic.ts:138](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/semantic.ts#L138)
 
 #### Parameters
 
@@ -95,7 +95,7 @@ Defined in: [core/src/detection-engine/semantic.ts:83](https://github.com/Guard-
 
 > **detectEncodingLayers**(`content`): `number`
 
-Defined in: [core/src/detection-engine/semantic.ts:107](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L107)
+Defined in: [packages/core/src/detection-engine/semantic.ts:160](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/semantic.ts#L160)
 
 #### Parameters
 
@@ -113,7 +113,7 @@ Defined in: [core/src/detection-engine/semantic.ts:107](https://github.com/Guard
 
 > **detectObfuscation**(`content`): `boolean`
 
-Defined in: [core/src/detection-engine/semantic.ts:151](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L151)
+Defined in: [packages/core/src/detection-engine/semantic.ts:220](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/semantic.ts#L220)
 
 #### Parameters
 
@@ -129,9 +129,9 @@ Defined in: [core/src/detection-engine/semantic.ts:151](https://github.com/Guard
 
 ### extractSuspiciousPatterns()
 
-> **extractSuspiciousPatterns**(`content`): `object`[]
+> **extractSuspiciousPatterns**(`content`): `SuspiciousPattern`[]
 
-Defined in: [core/src/detection-engine/semantic.ts:164](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L164)
+Defined in: [packages/core/src/detection-engine/semantic.ts:237](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/semantic.ts#L237)
 
 #### Parameters
 
@@ -141,7 +141,7 @@ Defined in: [core/src/detection-engine/semantic.ts:164](https://github.com/Guard
 
 #### Returns
 
-`object`[]
+`SuspiciousPattern`[]
 
 ***
 
@@ -149,7 +149,7 @@ Defined in: [core/src/detection-engine/semantic.ts:164](https://github.com/Guard
 
 > **extractTokens**(`content`): `string`[]
 
-Defined in: [core/src/detection-engine/semantic.ts:60](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L60)
+Defined in: [packages/core/src/detection-engine/semantic.ts:115](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/semantic.ts#L115)
 
 #### Parameters
 
@@ -165,13 +165,13 @@ Defined in: [core/src/detection-engine/semantic.ts:60](https://github.com/Guard-
 
 ### getThreatScore()
 
-> **getThreatScore**(`analysis`): `number`
+> **getThreatScore**(`analysisResults`): `number`
 
-Defined in: [core/src/detection-engine/semantic.ts:227](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L227)
+Defined in: [packages/core/src/detection-engine/semantic.ts:315](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/semantic.ts#L315)
 
 #### Parameters
 
-##### analysis
+##### analysisResults
 
 [`SemanticAnalysis`](/guard-core-ts/api/core/src/interfaces/semanticanalysis/)
 

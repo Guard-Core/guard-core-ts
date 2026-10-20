@@ -5,9 +5,14 @@ prev: false
 title: "detectPenetrationAttempt"
 ---
 
-> **detectPenetrationAttempt**(`request`): `Promise`\<\[`boolean`, `string`\]\>
+> **detectPenetrationAttempt**(`request`): `Promise`\<\[`boolean`, `string`, `string`[]\]\>
 
-Defined in: [core/src/utils.ts:195](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/utils.ts#L195)
+Defined in: [packages/core/src/utils.ts:1108](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/utils.ts#L1108)
+
+Standalone penetration detection entry point (public API). Runs the full
+SusPatternsManager engine over the request surface on a shared default
+manager; the live middleware path feeds the initializer's manager into
+scanRequestWithManager directly via SuspiciousActivityCheck.
 
 ## Parameters
 
@@ -17,4 +22,4 @@ Defined in: [core/src/utils.ts:195](https://github.com/Guard-Core/guard-core-ts/
 
 ## Returns
 
-`Promise`\<\[`boolean`, `string`\]\>
+`Promise`\<\[`boolean`, `string`, `string`[]\]\>

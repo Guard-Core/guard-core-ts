@@ -5,31 +5,47 @@ prev: false
 title: "HandlerRegistry"
 ---
 
-Defined in: [core/src/core/initialization/handler-initializer.ts:14](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/initialization/handler-initializer.ts#L14)
+Defined in: [packages/core/src/core/initialization/handler-initializer.ts:22](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/core/initialization/handler-initializer.ts#L22)
 
 ## Properties
 
 ### behaviorTracker
 
-> **behaviorTracker**: `BehaviorTracker`
+> **behaviorTracker**: [`BehaviorTracker`](/guard-core-ts/api/core/src/classes/behaviortracker/)
 
-Defined in: [core/src/core/initialization/handler-initializer.ts:21](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/initialization/handler-initializer.ts#L21)
+Defined in: [packages/core/src/core/initialization/handler-initializer.ts:29](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/core/initialization/handler-initializer.ts#L29)
 
 ***
 
 ### cloudHandler
 
-> **cloudHandler**: `CloudHandler`
+> **cloudHandler**: [`CloudHandler`](/guard-core-ts/api/core/src/classes/cloudhandler/)
 
-Defined in: [core/src/core/initialization/handler-initializer.ts:18](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/initialization/handler-initializer.ts#L18)
+Defined in: [packages/core/src/core/initialization/handler-initializer.ts:26](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/core/initialization/handler-initializer.ts#L26)
 
 ***
 
 ### dynamicRuleHandler
 
-> **dynamicRuleHandler**: `DynamicRuleManager`
+> **dynamicRuleHandler**: [`DynamicRuleManager`](/guard-core-ts/api/core/src/classes/dynamicrulemanager/)
 
-Defined in: [core/src/core/initialization/handler-initializer.ts:22](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/initialization/handler-initializer.ts#L22)
+Defined in: [packages/core/src/core/initialization/handler-initializer.ts:30](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/core/initialization/handler-initializer.ts#L30)
+
+***
+
+### enricher
+
+> **enricher**: [`AgentEventEnricher`](/guard-core-ts/api/core/src/interfaces/agenteventenricher/) \| `null`
+
+Defined in: [packages/core/src/core/initialization/handler-initializer.ts:37](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/core/initialization/handler-initializer.ts#L37)
+
+***
+
+### eventFilter
+
+> **eventFilter**: [`EventFilter`](/guard-core-ts/api/core/src/classes/eventfilter/)
+
+Defined in: [packages/core/src/core/initialization/handler-initializer.ts:36](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/core/initialization/handler-initializer.ts#L36)
 
 ***
 
@@ -37,44 +53,52 @@ Defined in: [core/src/core/initialization/handler-initializer.ts:22](https://git
 
 > **geoIpHandler**: [`GeoIPHandler`](/guard-core-ts/api/core/src/interfaces/geoiphandler/) \| `null`
 
-Defined in: [core/src/core/initialization/handler-initializer.ts:23](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/initialization/handler-initializer.ts#L23)
+Defined in: [packages/core/src/core/initialization/handler-initializer.ts:31](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/core/initialization/handler-initializer.ts#L31)
 
 ***
 
 ### ipBanHandler
 
-> **ipBanHandler**: `IPBanManager`
+> **ipBanHandler**: [`IPBanManager`](/guard-core-ts/api/core/src/classes/ipbanmanager/)
 
-Defined in: [core/src/core/initialization/handler-initializer.ts:16](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/initialization/handler-initializer.ts#L16)
+Defined in: [packages/core/src/core/initialization/handler-initializer.ts:24](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/core/initialization/handler-initializer.ts#L24)
 
 ***
 
 ### rateLimitHandler
 
-> **rateLimitHandler**: `RateLimitManager`
+> **rateLimitHandler**: [`RateLimitManager`](/guard-core-ts/api/core/src/classes/ratelimitmanager/)
 
-Defined in: [core/src/core/initialization/handler-initializer.ts:17](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/initialization/handler-initializer.ts#L17)
+Defined in: [packages/core/src/core/initialization/handler-initializer.ts:25](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/core/initialization/handler-initializer.ts#L25)
 
 ***
 
 ### redisHandler
 
-> **redisHandler**: `RedisManager` \| `null`
+> **redisHandler**: [`RedisManager`](/guard-core-ts/api/core/src/classes/redismanager/) \| `null`
 
-Defined in: [core/src/core/initialization/handler-initializer.ts:15](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/initialization/handler-initializer.ts#L15)
+Defined in: [packages/core/src/core/initialization/handler-initializer.ts:23](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/core/initialization/handler-initializer.ts#L23)
 
 ***
 
 ### securityHeadersHandler
 
-> **securityHeadersHandler**: `SecurityHeadersManager`
+> **securityHeadersHandler**: [`SecurityHeadersManager`](/guard-core-ts/api/core/src/classes/securityheadersmanager/)
 
-Defined in: [core/src/core/initialization/handler-initializer.ts:20](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/initialization/handler-initializer.ts#L20)
+Defined in: [packages/core/src/core/initialization/handler-initializer.ts:28](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/core/initialization/handler-initializer.ts#L28)
 
 ***
 
 ### susPatternsHandler
 
-> **susPatternsHandler**: `SusPatternsManager`
+> **susPatternsHandler**: [`SusPatternsManager`](/guard-core-ts/api/core/src/classes/suspatternsmanager/)
 
-Defined in: [core/src/core/initialization/handler-initializer.ts:19](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/initialization/handler-initializer.ts#L19)
+Defined in: [packages/core/src/core/initialization/handler-initializer.ts:27](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/core/initialization/handler-initializer.ts#L27)
+
+***
+
+### telemetryHandler
+
+> **telemetryHandler**: [`AgentHandlerProtocol`](/guard-core-ts/api/core/src/interfaces/agenthandlerprotocol/) \| `null`
+
+Defined in: [packages/core/src/core/initialization/handler-initializer.ts:35](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/core/initialization/handler-initializer.ts#L35)

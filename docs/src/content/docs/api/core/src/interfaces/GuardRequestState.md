@@ -5,7 +5,7 @@ prev: false
 title: "GuardRequestState"
 ---
 
-Defined in: [core/src/protocols/request.ts:1](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/request.ts#L1)
+Defined in: [packages/core/src/protocols/request.ts:1](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/request.ts#L1)
 
 ## Indexable
 
@@ -17,7 +17,7 @@ Defined in: [core/src/protocols/request.ts:1](https://github.com/Guard-Core/guar
 
 > `optional` **guardDecorator?**: `unknown`
 
-Defined in: [core/src/protocols/request.ts:4](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/request.ts#L4)
+Defined in: [packages/core/src/protocols/request.ts:4](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/request.ts#L4)
 
 ***
 
@@ -25,7 +25,17 @@ Defined in: [core/src/protocols/request.ts:4](https://github.com/Guard-Core/guar
 
 > `optional` **guardEndpointId?**: `string`
 
-Defined in: [core/src/protocols/request.ts:3](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/request.ts#L3)
+Defined in: [packages/core/src/protocols/request.ts:3](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/request.ts#L3)
+
+***
+
+### guardExclusionScoped?
+
+> `optional` **guardExclusionScoped?**: `boolean`
+
+Defined in: [packages/core/src/protocols/request.ts:10](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/request.ts#L10)
+
+Set by BypassHandler.handlePassthrough for an excluded path: only the checks with enforcedOnExcludedPaths run.
 
 ***
 
@@ -33,4 +43,24 @@ Defined in: [core/src/protocols/request.ts:3](https://github.com/Guard-Core/guar
 
 > `optional` **guardRouteId?**: `string`
 
-Defined in: [core/src/protocols/request.ts:2](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/request.ts#L2)
+Defined in: [packages/core/src/protocols/request.ts:2](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/request.ts#L2)
+
+***
+
+### isExempt?
+
+> `optional` **isExempt?**: `boolean`
+
+Defined in: [packages/core/src/protocols/request.ts:8](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/request.ts#L8)
+
+Set by IpSecurityCheck: the client IP matched the config exemptIps list.
+
+***
+
+### isWhitelisted?
+
+> `optional` **isWhitelisted?**: `boolean`
+
+Defined in: [packages/core/src/protocols/request.ts:6](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/request.ts#L6)
+
+Set by IpSecurityCheck: the client IP matched the config whitelist.

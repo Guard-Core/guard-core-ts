@@ -7,7 +7,7 @@ title: "checkIpCountry"
 
 > **checkIpCountry**(`ip`, `config`, `geoIpHandler`): `Promise`\<`boolean`\>
 
-Defined in: [core/src/utils.ts:121](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/utils.ts#L121)
+Defined in: [packages/core/src/utils.ts:417](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/utils.ts#L417)
 
 ## Parameters
 
@@ -21,9 +21,25 @@ Defined in: [core/src/utils.ts:121](https://github.com/Guard-Core/guard-core-ts/
 
 `string` \| `null` = `...`
 
+#### agentBackoffFactor
+
+`number` \| `null` = `...`
+
+#### agentBufferOverflowPolicy
+
+`"drop"` \| `"block"` \| `"raise"` \| `null` = `...`
+
 #### agentBufferSize
 
 `number` = `...`
+
+#### agentCompressionEnabled
+
+`boolean` \| `null` = `...`
+
+#### agentCompressionThreshold
+
+`number` \| `null` = `...`
 
 #### agentEnableEvents
 
@@ -41,6 +57,34 @@ Defined in: [core/src/utils.ts:121](https://github.com/Guard-Core/guard-core-ts/
 
 `number` = `...`
 
+#### agentGuardVersion
+
+`string` \| `null` = `...`
+
+#### agentHighWatermarkRatio
+
+`number` \| `null` = `...`
+
+#### agentInstallId
+
+`string` \| `null` = `...`
+
+#### agentMaxConcurrentFlushes
+
+`number` \| `null` = `...`
+
+#### agentMaxPayloadSize
+
+`number` \| `null` = `...`
+
+#### agentPayloadSigningSecret
+
+`string` \| `null` = `...`
+
+#### agentProjectEncryptionKey
+
+`string` \| `null` = `...`
+
 #### agentProjectId
 
 `string` \| `null` = `...`
@@ -49,9 +93,25 @@ Defined in: [core/src/utils.ts:121](https://github.com/Guard-Core/guard-core-ts/
 
 `number` = `...`
 
+#### agentSensitiveHeaders
+
+`string`[] \| `null` = `...`
+
+#### agentStatusInterval
+
+`number` = `...`
+
+#### agentStrict
+
+`boolean` = `...`
+
 #### agentTimeout
 
 `number` = `...`
+
+#### authVerifier?
+
+(`request`, `credential`) => `unknown` = `...`
 
 #### autoBanDuration
 
@@ -60,6 +120,14 @@ Defined in: [core/src/utils.ts:121](https://github.com/Guard-Core/guard-core-ts/
 #### autoBanThreshold
 
 `number` = `...`
+
+#### behaviorMaxResponseBodyInspectBytes
+
+`number` = `...`
+
+#### behaviorScanResponseBody
+
+`boolean` = `...`
 
 #### blacklist
 
@@ -76,6 +144,14 @@ Defined in: [core/src/utils.ts:121](https://github.com/Guard-Core/guard-core-ts/
 #### blockedUserAgents
 
 `string`[] = `...`
+
+#### bodyReadMaxConcurrent
+
+`number` = `...`
+
+#### bodyReadTimeout
+
+`number` = `...`
 
 #### cloudIpRefreshInterval
 
@@ -121,7 +197,15 @@ Defined in: [core/src/utils.ts:121](https://github.com/Guard-Core/guard-core-ts/
 
 (`res`) => `Promise`\<[`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/)\> = `...`
 
+#### detectionAnomalyEmissionCooldown
+
+`number` = `...`
+
 #### detectionAnomalyThreshold
+
+`number` = `...`
+
+#### detectionBinaryMinRunLength
 
 `number` = `...`
 
@@ -129,7 +213,27 @@ Defined in: [core/src/utils.ts:121](https://github.com/Guard-Core/guard-core-ts/
 
 `number` = `...`
 
+#### detectionMaxBodyInspectBytes
+
+`number` = `...`
+
 #### detectionMaxContentLength
+
+`number` = `...`
+
+#### detectionMaxJsonDepth
+
+`number` = `...`
+
+#### detectionMaxScanChars
+
+`number` = `...`
+
+#### detectionMaxScanSeconds
+
+`number` = `...`
+
+#### detectionMaxScanValues
 
 `number` = `...`
 
@@ -137,11 +241,27 @@ Defined in: [core/src/utils.ts:121](https://github.com/Guard-Core/guard-core-ts/
 
 `number` = `...`
 
+#### detectionMinSamplesForAnomaly
+
+`number` = `...`
+
 #### detectionMonitorHistorySize
 
 `number` = `...`
 
+#### detectionPatternValidationCachePath
+
+`string` \| `null` = `...`
+
 #### detectionPreserveAttackPatterns
+
+`boolean` = `...`
+
+#### detectionScanBody
+
+`boolean` = `...`
+
+#### detectionScanWorkerPool
 
 `boolean` = `...`
 
@@ -153,9 +273,17 @@ Defined in: [core/src/utils.ts:121](https://github.com/Guard-Core/guard-core-ts/
 
 `number` = `...`
 
+#### detectionThreatScoreThreshold
+
+`number` = `...`
+
 #### dynamicRuleInterval
 
 `number` = `...`
+
+#### dynamicRulesCachePath
+
+`string` \| `null` = `...`
 
 #### emergencyMode
 
@@ -173,7 +301,15 @@ Defined in: [core/src/utils.ts:121](https://github.com/Guard-Core/guard-core-ts/
 
 `boolean` = `...`
 
+#### enabledDetectionCategories
+
+`string`[] = `...`
+
 #### enableDynamicRules
+
+`boolean` = `...`
+
+#### enableEnrichment
 
 `boolean` = `...`
 
@@ -181,7 +317,19 @@ Defined in: [core/src/utils.ts:121](https://github.com/Guard-Core/guard-core-ts/
 
 `boolean` = `...`
 
+#### enableLogfire
+
+`boolean` = `...`
+
+#### enableOtel
+
+`boolean` = `...`
+
 #### enablePenetrationDetection
+
+`boolean` = `...`
+
+#### enableRateLimitAutoBan
 
 `boolean` = `...`
 
@@ -201,9 +349,37 @@ Defined in: [core/src/utils.ts:121](https://github.com/Guard-Core/guard-core-ts/
 
 `boolean` = `...`
 
+#### excludedDetectionBodyFields
+
+`string`[] = `...`
+
+#### excludedDetectionHeaders
+
+`string`[] = `...`
+
+#### excludedDetectionParams
+
+`string`[] = `...`
+
+#### excludedSemanticDetectionHeaders
+
+`string`[] = `...`
+
 #### excludePaths
 
 `string`[] = `...`
+
+#### exemptIps
+
+`string`[] = `...`
+
+#### failSecure
+
+`boolean` = `...`
+
+#### geoIpDbMaxAge
+
+`number` = `...`
 
 #### geoIpHandler?
 
@@ -212,6 +388,30 @@ Defined in: [core/src/utils.ts:121](https://github.com/Guard-Core/guard-core-ts/
 #### geoResolver?
 
 (`ip`) => `string` \| `null` = `...`
+
+#### globalBehaviorRules
+
+`object`[] = `...`
+
+#### ipinfoDbPath
+
+`string` = `...`
+
+#### ipinfoToken
+
+`string` \| `null` = `...`
+
+#### lazyInit
+
+`boolean` = `...`
+
+#### logCountryCheckLevel
+
+`"INFO"` \| `"DEBUG"` \| `"WARNING"` \| `"ERROR"` \| `"CRITICAL"` \| `null` = `...`
+
+#### logfireServiceName
+
+`string` = `...`
 
 #### logFormat
 
@@ -225,9 +425,53 @@ Defined in: [core/src/utils.ts:121](https://github.com/Guard-Core/guard-core-ts/
 
 `"INFO"` \| `"DEBUG"` \| `"WARNING"` \| `"ERROR"` \| `"CRITICAL"` \| `null` = `...`
 
+#### logSensitiveBodyFields
+
+`string`[] = `...`
+
+#### logSensitiveHeaders
+
+`string`[] = `...`
+
+#### logSensitiveParams
+
+`string`[] = `...`
+
 #### logSuspiciousLevel
 
 `"INFO"` \| `"DEBUG"` \| `"WARNING"` \| `"ERROR"` \| `"CRITICAL"` \| `null` = `...`
+
+#### mutedCheckLogs
+
+`string`[] = `...`
+
+#### mutedEventTypes
+
+`string`[] = `...`
+
+#### mutedMetricTypes
+
+`string`[] = `...`
+
+#### onBlock?
+
+(`request`, `payload`) => `unknown` = `...`
+
+#### onError?
+
+(`stage`, `error`, `context`) => `void` = `...`
+
+#### otelExporterEndpoint
+
+`string` \| `null` = `...`
+
+#### otelResourceAttributes
+
+`Record`\<`string`, `string`\> = `...`
+
+#### otelServiceName
+
+`string` = `...`
 
 #### passiveMode
 
@@ -241,17 +485,49 @@ Defined in: [core/src/utils.ts:121](https://github.com/Guard-Core/guard-core-ts/
 
 `number` = `...`
 
+#### redisFailOpen
+
+`boolean` = `...`
+
+#### redisHealthCheckInterval
+
+`number` = `...`
+
+#### redisMaxConnections
+
+`number` \| `null` = `...`
+
 #### redisPrefix
 
 `string` = `...`
+
+#### redisRetries
+
+`number` = `...`
+
+#### redisSocketConnectTimeout
+
+`number` \| `null` = `...`
+
+#### redisSocketTimeout
+
+`number` \| `null` = `...`
 
 #### redisUrl
 
 `string` = `...`
 
+#### routeResolutionStrict
+
+`boolean` = `...`
+
 #### securityHeaders
 
 \{ `contentTypeOptions`: `string`; `csp`: `Record`\<`string`, `string`[]\> \| `null`; `custom`: `Record`\<`string`, `string`\> \| `null`; `enabled`: `boolean`; `frameOptions`: `"DENY"` \| `"SAMEORIGIN"`; `hsts?`: \{ `includeSubdomains`: `boolean`; `maxAge`: `number`; `preload`: `boolean`; \}; `permissionsPolicy`: `string`; `referrerPolicy`: `string`; `xssProtection`: `string`; \} \| `null` = `...`
+
+#### threatBanConfig
+
+`Record`\<`string`, \{ `duration`: `number`; `threshold`: `number`; \}\> = `...`
 
 #### trustedProxies
 

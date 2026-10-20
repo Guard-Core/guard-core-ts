@@ -5,7 +5,7 @@ prev: false
 title: "BehavioralProcessor"
 ---
 
-Defined in: [core/src/core/behavioral/processor.ts:8](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/behavioral/processor.ts#L8)
+Defined in: [packages/core/src/core/behavioral/processor.ts:30](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/core/behavioral/processor.ts#L30)
 
 ## Constructors
 
@@ -13,7 +13,7 @@ Defined in: [core/src/core/behavioral/processor.ts:8](https://github.com/Guard-C
 
 > **new BehavioralProcessor**(`logger`, `eventBus`): `BehavioralProcessor`
 
-Defined in: [core/src/core/behavioral/processor.ts:11](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/behavioral/processor.ts#L11)
+Defined in: [packages/core/src/core/behavioral/processor.ts:35](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/core/behavioral/processor.ts#L35)
 
 #### Parameters
 
@@ -35,7 +35,7 @@ Defined in: [core/src/core/behavioral/processor.ts:11](https://github.com/Guard-
 
 > **getEndpointId**(`request`): `string`
 
-Defined in: [core/src/core/behavioral/processor.ts:92](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/behavioral/processor.ts#L92)
+Defined in: [packages/core/src/core/behavioral/processor.ts:218](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/core/behavioral/processor.ts#L218)
 
 #### Parameters
 
@@ -49,11 +49,41 @@ Defined in: [core/src/core/behavioral/processor.ts:92](https://github.com/Guard-
 
 ***
 
+### processGlobalReturnRules()
+
+> **processGlobalReturnRules**(`request`, `response`, `clientIp`, `rules`): `Promise`\<`void`\>
+
+Defined in: [packages/core/src/core/behavioral/processor.ts:135](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/core/behavioral/processor.ts#L135)
+
+#### Parameters
+
+##### request
+
+[`GuardRequest`](/guard-core-ts/api/core/src/interfaces/guardrequest/)
+
+##### response
+
+[`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/)
+
+##### clientIp
+
+`string`
+
+##### rules
+
+readonly [`BehaviorRule`](/guard-core-ts/api/core/src/classes/behaviorrule/)[]
+
+#### Returns
+
+`Promise`\<`void`\>
+
+***
+
 ### processReturnRules()
 
 > **processReturnRules**(`request`, `response`, `clientIp`, `routeConfig`): `Promise`\<`void`\>
 
-Defined in: [core/src/core/behavioral/processor.ts:55](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/behavioral/processor.ts#L55)
+Defined in: [packages/core/src/core/behavioral/processor.ts:97](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/core/behavioral/processor.ts#L97)
 
 #### Parameters
 
@@ -83,7 +113,7 @@ Defined in: [core/src/core/behavioral/processor.ts:55](https://github.com/Guard-
 
 > **processUsageRules**(`request`, `clientIp`, `routeConfig`): `Promise`\<`void`\>
 
-Defined in: [core/src/core/behavioral/processor.ts:20](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/behavioral/processor.ts#L20)
+Defined in: [packages/core/src/core/behavioral/processor.ts:64](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/core/behavioral/processor.ts#L64)
 
 #### Parameters
 
@@ -105,11 +135,29 @@ Defined in: [core/src/core/behavioral/processor.ts:20](https://github.com/Guard-
 
 ***
 
+### setDefaultTracker()
+
+> **setDefaultTracker**(`tracker`): `void`
+
+Defined in: [packages/core/src/core/behavioral/processor.ts:48](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/core/behavioral/processor.ts#L48)
+
+#### Parameters
+
+##### tracker
+
+[`BehaviorTracker`](/guard-core-ts/api/core/src/classes/behaviortracker/)
+
+#### Returns
+
+`void`
+
+***
+
 ### setGuardDecorator()
 
 > **setGuardDecorator**(`decorator`): `void`
 
-Defined in: [core/src/core/behavioral/processor.ts:16](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/behavioral/processor.ts#L16)
+Defined in: [packages/core/src/core/behavioral/processor.ts:40](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/core/behavioral/processor.ts#L40)
 
 #### Parameters
 
@@ -117,7 +165,25 @@ Defined in: [core/src/core/behavioral/processor.ts:16](https://github.com/Guard-
 
 ###### behaviorTracker
 
-`BehaviorTracker`
+[`BehaviorTracker`](/guard-core-ts/api/core/src/classes/behaviortracker/)
+
+#### Returns
+
+`void`
+
+***
+
+### setSuspiciousCountsReader()
+
+> **setSuspiciousCountsReader**(`reader`): `void`
+
+Defined in: [packages/core/src/core/behavioral/processor.ts:52](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/core/behavioral/processor.ts#L52)
+
+#### Parameters
+
+##### reader
+
+`SuspiciousCountsReader`
 
 #### Returns
 

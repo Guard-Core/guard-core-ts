@@ -5,15 +5,15 @@ prev: false
 title: "BypassHandler"
 ---
 
-Defined in: [core/src/core/bypass/handler.ts:10](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/bypass/handler.ts#L10)
+Defined in: [packages/core/src/core/bypass/handler.ts:19](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/core/bypass/handler.ts#L19)
 
 ## Constructors
 
 ### Constructor
 
-> **new BypassHandler**(`config`, `eventBus`, `routeResolver`, `responseFactory`, `validator`): `BypassHandler`
+> **new BypassHandler**(`config`, `eventBus`, `routeResolver`, `responseFactory`, `validator`, `logger?`): `BypassHandler`
 
-Defined in: [core/src/core/bypass/handler.ts:11](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/bypass/handler.ts#L11)
+Defined in: [packages/core/src/core/bypass/handler.ts:22](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/core/bypass/handler.ts#L22)
 
 #### Parameters
 
@@ -23,9 +23,25 @@ Defined in: [core/src/core/bypass/handler.ts:11](https://github.com/Guard-Core/g
 
 `string` \| `null` = `...`
 
+###### agentBackoffFactor
+
+`number` \| `null` = `...`
+
+###### agentBufferOverflowPolicy
+
+`"drop"` \| `"block"` \| `"raise"` \| `null` = `...`
+
 ###### agentBufferSize
 
 `number` = `...`
+
+###### agentCompressionEnabled
+
+`boolean` \| `null` = `...`
+
+###### agentCompressionThreshold
+
+`number` \| `null` = `...`
 
 ###### agentEnableEvents
 
@@ -43,6 +59,34 @@ Defined in: [core/src/core/bypass/handler.ts:11](https://github.com/Guard-Core/g
 
 `number` = `...`
 
+###### agentGuardVersion
+
+`string` \| `null` = `...`
+
+###### agentHighWatermarkRatio
+
+`number` \| `null` = `...`
+
+###### agentInstallId
+
+`string` \| `null` = `...`
+
+###### agentMaxConcurrentFlushes
+
+`number` \| `null` = `...`
+
+###### agentMaxPayloadSize
+
+`number` \| `null` = `...`
+
+###### agentPayloadSigningSecret
+
+`string` \| `null` = `...`
+
+###### agentProjectEncryptionKey
+
+`string` \| `null` = `...`
+
 ###### agentProjectId
 
 `string` \| `null` = `...`
@@ -51,9 +95,25 @@ Defined in: [core/src/core/bypass/handler.ts:11](https://github.com/Guard-Core/g
 
 `number` = `...`
 
+###### agentSensitiveHeaders
+
+`string`[] \| `null` = `...`
+
+###### agentStatusInterval
+
+`number` = `...`
+
+###### agentStrict
+
+`boolean` = `...`
+
 ###### agentTimeout
 
 `number` = `...`
+
+###### authVerifier?
+
+(`request`, `credential`) => `unknown` = `...`
 
 ###### autoBanDuration
 
@@ -62,6 +122,14 @@ Defined in: [core/src/core/bypass/handler.ts:11](https://github.com/Guard-Core/g
 ###### autoBanThreshold
 
 `number` = `...`
+
+###### behaviorMaxResponseBodyInspectBytes
+
+`number` = `...`
+
+###### behaviorScanResponseBody
+
+`boolean` = `...`
 
 ###### blacklist
 
@@ -78,6 +146,14 @@ Defined in: [core/src/core/bypass/handler.ts:11](https://github.com/Guard-Core/g
 ###### blockedUserAgents
 
 `string`[] = `...`
+
+###### bodyReadMaxConcurrent
+
+`number` = `...`
+
+###### bodyReadTimeout
+
+`number` = `...`
 
 ###### cloudIpRefreshInterval
 
@@ -123,7 +199,15 @@ Defined in: [core/src/core/bypass/handler.ts:11](https://github.com/Guard-Core/g
 
 (`res`) => `Promise`\<[`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/)\> = `...`
 
+###### detectionAnomalyEmissionCooldown
+
+`number` = `...`
+
 ###### detectionAnomalyThreshold
+
+`number` = `...`
+
+###### detectionBinaryMinRunLength
 
 `number` = `...`
 
@@ -131,7 +215,27 @@ Defined in: [core/src/core/bypass/handler.ts:11](https://github.com/Guard-Core/g
 
 `number` = `...`
 
+###### detectionMaxBodyInspectBytes
+
+`number` = `...`
+
 ###### detectionMaxContentLength
+
+`number` = `...`
+
+###### detectionMaxJsonDepth
+
+`number` = `...`
+
+###### detectionMaxScanChars
+
+`number` = `...`
+
+###### detectionMaxScanSeconds
+
+`number` = `...`
+
+###### detectionMaxScanValues
 
 `number` = `...`
 
@@ -139,11 +243,27 @@ Defined in: [core/src/core/bypass/handler.ts:11](https://github.com/Guard-Core/g
 
 `number` = `...`
 
+###### detectionMinSamplesForAnomaly
+
+`number` = `...`
+
 ###### detectionMonitorHistorySize
 
 `number` = `...`
 
+###### detectionPatternValidationCachePath
+
+`string` \| `null` = `...`
+
 ###### detectionPreserveAttackPatterns
+
+`boolean` = `...`
+
+###### detectionScanBody
+
+`boolean` = `...`
+
+###### detectionScanWorkerPool
 
 `boolean` = `...`
 
@@ -155,9 +275,17 @@ Defined in: [core/src/core/bypass/handler.ts:11](https://github.com/Guard-Core/g
 
 `number` = `...`
 
+###### detectionThreatScoreThreshold
+
+`number` = `...`
+
 ###### dynamicRuleInterval
 
 `number` = `...`
+
+###### dynamicRulesCachePath
+
+`string` \| `null` = `...`
 
 ###### emergencyMode
 
@@ -175,7 +303,15 @@ Defined in: [core/src/core/bypass/handler.ts:11](https://github.com/Guard-Core/g
 
 `boolean` = `...`
 
+###### enabledDetectionCategories
+
+`string`[] = `...`
+
 ###### enableDynamicRules
+
+`boolean` = `...`
+
+###### enableEnrichment
 
 `boolean` = `...`
 
@@ -183,7 +319,19 @@ Defined in: [core/src/core/bypass/handler.ts:11](https://github.com/Guard-Core/g
 
 `boolean` = `...`
 
+###### enableLogfire
+
+`boolean` = `...`
+
+###### enableOtel
+
+`boolean` = `...`
+
 ###### enablePenetrationDetection
+
+`boolean` = `...`
+
+###### enableRateLimitAutoBan
 
 `boolean` = `...`
 
@@ -203,9 +351,37 @@ Defined in: [core/src/core/bypass/handler.ts:11](https://github.com/Guard-Core/g
 
 `boolean` = `...`
 
+###### excludedDetectionBodyFields
+
+`string`[] = `...`
+
+###### excludedDetectionHeaders
+
+`string`[] = `...`
+
+###### excludedDetectionParams
+
+`string`[] = `...`
+
+###### excludedSemanticDetectionHeaders
+
+`string`[] = `...`
+
 ###### excludePaths
 
 `string`[] = `...`
+
+###### exemptIps
+
+`string`[] = `...`
+
+###### failSecure
+
+`boolean` = `...`
+
+###### geoIpDbMaxAge
+
+`number` = `...`
 
 ###### geoIpHandler?
 
@@ -214,6 +390,30 @@ Defined in: [core/src/core/bypass/handler.ts:11](https://github.com/Guard-Core/g
 ###### geoResolver?
 
 (`ip`) => `string` \| `null` = `...`
+
+###### globalBehaviorRules
+
+`object`[] = `...`
+
+###### ipinfoDbPath
+
+`string` = `...`
+
+###### ipinfoToken
+
+`string` \| `null` = `...`
+
+###### lazyInit
+
+`boolean` = `...`
+
+###### logCountryCheckLevel
+
+`"INFO"` \| `"DEBUG"` \| `"WARNING"` \| `"ERROR"` \| `"CRITICAL"` \| `null` = `...`
+
+###### logfireServiceName
+
+`string` = `...`
 
 ###### logFormat
 
@@ -227,9 +427,53 @@ Defined in: [core/src/core/bypass/handler.ts:11](https://github.com/Guard-Core/g
 
 `"INFO"` \| `"DEBUG"` \| `"WARNING"` \| `"ERROR"` \| `"CRITICAL"` \| `null` = `...`
 
+###### logSensitiveBodyFields
+
+`string`[] = `...`
+
+###### logSensitiveHeaders
+
+`string`[] = `...`
+
+###### logSensitiveParams
+
+`string`[] = `...`
+
 ###### logSuspiciousLevel
 
 `"INFO"` \| `"DEBUG"` \| `"WARNING"` \| `"ERROR"` \| `"CRITICAL"` \| `null` = `...`
+
+###### mutedCheckLogs
+
+`string`[] = `...`
+
+###### mutedEventTypes
+
+`string`[] = `...`
+
+###### mutedMetricTypes
+
+`string`[] = `...`
+
+###### onBlock?
+
+(`request`, `payload`) => `unknown` = `...`
+
+###### onError?
+
+(`stage`, `error`, `context`) => `void` = `...`
+
+###### otelExporterEndpoint
+
+`string` \| `null` = `...`
+
+###### otelResourceAttributes
+
+`Record`\<`string`, `string`\> = `...`
+
+###### otelServiceName
+
+`string` = `...`
 
 ###### passiveMode
 
@@ -243,17 +487,49 @@ Defined in: [core/src/core/bypass/handler.ts:11](https://github.com/Guard-Core/g
 
 `number` = `...`
 
+###### redisFailOpen
+
+`boolean` = `...`
+
+###### redisHealthCheckInterval
+
+`number` = `...`
+
+###### redisMaxConnections
+
+`number` \| `null` = `...`
+
 ###### redisPrefix
 
 `string` = `...`
+
+###### redisRetries
+
+`number` = `...`
+
+###### redisSocketConnectTimeout
+
+`number` \| `null` = `...`
+
+###### redisSocketTimeout
+
+`number` \| `null` = `...`
 
 ###### redisUrl
 
 `string` = `...`
 
+###### routeResolutionStrict
+
+`boolean` = `...`
+
 ###### securityHeaders
 
 \{ `contentTypeOptions`: `string`; `csp`: `Record`\<`string`, `string`[]\> \| `null`; `custom`: `Record`\<`string`, `string`\> \| `null`; `enabled`: `boolean`; `frameOptions`: `"DENY"` \| `"SAMEORIGIN"`; `hsts?`: \{ `includeSubdomains`: `boolean`; `maxAge`: `number`; `preload`: `boolean`; \}; `permissionsPolicy`: `string`; `referrerPolicy`: `string`; `xssProtection`: `string`; \} \| `null` = `...`
+
+###### threatBanConfig
+
+`Record`\<`string`, \{ `duration`: `number`; `threshold`: `number`; \}\> = `...`
 
 ###### trustedProxies
 
@@ -291,17 +567,21 @@ Defined in: [core/src/core/bypass/handler.ts:11](https://github.com/Guard-Core/g
 
 [`RequestValidator`](/guard-core-ts/api/core/src/classes/requestvalidator/)
 
+##### logger?
+
+[`Logger`](/guard-core-ts/api/core/src/interfaces/logger/) = `defaultLogger`
+
 #### Returns
 
 `BypassHandler`
 
 ## Methods
 
-### handlePassthrough()
+### beginSecurityBypass()
 
-> **handlePassthrough**(`request`, `callNext`): `Promise`\<[`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/) \| `null`\>
+> **beginSecurityBypass**(`request`, `routeConfig`): `Promise`\<`boolean`\>
 
-Defined in: [core/src/core/bypass/handler.ts:19](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/bypass/handler.ts#L19)
+Defined in: [packages/core/src/core/bypass/handler.ts:103](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/core/bypass/handler.ts#L103)
 
 #### Parameters
 
@@ -309,7 +589,29 @@ Defined in: [core/src/core/bypass/handler.ts:19](https://github.com/Guard-Core/g
 
 [`GuardRequest`](/guard-core-ts/api/core/src/interfaces/guardrequest/)
 
-##### callNext
+##### routeConfig
+
+[`RouteConfig`](/guard-core-ts/api/core/src/classes/routeconfig/) \| `null`
+
+#### Returns
+
+`Promise`\<`boolean`\>
+
+***
+
+### handlePassthrough()
+
+> **handlePassthrough**(`request`, `_callNext?`): `Promise`\<[`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/) \| `null`\>
+
+Defined in: [packages/core/src/core/bypass/handler.ts:40](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/core/bypass/handler.ts#L40)
+
+#### Parameters
+
+##### request
+
+[`GuardRequest`](/guard-core-ts/api/core/src/interfaces/guardrequest/)
+
+##### \_callNext?
 
 (`req`) => `Promise`\<[`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/)\>
 
@@ -323,7 +625,7 @@ Defined in: [core/src/core/bypass/handler.ts:19](https://github.com/Guard-Core/g
 
 > **handleSecurityBypass**(`request`, `callNext`, `routeConfig`): `Promise`\<[`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/) \| `null`\>
 
-Defined in: [core/src/core/bypass/handler.ts:36](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/core/bypass/handler.ts#L36)
+Defined in: [packages/core/src/core/bypass/handler.ts:87](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/core/bypass/handler.ts#L87)
 
 #### Parameters
 

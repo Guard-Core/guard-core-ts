@@ -5,7 +5,7 @@ prev: false
 title: "GuardMiddlewareProtocol"
 ---
 
-Defined in: [core/src/protocols/middleware.ts:7](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L7)
+Defined in: [packages/core/src/protocols/middleware.ts:7](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/middleware.ts#L7)
 
 ## Properties
 
@@ -13,7 +13,7 @@ Defined in: [core/src/protocols/middleware.ts:7](https://github.com/Guard-Core/g
 
 > `readonly` **agentHandler**: [`AgentHandlerProtocol`](/guard-core-ts/api/core/src/interfaces/agenthandlerprotocol/) \| `null`
 
-Defined in: [core/src/protocols/middleware.ts:16](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L16)
+Defined in: [packages/core/src/protocols/middleware.ts:20](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/middleware.ts#L20)
 
 ***
 
@@ -21,15 +21,31 @@ Defined in: [core/src/protocols/middleware.ts:16](https://github.com/Guard-Core/
 
 > `readonly` **config**: `object`
 
-Defined in: [core/src/protocols/middleware.ts:8](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L8)
+Defined in: [packages/core/src/protocols/middleware.ts:8](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/middleware.ts#L8)
 
 #### agentApiKey
 
 > **agentApiKey**: `string` \| `null`
 
+#### agentBackoffFactor
+
+> **agentBackoffFactor**: `number` \| `null`
+
+#### agentBufferOverflowPolicy
+
+> **agentBufferOverflowPolicy**: `"drop"` \| `"block"` \| `"raise"` \| `null`
+
 #### agentBufferSize
 
 > **agentBufferSize**: `number`
+
+#### agentCompressionEnabled
+
+> **agentCompressionEnabled**: `boolean` \| `null`
+
+#### agentCompressionThreshold
+
+> **agentCompressionThreshold**: `number` \| `null`
 
 #### agentEnableEvents
 
@@ -47,6 +63,34 @@ Defined in: [core/src/protocols/middleware.ts:8](https://github.com/Guard-Core/g
 
 > **agentFlushInterval**: `number`
 
+#### agentGuardVersion
+
+> **agentGuardVersion**: `string` \| `null`
+
+#### agentHighWatermarkRatio
+
+> **agentHighWatermarkRatio**: `number` \| `null`
+
+#### agentInstallId
+
+> **agentInstallId**: `string` \| `null`
+
+#### agentMaxConcurrentFlushes
+
+> **agentMaxConcurrentFlushes**: `number` \| `null`
+
+#### agentMaxPayloadSize
+
+> **agentMaxPayloadSize**: `number` \| `null`
+
+#### agentPayloadSigningSecret
+
+> **agentPayloadSigningSecret**: `string` \| `null`
+
+#### agentProjectEncryptionKey
+
+> **agentProjectEncryptionKey**: `string` \| `null`
+
 #### agentProjectId
 
 > **agentProjectId**: `string` \| `null`
@@ -55,9 +99,39 @@ Defined in: [core/src/protocols/middleware.ts:8](https://github.com/Guard-Core/g
 
 > **agentRetryAttempts**: `number`
 
+#### agentSensitiveHeaders
+
+> **agentSensitiveHeaders**: `string`[] \| `null`
+
+#### agentStatusInterval
+
+> **agentStatusInterval**: `number`
+
+#### agentStrict
+
+> **agentStrict**: `boolean`
+
 #### agentTimeout
 
 > **agentTimeout**: `number`
+
+#### authVerifier?
+
+> `optional` **authVerifier?**: (`request`, `credential`) => `unknown`
+
+##### Parameters
+
+###### request
+
+[`GuardRequest`](/guard-core-ts/api/core/src/interfaces/guardrequest/)
+
+###### credential
+
+`string`
+
+##### Returns
+
+`unknown`
 
 #### autoBanDuration
 
@@ -66,6 +140,14 @@ Defined in: [core/src/protocols/middleware.ts:8](https://github.com/Guard-Core/g
 #### autoBanThreshold
 
 > **autoBanThreshold**: `number`
+
+#### behaviorMaxResponseBodyInspectBytes
+
+> **behaviorMaxResponseBodyInspectBytes**: `number`
+
+#### behaviorScanResponseBody
+
+> **behaviorScanResponseBody**: `boolean`
 
 #### blacklist
 
@@ -82,6 +164,14 @@ Defined in: [core/src/protocols/middleware.ts:8](https://github.com/Guard-Core/g
 #### blockedUserAgents
 
 > **blockedUserAgents**: `string`[]
+
+#### bodyReadMaxConcurrent
+
+> **bodyReadMaxConcurrent**: `number`
+
+#### bodyReadTimeout
+
+> **bodyReadTimeout**: `number`
 
 #### cloudIpRefreshInterval
 
@@ -147,29 +237,73 @@ Defined in: [core/src/protocols/middleware.ts:8](https://github.com/Guard-Core/g
 
 `Promise`\<[`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/)\>
 
+#### detectionAnomalyEmissionCooldown
+
+> **detectionAnomalyEmissionCooldown**: `number`
+
 #### detectionAnomalyThreshold
 
 > **detectionAnomalyThreshold**: `number`
+
+#### detectionBinaryMinRunLength
+
+> **detectionBinaryMinRunLength**: `number`
 
 #### detectionCompilerTimeout
 
 > **detectionCompilerTimeout**: `number`
 
+#### detectionMaxBodyInspectBytes
+
+> **detectionMaxBodyInspectBytes**: `number`
+
 #### detectionMaxContentLength
 
 > **detectionMaxContentLength**: `number`
+
+#### detectionMaxJsonDepth
+
+> **detectionMaxJsonDepth**: `number`
+
+#### detectionMaxScanChars
+
+> **detectionMaxScanChars**: `number`
+
+#### detectionMaxScanSeconds
+
+> **detectionMaxScanSeconds**: `number`
+
+#### detectionMaxScanValues
+
+> **detectionMaxScanValues**: `number`
 
 #### detectionMaxTrackedPatterns
 
 > **detectionMaxTrackedPatterns**: `number`
 
+#### detectionMinSamplesForAnomaly
+
+> **detectionMinSamplesForAnomaly**: `number`
+
 #### detectionMonitorHistorySize
 
 > **detectionMonitorHistorySize**: `number`
 
+#### detectionPatternValidationCachePath
+
+> **detectionPatternValidationCachePath**: `string` \| `null`
+
 #### detectionPreserveAttackPatterns
 
 > **detectionPreserveAttackPatterns**: `boolean`
+
+#### detectionScanBody
+
+> **detectionScanBody**: `boolean`
+
+#### detectionScanWorkerPool
+
+> **detectionScanWorkerPool**: `boolean`
 
 #### detectionSemanticThreshold
 
@@ -179,9 +313,17 @@ Defined in: [core/src/protocols/middleware.ts:8](https://github.com/Guard-Core/g
 
 > **detectionSlowPatternThreshold**: `number`
 
+#### detectionThreatScoreThreshold
+
+> **detectionThreatScoreThreshold**: `number`
+
 #### dynamicRuleInterval
 
 > **dynamicRuleInterval**: `number`
+
+#### dynamicRulesCachePath
+
+> **dynamicRulesCachePath**: `string` \| `null`
 
 #### emergencyMode
 
@@ -199,17 +341,37 @@ Defined in: [core/src/protocols/middleware.ts:8](https://github.com/Guard-Core/g
 
 > **enableCors**: `boolean`
 
+#### enabledDetectionCategories
+
+> **enabledDetectionCategories**: `string`[]
+
 #### enableDynamicRules
 
 > **enableDynamicRules**: `boolean`
+
+#### enableEnrichment
+
+> **enableEnrichment**: `boolean`
 
 #### enableIpBanning
 
 > **enableIpBanning**: `boolean`
 
+#### enableLogfire
+
+> **enableLogfire**: `boolean`
+
+#### enableOtel
+
+> **enableOtel**: `boolean`
+
 #### enablePenetrationDetection
 
 > **enablePenetrationDetection**: `boolean`
+
+#### enableRateLimitAutoBan
+
+> **enableRateLimitAutoBan**: `boolean`
 
 #### enableRateLimiting
 
@@ -227,9 +389,37 @@ Defined in: [core/src/protocols/middleware.ts:8](https://github.com/Guard-Core/g
 
 > **enforceHttps**: `boolean`
 
+#### excludedDetectionBodyFields
+
+> **excludedDetectionBodyFields**: `string`[]
+
+#### excludedDetectionHeaders
+
+> **excludedDetectionHeaders**: `string`[]
+
+#### excludedDetectionParams
+
+> **excludedDetectionParams**: `string`[]
+
+#### excludedSemanticDetectionHeaders
+
+> **excludedSemanticDetectionHeaders**: `string`[]
+
 #### excludePaths
 
 > **excludePaths**: `string`[]
+
+#### exemptIps
+
+> **exemptIps**: `string`[]
+
+#### failSecure
+
+> **failSecure**: `boolean`
+
+#### geoIpDbMaxAge
+
+> **geoIpDbMaxAge**: `number`
 
 #### geoIpHandler?
 
@@ -249,6 +439,30 @@ Defined in: [core/src/protocols/middleware.ts:8](https://github.com/Guard-Core/g
 
 `string` \| `null`
 
+#### globalBehaviorRules
+
+> **globalBehaviorRules**: `object`[]
+
+#### ipinfoDbPath
+
+> **ipinfoDbPath**: `string`
+
+#### ipinfoToken
+
+> **ipinfoToken**: `string` \| `null`
+
+#### lazyInit
+
+> **lazyInit**: `boolean`
+
+#### logCountryCheckLevel
+
+> **logCountryCheckLevel**: `"INFO"` \| `"DEBUG"` \| `"WARNING"` \| `"ERROR"` \| `"CRITICAL"` \| `null`
+
+#### logfireServiceName
+
+> **logfireServiceName**: `string`
+
 #### logFormat
 
 > **logFormat**: `"text"` \| `"json"`
@@ -261,9 +475,85 @@ Defined in: [core/src/protocols/middleware.ts:8](https://github.com/Guard-Core/g
 
 > **logRequestLevel**: `"INFO"` \| `"DEBUG"` \| `"WARNING"` \| `"ERROR"` \| `"CRITICAL"` \| `null`
 
+#### logSensitiveBodyFields
+
+> **logSensitiveBodyFields**: `string`[]
+
+#### logSensitiveHeaders
+
+> **logSensitiveHeaders**: `string`[]
+
+#### logSensitiveParams
+
+> **logSensitiveParams**: `string`[]
+
 #### logSuspiciousLevel
 
 > **logSuspiciousLevel**: `"INFO"` \| `"DEBUG"` \| `"WARNING"` \| `"ERROR"` \| `"CRITICAL"` \| `null`
+
+#### mutedCheckLogs
+
+> **mutedCheckLogs**: `string`[]
+
+#### mutedEventTypes
+
+> **mutedEventTypes**: `string`[]
+
+#### mutedMetricTypes
+
+> **mutedMetricTypes**: `string`[]
+
+#### onBlock?
+
+> `optional` **onBlock?**: (`request`, `payload`) => `unknown`
+
+##### Parameters
+
+###### request
+
+[`GuardRequest`](/guard-core-ts/api/core/src/interfaces/guardrequest/)
+
+###### payload
+
+`Record`\<`string`, `unknown`\>
+
+##### Returns
+
+`unknown`
+
+#### onError?
+
+> `optional` **onError?**: (`stage`, `error`, `context`) => `void`
+
+##### Parameters
+
+###### stage
+
+`string`
+
+###### error
+
+`unknown`
+
+###### context
+
+`Record`\<`string`, `unknown`\>
+
+##### Returns
+
+`void`
+
+#### otelExporterEndpoint
+
+> **otelExporterEndpoint**: `string` \| `null`
+
+#### otelResourceAttributes
+
+> **otelResourceAttributes**: `Record`\<`string`, `string`\>
+
+#### otelServiceName
+
+> **otelServiceName**: `string`
 
 #### passiveMode
 
@@ -277,17 +567,49 @@ Defined in: [core/src/protocols/middleware.ts:8](https://github.com/Guard-Core/g
 
 > **rateLimitWindow**: `number`
 
+#### redisFailOpen
+
+> **redisFailOpen**: `boolean`
+
+#### redisHealthCheckInterval
+
+> **redisHealthCheckInterval**: `number`
+
+#### redisMaxConnections
+
+> **redisMaxConnections**: `number` \| `null`
+
 #### redisPrefix
 
 > **redisPrefix**: `string`
+
+#### redisRetries
+
+> **redisRetries**: `number`
+
+#### redisSocketConnectTimeout
+
+> **redisSocketConnectTimeout**: `number` \| `null`
+
+#### redisSocketTimeout
+
+> **redisSocketTimeout**: `number` \| `null`
 
 #### redisUrl
 
 > **redisUrl**: `string`
 
+#### routeResolutionStrict
+
+> **routeResolutionStrict**: `boolean`
+
 #### securityHeaders
 
 > **securityHeaders**: \{ `contentTypeOptions`: `string`; `csp`: `Record`\<`string`, `string`[]\> \| `null`; `custom`: `Record`\<`string`, `string`\> \| `null`; `enabled`: `boolean`; `frameOptions`: `"DENY"` \| `"SAMEORIGIN"`; `hsts?`: \{ `includeSubdomains`: `boolean`; `maxAge`: `number`; `preload`: `boolean`; \}; `permissionsPolicy`: `string`; `referrerPolicy`: `string`; `xssProtection`: `string`; \} \| `null`
+
+#### threatBanConfig
+
+> **threatBanConfig**: `Record`\<`string`, \{ `duration`: `number`; `threshold`: `number`; \}\>
 
 #### trustedProxies
 
@@ -315,7 +637,7 @@ Defined in: [core/src/protocols/middleware.ts:8](https://github.com/Guard-Core/g
 
 > `readonly` **eventBus**: `unknown`
 
-Defined in: [core/src/protocols/middleware.ts:12](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L12)
+Defined in: [packages/core/src/protocols/middleware.ts:16](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/middleware.ts#L16)
 
 ***
 
@@ -323,7 +645,7 @@ Defined in: [core/src/protocols/middleware.ts:12](https://github.com/Guard-Core/
 
 > `readonly` **geoIpHandler**: [`GeoIPHandler`](/guard-core-ts/api/core/src/interfaces/geoiphandler/) \| `null`
 
-Defined in: [core/src/protocols/middleware.ts:17](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L17)
+Defined in: [packages/core/src/protocols/middleware.ts:21](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/middleware.ts#L21)
 
 ***
 
@@ -331,7 +653,7 @@ Defined in: [core/src/protocols/middleware.ts:17](https://github.com/Guard-Core/
 
 > `readonly` **guardResponseFactory**: [`GuardResponseFactory`](/guard-core-ts/api/core/src/interfaces/guardresponsefactory/)
 
-Defined in: [core/src/protocols/middleware.ts:18](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L18)
+Defined in: [packages/core/src/protocols/middleware.ts:22](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/middleware.ts#L22)
 
 ***
 
@@ -339,7 +661,7 @@ Defined in: [core/src/protocols/middleware.ts:18](https://github.com/Guard-Core/
 
 > **lastCloudIpRefresh**: `number`
 
-Defined in: [core/src/protocols/middleware.ts:10](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L10)
+Defined in: [packages/core/src/protocols/middleware.ts:10](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/middleware.ts#L10)
 
 ***
 
@@ -347,7 +669,7 @@ Defined in: [core/src/protocols/middleware.ts:10](https://github.com/Guard-Core/
 
 > `readonly` **logger**: [`Logger`](/guard-core-ts/api/core/src/interfaces/logger/)
 
-Defined in: [core/src/protocols/middleware.ts:9](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L9)
+Defined in: [packages/core/src/protocols/middleware.ts:9](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/middleware.ts#L9)
 
 ***
 
@@ -355,7 +677,7 @@ Defined in: [core/src/protocols/middleware.ts:9](https://github.com/Guard-Core/g
 
 > `readonly` **rateLimitHandler**: `unknown`
 
-Defined in: [core/src/protocols/middleware.ts:15](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L15)
+Defined in: [packages/core/src/protocols/middleware.ts:19](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/middleware.ts#L19)
 
 ***
 
@@ -363,7 +685,7 @@ Defined in: [core/src/protocols/middleware.ts:15](https://github.com/Guard-Core/
 
 > `readonly` **responseFactory**: `unknown`
 
-Defined in: [core/src/protocols/middleware.ts:14](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L14)
+Defined in: [packages/core/src/protocols/middleware.ts:18](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/middleware.ts#L18)
 
 ***
 
@@ -371,15 +693,15 @@ Defined in: [core/src/protocols/middleware.ts:14](https://github.com/Guard-Core/
 
 > `readonly` **routeResolver**: `unknown`
 
-Defined in: [core/src/protocols/middleware.ts:13](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L13)
+Defined in: [packages/core/src/protocols/middleware.ts:17](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/middleware.ts#L17)
 
 ***
 
 ### suspiciousRequestCounts
 
-> **suspiciousRequestCounts**: `Map`\<`string`, `number`\>
+> **suspiciousRequestCounts**: `Map`\<`string`, `Map`\<`string`, `number`\>\>
 
-Defined in: [core/src/protocols/middleware.ts:11](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L11)
+Defined in: [packages/core/src/protocols/middleware.ts:15](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/middleware.ts#L15)
 
 ## Methods
 
@@ -387,7 +709,7 @@ Defined in: [core/src/protocols/middleware.ts:11](https://github.com/Guard-Core/
 
 > **createErrorResponse**(`statusCode`, `defaultMessage`): `Promise`\<[`GuardResponse`](/guard-core-ts/api/core/src/interfaces/guardresponse/)\>
 
-Defined in: [core/src/protocols/middleware.ts:19](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L19)
+Defined in: [packages/core/src/protocols/middleware.ts:23](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/middleware.ts#L23)
 
 #### Parameters
 
@@ -409,7 +731,7 @@ Defined in: [core/src/protocols/middleware.ts:19](https://github.com/Guard-Core/
 
 > **refreshCloudIpRanges**(): `Promise`\<`void`\>
 
-Defined in: [core/src/protocols/middleware.ts:20](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/middleware.ts#L20)
+Defined in: [packages/core/src/protocols/middleware.ts:24](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/middleware.ts#L24)
 
 #### Returns
 

@@ -5,7 +5,7 @@ prev: false
 title: "GuardResponse"
 ---
 
-Defined in: [core/src/protocols/response.ts:1](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/response.ts#L1)
+Defined in: [packages/core/src/protocols/response.ts:1](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/response.ts#L1)
 
 ## Properties
 
@@ -13,7 +13,7 @@ Defined in: [core/src/protocols/response.ts:1](https://github.com/Guard-Core/gua
 
 > `readonly` **body**: `Uint8Array`\<`ArrayBufferLike`\> \| `null`
 
-Defined in: [core/src/protocols/response.ts:5](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/response.ts#L5)
+Defined in: [packages/core/src/protocols/response.ts:5](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/response.ts#L5)
 
 ***
 
@@ -21,7 +21,7 @@ Defined in: [core/src/protocols/response.ts:5](https://github.com/Guard-Core/gua
 
 > `readonly` **bodyText**: `string` \| `null`
 
-Defined in: [core/src/protocols/response.ts:6](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/response.ts#L6)
+Defined in: [packages/core/src/protocols/response.ts:6](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/response.ts#L6)
 
 ***
 
@@ -29,7 +29,7 @@ Defined in: [core/src/protocols/response.ts:6](https://github.com/Guard-Core/gua
 
 > `readonly` **headers**: `Record`\<`string`, `string`\>
 
-Defined in: [core/src/protocols/response.ts:3](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/response.ts#L3)
+Defined in: [packages/core/src/protocols/response.ts:3](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/response.ts#L3)
 
 ***
 
@@ -37,7 +37,7 @@ Defined in: [core/src/protocols/response.ts:3](https://github.com/Guard-Core/gua
 
 > `readonly` **statusCode**: `number`
 
-Defined in: [core/src/protocols/response.ts:2](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/response.ts#L2)
+Defined in: [packages/core/src/protocols/response.ts:2](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/response.ts#L2)
 
 ## Methods
 
@@ -45,7 +45,7 @@ Defined in: [core/src/protocols/response.ts:2](https://github.com/Guard-Core/gua
 
 > **setHeader**(`name`, `value`): `void`
 
-Defined in: [core/src/protocols/response.ts:4](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/protocols/response.ts#L4)
+Defined in: [packages/core/src/protocols/response.ts:4](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/protocols/response.ts#L4)
 
 #### Parameters
 

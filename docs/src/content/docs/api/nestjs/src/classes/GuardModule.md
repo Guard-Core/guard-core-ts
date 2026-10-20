@@ -5,7 +5,7 @@ prev: false
 title: "GuardModule"
 ---
 
-Defined in: [nestjs/src/guard-module.ts:73](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/guard-module.ts#L73)
+Defined in: [packages/nestjs/src/guard-module.ts:157](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/nestjs/src/guard-module.ts#L157)
 
 ## Constructors
 
@@ -23,7 +23,7 @@ Defined in: [nestjs/src/guard-module.ts:73](https://github.com/Guard-Core/guard-
 
 > **configure**(`consumer`): `void`
 
-Defined in: [nestjs/src/guard-module.ts:99](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/guard-module.ts#L99)
+Defined in: [packages/nestjs/src/guard-module.ts:200](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/nestjs/src/guard-module.ts#L200)
 
 #### Parameters
 
@@ -41,7 +41,7 @@ Defined in: [nestjs/src/guard-module.ts:99](https://github.com/Guard-Core/guard-
 
 > `static` **forRoot**(`options`): `DynamicModule`
 
-Defined in: [nestjs/src/guard-module.ts:74](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/nestjs/src/guard-module.ts#L74)
+Defined in: [packages/nestjs/src/guard-module.ts:158](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/nestjs/src/guard-module.ts#L158)
 
 #### Parameters
 

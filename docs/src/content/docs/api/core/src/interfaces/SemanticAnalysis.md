@@ -5,7 +5,7 @@ prev: false
 title: "SemanticAnalysis"
 ---
 
-Defined in: [core/src/detection-engine/semantic.ts:44](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L44)
+Defined in: [packages/core/src/detection-engine/semantic.ts:100](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/semantic.ts#L100)
 
 ## Properties
 
@@ -13,7 +13,7 @@ Defined in: [core/src/detection-engine/semantic.ts:44](https://github.com/Guard-
 
 > **attackProbabilities**: `Record`\<`string`, `number`\>
 
-Defined in: [core/src/detection-engine/semantic.ts:45](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L45)
+Defined in: [packages/core/src/detection-engine/semantic.ts:101](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/semantic.ts#L101)
 
 ***
 
@@ -21,7 +21,7 @@ Defined in: [core/src/detection-engine/semantic.ts:45](https://github.com/Guard-
 
 > **codeInjectionRisk**: `number`
 
-Defined in: [core/src/detection-engine/semantic.ts:55](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L55)
+Defined in: [packages/core/src/detection-engine/semantic.ts:106](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/semantic.ts#L106)
 
 ***
 
@@ -29,7 +29,7 @@ Defined in: [core/src/detection-engine/semantic.ts:55](https://github.com/Guard-
 
 > **encodingLayers**: `number`
 
-Defined in: [core/src/detection-engine/semantic.ts:47](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L47)
+Defined in: [packages/core/src/detection-engine/semantic.ts:103](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/semantic.ts#L103)
 
 ***
 
@@ -37,7 +37,7 @@ Defined in: [core/src/detection-engine/semantic.ts:47](https://github.com/Guard-
 
 > **entropy**: `number`
 
-Defined in: [core/src/detection-engine/semantic.ts:46](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L46)
+Defined in: [packages/core/src/detection-engine/semantic.ts:102](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/semantic.ts#L102)
 
 ***
 
@@ -45,31 +45,15 @@ Defined in: [core/src/detection-engine/semantic.ts:46](https://github.com/Guard-
 
 > **isObfuscated**: `boolean`
 
-Defined in: [core/src/detection-engine/semantic.ts:48](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L48)
+Defined in: [packages/core/src/detection-engine/semantic.ts:104](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/semantic.ts#L104)
 
 ***
 
 ### suspiciousPatterns
 
-> **suspiciousPatterns**: `object`[]
+> **suspiciousPatterns**: `SuspiciousPattern`[]
 
-Defined in: [core/src/detection-engine/semantic.ts:49](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L49)
-
-#### context
-
-> **context**: `string`
-
-#### pattern
-
-> **pattern**: `string`
-
-#### position
-
-> **position**: `number`
-
-#### type
-
-> **type**: `string`
+Defined in: [packages/core/src/detection-engine/semantic.ts:105](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/semantic.ts#L105)
 
 ***
 
@@ -77,4 +61,4 @@ Defined in: [core/src/detection-engine/semantic.ts:49](https://github.com/Guard-
 
 > **tokenCount**: `number`
 
-Defined in: [core/src/detection-engine/semantic.ts:56](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/detection-engine/semantic.ts#L56)
+Defined in: [packages/core/src/detection-engine/semantic.ts:107](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/detection-engine/semantic.ts#L107)

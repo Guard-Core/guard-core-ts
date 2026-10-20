@@ -5,9 +5,9 @@ prev: false
 title: "logActivity"
 ---
 
-> **logActivity**(`request`, `logger`, `logType?`, `reason?`, `passiveMode?`, `triggerInfo?`, `level?`): `void`
+> **logActivity**(`request`, `logger`, `logType?`, `reason?`, `passiveMode?`, `triggerInfo?`, `level?`, `hooks?`): `void`
 
-Defined in: [core/src/utils.ts:316](https://github.com/Guard-Core/guard-core-ts/blob/b49ed8cdbf992765ff7882327eaf5f8a9461242e/packages/core/src/utils.ts#L316)
+Defined in: [packages/core/src/utils.ts:1115](https://github.com/Guard-Core/guard-core-ts/blob/772db2916717516ad477ac515f458b80fb9ccaba/packages/core/src/utils.ts#L1115)
 
 ## Parameters
 
@@ -38,6 +38,32 @@ Defined in: [core/src/utils.ts:316](https://github.com/Guard-Core/guard-core-ts/
 ### level?
 
 `"INFO"` \| `"DEBUG"` \| `"WARNING"` \| `"ERROR"` \| `"CRITICAL"` \| `null`
+
+### hooks?
+
+#### checkName?
+
+`string`
+
+#### mutedCheckLogs?
+
+`ReadonlySet`\<`string`\> \| `null`
+
+#### onBlock?
+
+((`request`, `payload`) => `unknown`) \| `null`
+
+#### sensitiveBodyFields?
+
+`Iterable`\<`string`, `any`, `any`\> \| `null`
+
+#### sensitiveHeaders?
+
+`Iterable`\<`string`, `any`, `any`\> \| `null`
+
+#### sensitiveParams?
+
+`Iterable`\<`string`, `any`, `any`\> \| `null`
 
 ## Returns
 
