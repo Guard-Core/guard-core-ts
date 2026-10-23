@@ -26,7 +26,7 @@
   "dependencies": {
     "@guardcore/core": "workspace:^",
     "fastify-plugin": "^6.0.1",
-    "guardagent": "^3.2.3"
+    "guardagent": "^3.2.4"
   },
   "devDependencies": {
     "@fastify/cors": "^11.3.1",
