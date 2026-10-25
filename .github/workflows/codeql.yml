@@ -24,15 +24,15 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4.39.0
+        uses: github/codeql-action/init@v4.39.1
         with:
           languages: javascript-typescript,actions
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4.39.0
+        uses: github/codeql-action/analyze@v4.39.1
         with:
           # The category of the earlier `analyze` job, so the existing analyses and alerts carry over.
           category: /language:javascript-typescript
