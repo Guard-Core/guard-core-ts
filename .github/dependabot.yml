@@ -7,6 +7,10 @@ updates:
       day: "monday"
       time: "02:00"
       timezone: "UTC"
+    groups:
+      actions:
+        patterns:
+          - "*"
 
   - package-ecosystem: npm
     directory: /
@@ -27,3 +31,11 @@ updates:
       # TS7-compatible dts pipeline.
       - dependency-name: typescript
         versions: [">=6"]
+      # tsup 9 requires an ESM-only dependency chain (cac) that breaks the
+      # Node 18 leg of the test matrix with ERR_REQUIRE_ESM, and vite 8
+      # dropped Node 18 as well. Hold both on their current majors until the
+      # repository drops Node 18 from CI.
+      - dependency-name: tsup
+        versions: [">=9"]
+      - dependency-name: vite
+        versions: [">=8"]
