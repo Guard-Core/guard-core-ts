@@ -9,8 +9,8 @@
   "dependencies": {
     "@guardcore/core": "workspace:*",
     "@guardcore/fastify": "workspace:*",
-    "@fastify/cors": "^11.3.1",
-    "fastify": "^5.12.7"
+    "@fastify/cors": "^11.4.1",
+    "fastify": "^5.12.8"
   },
   "devDependencies": {
     "tsx": "^4.20.6"

@@ -29,7 +29,7 @@
     "guardagent": "^3.2.4"
   },
   "devDependencies": {
-    "@fastify/cors": "^11.3.1",
+    "@fastify/cors": "^11.4.1",
     "@types/node": "^26.6.6",
     "fastify": "^5",
     "tsup": "^8",
