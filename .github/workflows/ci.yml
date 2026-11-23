@@ -28,8 +28,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        node-version: [18, 20, 22]
+        # vitest 5.1 supports node ^22.12 || ^24 (its engines field); node 18 and 20 are checked by runtime-smoke.
+        node-version: [22, 24]
     services:
       redis:
         image: redis:7-alpine
@@ -49,15 +51,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
-      - if: matrix.node-version != 18
-        run: pnpm test
-        env:
-          REDIS_URL: redis://localhost:6379
-      # @guardcore/fastify supports node 20+, like fastify v5 itself: fastify's
-      # inject() loads the ESM-only cookie 2 through require(), which node 18
-      # does not provide.
-      - if: matrix.node-version == 18
-        run: pnpm test --filter='!@guardcore/fastify'
+      - run: pnpm test
         env:
           REDIS_URL: redis://localhost:6379
       # The coverage gate runs once on the newest node: vitest 5.x coverage
@@ -71,6 +65,33 @@ jobs:
         run: |
           for pkg in core express fastify nestjs hono; do
             test -f "packages/$pkg/coverage/coverage-summary.json" || { echo "missing coverage report for $pkg"; exit 1; }
+          done
+
+  runtime-smoke:
+    # The published packages support node >= 18 (>= 20 for @guardcore/fastify, like fastify v5): every built
+    # package must load as ESM and as CJS on the oldest supported nodes, where the test runner itself cannot run.
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [18, 20]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - name: Every package loads as ESM and as CJS
+        run: |
+          packages="core express hono nestjs"
+          if [ "${{ matrix.node-version }}" != "18" ]; then packages="$packages fastify"; fi
+          for pkg in $packages; do
+            node -e "require('./packages/$pkg/dist/index.cjs')"
+            node --input-type=module -e "await import('./packages/$pkg/dist/index.js')"
+            echo "loaded @guardcore/$pkg on node ${{ matrix.node-version }}"
           done
 
   build:
@@ -126,7 +147,7 @@ jobs:
     # The context master-rule requires: it reports on every run and fails when a job above failed or was
     # cancelled. A skipped job counts as passed.
     if: always()
-    needs: [lint, test, build, conformance, dependency-audit]
+    needs: [lint, test, runtime-smoke, build, conformance, dependency-audit]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
