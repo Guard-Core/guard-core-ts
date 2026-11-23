@@ -68,8 +68,9 @@ jobs:
           done
 
   runtime-smoke:
-    # The published packages support node >= 18 (>= 20 for @guardcore/fastify, like fastify v5): every built
-    # package must load as ESM and as CJS on the oldest supported nodes, where the test runner itself cannot run.
+    # The published packages support node >= 18 (>= 20 for @guardcore/fastify, like fastify v5; >= 20.19 for
+    # @guardcore/nestjs, whose ESM-only NestJS 12 peer needs require() of ES modules): every built package must
+    # load as ESM and as CJS on the oldest supported nodes, where the test runner itself cannot run.
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -86,8 +87,8 @@ jobs:
       - run: pnpm build
       - name: Every package loads as ESM and as CJS
         run: |
-          packages="core express hono nestjs"
-          if [ "${{ matrix.node-version }}" != "18" ]; then packages="$packages fastify"; fi
+          packages="core express hono"
+          if [ "${{ matrix.node-version }}" != "18" ]; then packages="$packages fastify nestjs"; fi
           for pkg in $packages; do
             node -e "require('./packages/$pkg/dist/index.cjs')"
             node --input-type=module -e "await import('./packages/$pkg/dist/index.js')"
