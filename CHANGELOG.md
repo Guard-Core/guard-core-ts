@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- `@guardcore/nestjs` declares Node >= 20.19 (was >= 18): its NestJS 12 peer ships only ES modules, and the CommonJS build loads it with `require()`, which Node 18 and Node 20 before 20.19 cannot do (they fail with `ERR_REQUIRE_ESM`). The ES module build was never affected. The other packages keep their floors.
+
 ## [4.4.0] - 2026-10-15
 
 The scan-budget release, with client IP, IP list and dynamic rule parity with the reference engine and adapters that reach the real handler. Lockstep release with the core engines at 4.4.0.
